@@ -9,6 +9,7 @@
 #include "XBMPLabel.h"
 #include "Debug.h"
 #include "ErrorScreen.h"
+#include "HelloWorldScene.h"
 
 #define FILL(_ITEM_SIZE_, _FILL_SIZE_) std::max(_FILL_SIZE_.width / _ITEM_SIZE_.width, _FILL_SIZE_.height / _ITEM_SIZE_.height)
 #define MAX_PLAYER_HEIGHT 48.0
@@ -91,6 +92,9 @@ void PlayerSelection::touchedSelectorEvent(int selectedIndex) {
 void PlayerSelection::keyPressedEvent(cocos2d::EventKeyboard::KeyCode keycode, cocos2d::Event*) {
 	if (keycode == EventKeyboard::KeyCode::KEY_ENTER) {
 		startGame();
+	}
+	else if (keycode == EventKeyboard::KeyCode::KEY_ESCAPE){
+			Director::getInstance()->replaceScene(cocos2d::TransitionFade::create(0.5, HelloWorld::createScene()));
 	}
 }
 
