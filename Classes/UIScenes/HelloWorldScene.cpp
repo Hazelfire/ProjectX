@@ -76,7 +76,7 @@ bool HelloWorld::init()
 	Sprite* title = Sprite::create(TITLE_TEXT_IMAGE);
 	if (title) {
 		title->getTexture()->setAliasTexParameters();
-		title->setScale(std::max(visibleSize.height / title->getContentSize().height, visibleSize.width / title->getContentSize().width));
+		title->setScale(std::min(visibleSize.height / title->getContentSize().height, visibleSize.width / title->getContentSize().width));
 		title->setAnchorPoint(Vec2(0, 0));
 		title->setPosition(origin);
 		addChild(title);
