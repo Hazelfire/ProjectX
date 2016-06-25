@@ -82,6 +82,15 @@ bool PlayerSelection::init(GameMode flag) {
 	keyListener->onKeyPressed = CC_CALLBACK_2(PlayerSelection::keyPressedEvent, this);
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(keyListener, this);
 
+
+	// Corner quit button
+	XBMPLabel* quitLabel = XBMPLabel::create("quit", "Pixelfont", 50, XBMPLabel::LEFT);
+	quitLabel->setAnchorPoint(Vec2(0,0));
+	quitLabel->setPosition(origin);
+	quitLabel->setCallback([]() {
+		Director::getInstance()->replaceScene(cocos2d::TransitionFade::create(0.5, HelloWorld::createScene()));
+	});
+	addChild(quitLabel);
 	return true;
 }
 
