@@ -1,0 +1,5 @@
+#define MAPTILE_WIDTH 32
+#define MAPTILE_HEIGHT 24
+
+#define CHUNK_WIDTH 20
+#define CHUNK_HEIGHT 20

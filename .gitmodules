@@ -1,0 +1,15 @@
+[submodule "cocos2d"]
+	path = cocos2d
+	url = https://github.com/cocos2d/cocos2d-x.git
+[submodule "external/websocketpp"]
+	path = external/websocketpp
+	url = https://github.com/zaphoyd/websocketpp.git
+[submodule "external/yaml-cpp"]
+	path = external/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git
+[submodule "Resources"]
+	path = Resources
+	url = ssh://xnode@hazelfire.ddns.net:44076/~/ProjectXResources.git
+[submodule "Documentation"]
+	path = Documentation
+	url = ssh://xnode@hazelfire.ddns.net:44076/~/ProjectXDocs.git
