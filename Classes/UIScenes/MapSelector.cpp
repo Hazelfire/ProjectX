@@ -77,7 +77,7 @@ bool MapSelector::init(GameInformation gameInfo, GameMode mode) {
 			startGame(swipeSelector->getSelectedItemIndex());
 		}
 		else if (code == EventKeyboard::KeyCode::KEY_ESCAPE) {
-			Director::getInstance()->replaceScene(TransitionFade::create(0.5f, PlayerSelection::create(m_gameMode)));
+			Director::getInstance()->replaceScene(PlayerSelection::create(m_gameMode));
 		}
 	};
 
@@ -88,7 +88,7 @@ bool MapSelector::init(GameInformation gameInfo, GameMode mode) {
 	quitLabel->setAnchorPoint(Vec2(0, 0));
 	quitLabel->setPosition(origin);
 	quitLabel->setCallback([this]() {
-		Director::getInstance()->replaceScene(cocos2d::TransitionFade::create(0.5,PlayerSelection::create(m_gameMode)));
+		Director::getInstance()->replaceScene(PlayerSelection::create(m_gameMode));
 	});
 	addChild(quitLabel);
 
