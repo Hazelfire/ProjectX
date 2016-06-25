@@ -17,9 +17,6 @@ public:
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
 
-	// Keyboard listener the listens to the escape key (for close)
-	static void globalKeyListener(cocos2d::EventKeyboard::KeyCode, cocos2d::Event*);
-
 	// Asks for the players name if they have none
 	void queryPlayerName();
 };

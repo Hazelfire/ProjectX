@@ -138,11 +138,6 @@ bool HelloWorld::init()
 	exit->setPosition(origin.x + 10, origin.y + (visibleSize.height / 2) - 3 * (TEXT_SIZE + (TEXT_SIZE / 2)));
 	addChild(exit);
 
-	// Escape listener for canceling game
-	EventListenerKeyboard* escapeCancel = EventListenerKeyboard::create();
-	escapeCancel->onKeyPressed = globalKeyListener;
-	
-	Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(escapeCancel, 1);
 
 
 	// Checking if the player has inputed a name
@@ -157,11 +152,6 @@ bool HelloWorld::init()
     return true;
 }
 
-void HelloWorld::globalKeyListener(cocos2d::EventKeyboard::KeyCode keycode, cocos2d::Event*) {
-	if (keycode == cocos2d::EventKeyboard::KeyCode::KEY_ESCAPE) {
-		Director::getInstance()->end();
-	}
-}
 
 void HelloWorld::queryPlayerName() {
 
