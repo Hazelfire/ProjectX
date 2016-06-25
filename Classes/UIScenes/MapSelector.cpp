@@ -8,6 +8,7 @@
 #include  "ResourceMacros.h"
 #include "Debug.h"
 #include "ErrorScreen.h"
+#include "PlayerSelector.h"
 
 #define FILL(_ITEM_SIZE_, _FILL_SIZE_) std::max(_FILL_SIZE_.width / _ITEM_SIZE_.width, _FILL_SIZE_.height / _ITEM_SIZE_.height)
 
@@ -30,12 +31,12 @@ bool MapSelector::init(GameInformation gameInfo, GameMode mode) {
 		return false;
 	}
 	Size visibleSize = Director::getInstance()->getVisibleSize();
-
+	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 	
 	Sprite* background = Sprite::create(MAP_SELECTION_BACKGROUND);
 	if (background) {
 		background->setScale(FILL(background->getContentSize(), visibleSize));
-		background->setPosition(visibleSize / 2);
+		background->setPosition(origin + visibleSize / 2);
 		addChild(background);
 	}
 	else {
@@ -62,7 +63,7 @@ bool MapSelector::init(GameInformation gameInfo, GameMode mode) {
 	// creates a swipe selector for the entire screen
 	SwipeSelector* swipeSelector = SwipeSelector::create(nodeVector, visibleSize);
 	swipeSelector->setAnchorPoint(Vec2(0,0));
-
+	swipeSelector->setPosition(origin);
 	swipeSelector->setTouchCallback(CC_CALLBACK_1(MapSelector::startGame, this));
 	addChild(swipeSelector);
 
@@ -75,9 +76,22 @@ bool MapSelector::init(GameInformation gameInfo, GameMode mode) {
 		if (code == EventKeyboard::KeyCode::KEY_ENTER) {
 			startGame(swipeSelector->getSelectedItemIndex());
 		}
+		else if (code == EventKeyboard::KeyCode::KEY_ESCAPE) {
+			Director::getInstance()->replaceScene(TransitionFade::create(0.5f, PlayerSelection::create(m_gameMode)));
+		}
 	};
 
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(keyboardListener, this);
+
+	// Quit button
+	XBMPLabel* quitLabel = XBMPLabel::create("quit", "Pixelfont", 50, XBMPLabel::LEFT);
+	quitLabel->setAnchorPoint(Vec2(0, 0));
+	quitLabel->setPosition(origin);
+	quitLabel->setCallback([this]() {
+		Director::getInstance()->replaceScene(cocos2d::TransitionFade::create(0.5,PlayerSelection::create(m_gameMode)));
+	});
+	addChild(quitLabel);
+
 	return true;
 }
 
