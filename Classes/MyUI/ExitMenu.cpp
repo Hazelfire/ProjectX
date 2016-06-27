@@ -22,4 +22,5 @@ bool ExitMenu::init() {
 	Sprite* background = Sprite::create(EXIT_MENU_BACKGROUND);
 	background->setScale((visibleSize.width / 5) / background->getContentSize().width, (visibleSize.height / 2) / background->getContentSize().height);
 	addChild(background);
+	return false;
 }
