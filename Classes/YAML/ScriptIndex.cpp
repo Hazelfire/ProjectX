@@ -137,12 +137,7 @@ std::string ScriptParser::createScriptIndex(std::string fileName) {
 	using namespace boost::filesystem;
 	// Linux does not empty the resources folder into the excecutable's directory
 	// but instead inside a Resources folder
-
-#if CC_TARGET_PLATFORM == CC_PLATFORM_LINUX
-	std::string directory = FOLDER_FROM_PATH("Resources/" + fileName);
-#else
-	std::string directory = FOLDER_FROM_PATH(fileName);
-#endif
+	std::string directory = FOLDER_FROM_PATH(cocos2d::FileUtils::getInstance()->fullPathForFilename(fileName));
 	if (exists(directory) && is_directory(directory)) {
 		for (directory_iterator currentChild(directory); currentChild != directory_iterator(); currentChild++) {
 			if (is_directory(currentChild->path())) {
