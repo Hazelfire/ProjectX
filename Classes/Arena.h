@@ -34,7 +34,7 @@ public:
 
 	static void displayText(std::string);
 
-	static void addKeyControls();
+	void addKeyControls();
 
 	static void keyPressed(EventKeyboard::KeyCode code, Event*);
 

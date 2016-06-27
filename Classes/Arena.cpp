@@ -80,19 +80,21 @@ void Arena::addKeyControls() {
 	devControlsListener->onKeyPressed = Arena::keyPressed;
 
 	// quite a few things take precedent over
-	Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(devControlsListener, 2456);
+	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(devControlsListener, getArenaScene());
 }
 
 void Arena::keyPressed(EventKeyboard::KeyCode code, Event*) {
 	if (Save::read(&SaveInformation::devMode)) {
 		switch (code) {
 		case EventKeyboard::KeyCode::KEY_C:
-			
+
 			break;
 		}
 	}
+	if (code == EventKeyboard::KeyCode::KEY_ESCAPE) {
+		
+	}
 }
-
 Scene * Arena::getArenaScene()
 {
 	return m_arenaScene;

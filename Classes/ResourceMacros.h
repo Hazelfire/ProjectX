@@ -60,6 +60,10 @@
 
 			#define DEV_OPTIONS_BACKGROUND DEV_OPTIONS_FOLDER "background.jpg"
 
+		#define EXIT_MENU_FOLDER UI_FOLDER "exit_menu/"
+
+			#define EXIT_MENU_BACKGROUND EXIT_MENU_FOLDER "ExitMenuBackground.png"
+
 	#define FONTS_FOLDER RESOURCE_FOLDER "fonts/"
 
 	#define MUSIC_FOLDER RESOURCE_FOLDER "music/"
