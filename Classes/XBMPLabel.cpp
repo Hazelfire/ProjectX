@@ -98,13 +98,13 @@ bool XBMPLabel::init(std::string text, std::string font, int textSize, TextAlign
 	// alignments
 	switch (alignment) {
 	case LEFT:
-		setAnchorPoint(Vec2(0, 0));
+		setAnchorPoint(Vec2(0, 0.5));
 		break;
 	case CENTER:
-		setAnchorPoint(Vec2(0.5, 0));
+		setAnchorPoint(Vec2(0.5, 0.5));
 		break;
 	case RIGHT:
-		setAnchorPoint(Vec2(1, 0));
+		setAnchorPoint(Vec2(1, 0.5));
 		break;
 	default: // If there IS NO SUCH ALIGNMENT
 		return false;

@@ -26,7 +26,7 @@ bool SelectionWheel::init(std::list<std::string> options) {
 	int i = 0;
 	static const int radius =40;
 	for (std::list<std::string>::iterator currentOption = options.begin(); currentOption != options.end(); currentOption++) {
-		XBMPLabel* label = XBMPLabel::create(*currentOption, "Pixelfont", 200);
+		XBMPLabel* label = XBMPLabel::create(*currentOption, "Pixelfont", 20);
 		label->setPosition(Vec2(cos((((double)i / m_memberCount) + (0.5/m_memberCount)) * 2 * PI )* radius, sin((((double)i / m_memberCount) + 0.5/m_memberCount) * 2 * PI) * radius) + background->getContentSize() / 2);
 		background->addChild(label);
 		i++;

@@ -36,6 +36,7 @@ public:
 
 	void addKeyControls();
 
+	static void toggleTerminal();
 	static void keyPressed(EventKeyboard::KeyCode code, Event*);
 
 private:
@@ -46,6 +47,7 @@ private:
 	static Node* m_inventoryMenu;
 	static int m_state;
 	void addUI();
+	static bool m_termOpen;
 };
 
 #endif

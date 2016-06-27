@@ -18,7 +18,7 @@ Layer* Arena::m_UILayer;
 Node* Arena::m_inventoryMenu;
 int Arena::m_state = 0;
 Layer* Arena::m_camera;
-
+bool Arena::m_termOpen;
 
 void Arena::createMulti(std::string map, int seed) {
 
@@ -87,7 +87,7 @@ void Arena::keyPressed(EventKeyboard::KeyCode code, Event*) {
 	if (Save::read(&SaveInformation::devMode)) {
 		switch (code) {
 		case EventKeyboard::KeyCode::KEY_C:
-
+			toggleTerminal();
 			break;
 		}
 	}
@@ -95,6 +95,11 @@ void Arena::keyPressed(EventKeyboard::KeyCode code, Event*) {
 		
 	}
 }
+
+void Arena::toggleTerminal(){
+	
+}
+
 Scene * Arena::getArenaScene()
 {
 	return m_arenaScene;

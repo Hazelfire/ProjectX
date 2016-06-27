@@ -79,7 +79,7 @@ ActionList Interact::getPossibleActions(ActionList set, InteractionType type) {
 		LuaGame interpreter;
 		if (currentInteraction->ifConditional.empty()) 
 			re.options.push_back(*currentInteraction);
-		if (interpreter.fulfills(ScriptLoader::loadLuaScript(ScriptLoader::LUA_INTERACTIONS), currentInteraction->ifConditional))
+		else if (interpreter.fulfills(ScriptLoader::loadLuaScript(ScriptLoader::LUA_INTERACTIONS), currentInteraction->ifConditional))
 			re.options.push_back(*currentInteraction);
 	}
 	return re;

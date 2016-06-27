@@ -270,7 +270,7 @@ bool LuaInterpreter::assertArguments(lua_State* state,std::string functionName, 
 		bool overloadValid = true;
 		int argumentIndex = memberMode? 2:1;
 
-		if (currentOverload.size() != lua_gettop(state) + memberMode? (-1):(0)) continue; // if the number of paramaters do not match, it is definitely not a valid overload, continue
+		if (currentOverload.size() != lua_gettop(state) - memberMode? 1:0) continue; // if the number of paramaters do not match, it is definitely not a valid overload, continue
 
 		for (auto currentParameter : currentOverload) {
 			if (currentParameter == LUA_TBOOLEAN) {
@@ -309,7 +309,7 @@ bool LuaInterpreter::assertArguments(lua_State* state,std::string functionName, 
 
 	// printing used overload
 	for (int i = memberMode?2:1; i <= lua_gettop(state); i++) {
-		errorMessage.append(getType(state, lua_type(state, i)));
+		errorMessage.append(getType(state, i));
 		if (i != lua_gettop(state))
 			errorMessage.append(", ");
 	}

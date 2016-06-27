@@ -157,7 +157,7 @@ int LuaGame::l_getPlayerPosition(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Player:getPosition", {
 		{}
-	}), true) return 0;
+	}, true)) return 0;
 
 	LuaPlayerObject* luaPlayer = luaW_check<LuaPlayerObject>(functionState, 1);
 	Mortal* player = PuppetMaster::getPlayer(*luaPlayer);
@@ -173,7 +173,7 @@ int LuaGame::l_getPlayerRealPosition(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Player:getRealPosition", {
 		{}
-	}), true) return 0;
+	}, true)) return 0;
 
 	LuaPlayerObject* luaPlayer = luaW_check<LuaPlayerObject>(functionState, 1);
 	Mortal* player = PuppetMaster::getPlayer(*luaPlayer);
@@ -190,7 +190,7 @@ int LuaGame::l_givePlayerItem(lua_State* functionState) {
 	if (!assertArguments(functionState, "Inventory:giveItem", {
 		{LUA_TSTRING},
 		{LUA_TSTRING, LUA_TNUMBER}
-	}), true) return 0;
+	}, true)) return 0;
 
 	if (lua_gettop(functionState) == 2) {
 		LuaInventoryObject* luaInventory = luaW_check<LuaInventoryObject>(functionState, 1);
@@ -217,7 +217,7 @@ int LuaGame::l_getPlayerName(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Player:getPlayerName", {
 		{}
-	}), true) return 0;
+	}, true)) return 0;
 
 	LuaPlayerObject* luaPlayer = luaW_check<LuaPlayerObject>(functionState, 1);
 	Mortal* player = PuppetMaster::getPlayer(*luaPlayer);
@@ -229,7 +229,7 @@ int LuaGame::l_getClassName(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Player:getClassName", {
 		{}
-	}), true) return 0;
+	}, true)) return 0;
 
 	LuaPlayerObject* luaPlayer = luaW_check<LuaPlayerObject>(functionState, 1);
 	Mortal* player = PuppetMaster::getPlayer(*luaPlayer);
@@ -289,7 +289,7 @@ int LuaGame::l_getQuantityOf(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Inventory:getQuantityOf", {
 		{ LUA_TSTRING }
-	}),true) return 0;
+	},true)) return 0;
 
 	if (lua_gettop(functionState) == 2) {
 		LuaInventoryObject* luaInventory = luaW_check<LuaInventoryObject>(functionState, 1);
@@ -310,7 +310,7 @@ int LuaGame::l_takeItem(lua_State* functionState) {
 	if (!assertArguments(functionState, "Inventory:takeItem", {
 		{ LUA_TSTRING, LUA_TNUMBER },
 		{LUA_TSTRING}
-	}),true) return 0;
+	},true)) return 0;
 
 	if (lua_gettop(functionState) == 3) {
 		LuaInventoryObject* luaInventory = luaW_check<LuaInventoryObject>(functionState, 1);
@@ -336,7 +336,7 @@ int LuaGame::l_canCraftItem(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Inventory:canCraftItem", {
 		{ LUA_TSTRING}
-	}),true) return 0;
+	},true)) return 0;
 
 	if (lua_gettop(functionState) == 2) {
 		LuaInventoryObject* luaInventory = luaW_check<LuaInventoryObject>(functionState, 1);
@@ -392,7 +392,7 @@ int LuaGame::l_getPlayerMovementSpeed(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Player:getMovementSpeed", {
 		{ }
-	}), true) return 0;
+	}, true)) return 0;
 
 	LuaPlayerObject* luaPlayer = luaW_check<LuaPlayerObject>(functionState, 1);
 	Mortal* player = PuppetMaster::getPlayer(*luaPlayer);
@@ -453,7 +453,7 @@ int LuaGame::l_hasItemWithTag(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Inventory:hasItemWithTag", {
 		{ LUA_TSTRING }
-	}), true) return 0;
+	}, true)) return 0;
 
 	if (lua_gettop(functionState) == 2) {
 
@@ -486,7 +486,7 @@ int LuaGame::l_creatureMoveTo(lua_State* functionState) {
 		{ LUA_TNUMBER, LUA_TNUMBER },
 		{LUA_TNUMBER, LUA_TNUMBER, LUA_TNUMBER},
 		{LUA_TNUMBER, LUA_TNUMBER, LUA_TNUMBER, LUA_TNUMBER}
-	}), true) return 0;
+	}, true)) return 0;
 
 	if (lua_gettop(functionState) == 3) {
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
@@ -526,7 +526,7 @@ int LuaGame::l_creatureMoveOn(lua_State* functionState) {
 	if (!assertArguments(functionState, "Creature:moveOn", {
 		{ LUA_TNUMBER, LUA_TNUMBER },
 		{ LUA_TNUMBER, LUA_TNUMBER, LUA_TNUMBER }
-	}), true) return 0;
+	}, true)) return 0;
 
 	if (lua_gettop(functionState) == 3) {
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
@@ -554,7 +554,7 @@ int LuaGame::l_getCreaturePosition(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:getPosition", {
 		{}
-	}), true) return 0;
+	}, true)) return 0;
 
 	if (lua_gettop(functionState) == 1) {
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
@@ -571,7 +571,7 @@ int LuaGame::l_getCreatureRealPosition(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:getRealPosition", {
 		{}
-	}), true) return 0;
+	}, true)) return 0;
 
 	if (lua_gettop(functionState) == 1) {
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
@@ -588,7 +588,7 @@ int LuaGame::l_setCreatureMovementSpeed(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:setMovementSpeed", {
 		{LUA_TNUMBER}
-	}), true) return 0;
+	}, true)) return 0;
 
 	if (lua_gettop(functionState) == 2) {
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
@@ -603,7 +603,7 @@ int LuaGame::l_getCreatureMovementSpeed(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:getMovementSpeed", {
 		{ }
-	}), true) return 0;
+	}, true)) return 0;
 
 	if (lua_gettop(functionState) == 1) {
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
@@ -634,7 +634,7 @@ int LuaGame::l_getPlayerInventory(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Player:getInventory", {
 		{ }
-	}), true) return 0;
+	}, true)) return 0;
 
 	LuaInventoryObject* inventory = luaW_check<LuaPlayerObject>(functionState, 1);
 	luaW_push<LuaInventoryObject>(functionState, inventory);
@@ -645,7 +645,7 @@ int LuaGame::l_getCreatureName(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:getCreatureName", {
 		{}
-	}), true) return 0;
+	}, true)) return 0;
 
 	LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
 	Creature* creature = Creature::getWithId(*luaCreature);
@@ -658,7 +658,7 @@ int LuaGame::l_getCreatureAI(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:getCreatureAI", {
 		{}
-	}), true) return 0;
+	}, true)) return 0;
 
 	LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
 	Creature* creature = Creature::getWithId(*luaCreature);
@@ -671,7 +671,7 @@ int LuaGame::l_creatureHasTag(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:hasTag", {
 		{ LUA_TSTRING }
-	}), true) return 0;
+	}, true)) return 0;
 
 	if (lua_gettop(functionState) == 2) {
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
@@ -687,7 +687,7 @@ int LuaGame::l_getCreatureProperties(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:getProperties", {
 		{}
-	}), true) return 0;
+	}, true)) return 0;
 
 	LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
 	Creature* creature = Creature::getWithId(*luaCreature);
@@ -700,7 +700,7 @@ int LuaGame::l_setCreatureProperties(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:setProperties", {
 		{LUA_TTABLE}
-	}), true) return 0;
+	}, true)) return 0;
 
 	if (lua_gettop(functionState) == 2) {
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
