@@ -178,7 +178,6 @@ bool Inventory::Selector::init(Node* background, Inventory::Previewer* previewer
 	if (!Node::init()) {
 		return false;
 	}
-	Size visibleSize = Director::getInstance()->getVisibleSize();
 	setContentSize(background->getContentSize() / 2);
 	int itemIndex = 0;
 	for (std::unordered_map<std::string, InventoryItem>::iterator currentItem = m_itemInformation.begin(); currentItem != m_itemInformation.end(); currentItem++) {
@@ -190,8 +189,10 @@ bool Inventory::Selector::init(Node* background, Inventory::Previewer* previewer
 			craftingItemTag->setContentSize(Size(2 * ITEM_SIZE, ITEM_SIZE));
 			craftingItemTag->setScale(PREVIEWER_SCALE);
 			craftingItemTag->setAnchorPoint(Vec2(0,0));
+			
+			std::string itemSpriteName = itemInformation.sprite.empty() ? itemName: itemInformation.sprite;
 
-			Node* itemPicture = SpriteLoader::loadSprite(itemName, SPRITE_ITEM);
+			Node* itemPicture = SpriteLoader::loadSprite(itemSpriteName, SPRITE_ITEM);
 			itemPicture->setAnchorPoint(Vec2(0, 1));
 			craftingItemTag->addChild(itemPicture);
 
@@ -205,7 +206,6 @@ bool Inventory::Selector::init(Node* background, Inventory::Previewer* previewer
 
 			EventListenerTouchOneByOne* listener = EventListenerTouchOneByOne::create();
 			listener->onTouchBegan = [itemName, craftingItemTag, previewer](cocos2d::Touch* touch, cocos2d::Event* event) {
-				Size visibleSize = Director::getInstance()->getVisibleSize();
 				Vec2 touchLocation = touch->getLocation();
 
 				Size currentSize = craftingItemTag->getContentSize() * PREVIEWER_SCALE;
@@ -276,6 +276,8 @@ Node* Inventory::CraftingSelector::getUserObject(std::string itemName) {
 			
 		Node* ingredient = Node::create();
 		ingredient->setAnchorPoint(Vec2(0, 1));
+		
+		std::string spriteName = itemInformation.sprite.empty() ? ingredientResource : itemInformation.sprite;
 
 		Node* resourceSprite = SpriteLoader::loadSprite(ingredientResource, SPRITE_ITEM);
 		resourceSprite->setScale(0.5);
@@ -368,13 +370,17 @@ bool Inventory::Previewer::init(Node* background, std::string defaultItem) {
 #define PREVIEW_ITEM_SCALE 6
 	setContentSize(background->getContentSize() / 2);
 	setAnchorPoint(Vec2(0, 0));
-	Node* itemImage = SpriteLoader::loadSprite(defaultItem, SPRITE_ITEM);
+
+	InventoryItem itemInformation = m_itemInformation[defaultItem];
+
+	std::string spriteName = itemInformation.sprite.empty() ? defaultItem : itemInformation.sprite;
+
+	Node* itemImage = SpriteLoader::loadSprite(spriteName, SPRITE_ITEM);
 	itemImage->setAnchorPoint(Vec2(0, 1));
 	itemImage->setPosition(Vec2(0, background->getContentSize().height/2));
 	itemImage->setScale(PREVIEW_ITEM_SCALE);
 	addChild(itemImage);
 
-	InventoryItem itemInformation = m_itemInformation[defaultItem];
 
 	XBMPLabel* nameLabel = XBMPLabel::create(defaultItem,
 		"Pixelfont",
@@ -451,7 +457,9 @@ bool Inventory::CraftingPreviewer::init(Node* background, std::string defaultIte
 		Node* ingredient = Node::create();
 		ingredient->setAnchorPoint(Vec2(0, 1));
 
-		Node* resourceSprite = SpriteLoader::loadSprite(ingredientResource, SPRITE_ITEM);
+		std::string spriteName = itemInformation.sprite.empty() ? ingredientResource : itemInformation.sprite;
+
+		Node* resourceSprite = SpriteLoader::loadSprite(spriteName, SPRITE_ITEM);
 		resourceSprite->setScale(0.5);
 		resourceSprite->setAnchorPoint(Vec2(0, 1));
 

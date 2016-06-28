@@ -8,6 +8,7 @@ struct InventoryItem {
 	std::string description;
 	std::list<Recipe> recipies;
 	std::list<std::string> tags;
+	std::string sprite;
 };
 
 struct AllInventoryItems {

@@ -25,7 +25,7 @@ AllInventoryItems ItemsParser::parse(std::string source) {
 
 	for (xml_node<>* childNode = doc.first_node(); childNode; childNode =childNode->next_sibling()) {
 		if (strcmp(childNode->name(), "item") == 0) {
-			re.items[childNode->first_attribute()->value()] = impl.parseItem(childNode);
+			re.items[childNode->first_attribute("name")->value()] = impl.parseItem(childNode);
 		}
 	}
 	delete[] newText;
@@ -34,6 +34,11 @@ AllInventoryItems ItemsParser::parse(std::string source) {
 
 InventoryItem ItemsParser::Impl::parseItem(rapidxml::xml_node<>* itemNode) {
 	InventoryItem re;
+	
+	if(itemNode->first_attribute("sprite"))
+			re.sprite = itemNode->first_attribute("sprite")->value();
+
+
 	for (xml_node<>* childNode = itemNode->first_node(); childNode; childNode = childNode->next_sibling()) {
 		if (strcmp(childNode->name(), "ingredients") == 0) {
 			std::stringstream ingredients(std::string(childNode->value()));
