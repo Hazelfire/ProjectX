@@ -68,6 +68,10 @@
 
 	#define MUSIC_FOLDER RESOURCE_FOLDER "music/"
 
+	#define MISC_FOLDER RESOURCE_FOLDER "misc/"
+
+		#define SEGWAY_SPRITE MISC_FOLDER "Nice_Segway.png"
+
 	#define PLAYERS_FOLDER RESOURCE_FOLDER "players/"
 
 	#define SPRITES_FOLDER RESOURCE_FOLDER "sprites/"	
