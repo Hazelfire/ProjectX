@@ -27,7 +27,7 @@ SaveInformation YAMLSave::readSave(std::string fileLocation) {
 		if (root["devMode"])
 			re.devMode = root["devMode"].as<bool>();
 		else
-			re.skipSplashes = false;
+			re.devMode = false;
 	}
 	catch (YAML::Exception exception) {
 		Debugger::logWarning("Error parsing YAML Save file: " + exception.msg + " line number: " + StringOps::to_string(exception.mark.line) + ", colomn number: " + StringOps::to_string(exception.mark.column), DEBUG_YAML);
