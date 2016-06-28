@@ -23,7 +23,7 @@ Vec2i PuppetMaster::start(StartInfo info) {
 	// Only run startup scripts if you are the host, I may remove startup scripts in the future, they break a lot of logic
 	if (info.playerIndex == 0) {
 		LuaGame startupScript;
-		startupScript.run(ScriptLoader::loadLuaScript(ScriptLoader::LUA_STARTUP));
+		startupScript.run(ScriptLoader::loadLuaScripts(ScriptLoader::LUA_STARTUP));
 	}
 
 	m_playerInformation = info.playerInformation;

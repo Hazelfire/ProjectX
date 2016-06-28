@@ -15,9 +15,10 @@ typedef Vec2f LuaVec2f;
 
 class LuaInterpreter {
 public:
-	void run(std::string script);
+	void run(std::string scriptFile, std::string extra = "");
+	void run(std::list<std::string> scriptFiles, std::string extra = "");
 	void call(std::string function);
-	bool fulfills(std::string script, std::string function);
+	bool fulfills(std::list<std::string> script, std::string function);
 	LuaInterpreter();
 	~LuaInterpreter();
 protected:

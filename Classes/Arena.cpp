@@ -34,8 +34,6 @@ void Arena::createMulti(std::string map, int seed) {
 	viewport->addChild(m_camera);
 	m_arenaScene->addChild(viewport);
 
-	// This is handy for placement
-	Size visibleSize = Director::getInstance()->getVisibleSize();
 
 	m_arenaMap = XTileMap::create(map, seed);
 	m_camera->addChild(m_arenaMap);
@@ -62,8 +60,6 @@ void Arena::create(GameInformation gameInfo){
 	viewport->addChild(m_camera);
 	m_arenaScene->addChild(viewport);
 
-	//These are handy for placement
-	Size visibleSize = Director::getInstance()->getVisibleSize();
 
 	m_arenaMap = XTileMap::create(gameInfo.mapName);
 	m_camera->addChild(m_arenaMap);
@@ -72,7 +68,7 @@ void Arena::create(GameInformation gameInfo){
 	addUI();
 
 	LuaGame startupScript;
-	startupScript.run(ScriptLoader::loadLuaScript(ScriptLoader::LUA_STARTUP));
+	startupScript.run(ScriptLoader::loadLuaScripts(ScriptLoader::LUA_STARTUP));
 }
 
 void Arena::addKeyControls() {
@@ -88,6 +84,8 @@ void Arena::keyPressed(EventKeyboard::KeyCode code, Event*) {
 		switch (code) {
 		case EventKeyboard::KeyCode::KEY_C:
 			toggleTerminal();
+			break;
+		default:
 			break;
 		}
 	}

@@ -79,7 +79,7 @@ ActionList Interact::getPossibleActions(ActionList set, InteractionType type) {
 		LuaGame interpreter;
 		if (currentInteraction->ifConditional.empty()) 
 			re.options.push_back(*currentInteraction);
-		else if (interpreter.fulfills(ScriptLoader::loadLuaScript(ScriptLoader::LUA_INTERACTIONS), currentInteraction->ifConditional))
+		else if (interpreter.fulfills(ScriptLoader::loadLuaScripts(ScriptLoader::LUA_INTERACTIONS), currentInteraction->ifConditional))
 			re.options.push_back(*currentInteraction);
 	}
 	return re;
@@ -89,7 +89,7 @@ void Interact::runInteraction(Interaction action, int x, int y) {
 	m_selectedCoordinates = Vec2(-1, -1);
 	m_currentLuaParser.init(x, y);
 	if (action.instant) {
-		m_currentLuaParser.run(ScriptLoader::loadLuaScript(ScriptLoader::LUA_INTERACTIONS) +"\n"+action.command);
+		m_currentLuaParser.run(ScriptLoader::loadLuaScripts(ScriptLoader::LUA_INTERACTIONS),action.command);
 	}
 	else {
 		double time = moveTo(x, y);
@@ -198,7 +198,7 @@ void Interact::update(double delta) {
 	if (m_isCommandScheduled) {
 		m_scheduledCommandTimeCount += delta;
 		if (m_scheduledCommandTimeCount > m_scheduledCommandTime) {
-			m_currentLuaParser.run(ScriptLoader::loadLuaScript(ScriptLoader::LUA_INTERACTIONS) +"\n"+m_scheduledCommand);
+			m_currentLuaParser.run(ScriptLoader::loadLuaScripts(ScriptLoader::LUA_INTERACTIONS),m_scheduledCommand);
 			cancelCommand();
 		}
 	}

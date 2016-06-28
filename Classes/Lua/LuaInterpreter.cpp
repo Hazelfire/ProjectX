@@ -6,7 +6,7 @@
 std::string pickleScript = "----------------------------------------------\r\n-- Pickle.lua\r\n-- A table serialization utility for lua\r\n-- Steve Dekorte, http://www.dekorte.com, Apr 2000\r\n-- Freeware\r\n----------------------------------------------\r\n\r\nfunction _pickle(t)\r\n  return Pickle:clone():pickle_(t)\r\nend\r\n\r\nPickle = {\r\n  clone = function (t) local nt={}; for i, v in pairs(t) do nt[i]=v end return nt end \r\n}\r\n\r\nfunction Pickle:pickle_(root)\r\n  if type(root) ~= \"table\" then \r\n    error(\"can only pickle tables, not \".. type(root)..\"s\")\r\n  end\r\n  self._tableToRef = {}\r\n  self._refToTable = {}\r\n  local savecount = 0\r\n  self:ref_(root)\r\n  local s = \"\"\r\n\r\n  while #self._refToTable > savecount do\r\n    savecount = savecount + 1\r\n    local t = self._refToTable[savecount]\r\n    s = s..\"{\\n\"\r\n    for i, v in pairs(t) do\r\n        s = string.format(\"%s[%s]=%s,\\n\", s, self:value_(i), self:value_(v))\r\n    end\r\n    s = s..\"},\\n\"\r\n  end\r\n\r\n  return string.format(\"{%s}\", s)\r\nend\r\n\r\nfunction Pickle:value_(v)\r\n  local vtype = type(v)\r\n  if     vtype == \"string\" then return string.format(\"%q\", v)\r\n  elseif vtype == \"number\" then return v\r\n  elseif vtype == \"boolean\" then return tostring(v)\r\n  elseif vtype == \"table\" then return \"{\"..self:ref_(v)..\"}\"\r\n  else --error(\"pickle a \"..type(v)..\" is not supported\")\r\n  end  \r\nend\r\n\r\nfunction Pickle:ref_(t)\r\n  local ref = self._tableToRef[t]\r\n  if not ref then \r\n    if t == self then error(\"can't pickle the pickle class\") end\r\n    table.insert(self._refToTable, t)\r\n    ref = #self._refToTable\r\n    self._tableToRef[t] = ref\r\n  end\r\n  return ref\r\nend\r\n\r\n----------------------------------------------\r\n-- unpickle\r\n----------------------------------------------\r\n\r\nfunction _unpickle(s)\r\n  if type(s) ~= \"string\" then\r\n    error(\"can't unpickle a \"..type(s)..\", only strings\")\r\n  end\r\n  local gentables = load(\"return \"..s)\r\n  local tables = gentables()\r\n  \r\n  for tnum = 1, #tables do\r\n    local t = tables[tnum]\r\n    local tcopy = {}; for i, v in pairs(t) do tcopy[i] = v end\r\n    for i, v in pairs(tcopy) do\r\n      local ni, nv\r\n      if type(i) == \"table\" then ni = tables[i[1]] else ni = i end\r\n      if type(v) == \"table\" then nv = tables[v[1]] else nv = v end\r\n      t[i] = nil\r\n      t[ni] = nv\r\n    end\r\n  end\r\n  return tables[1]\r\nend";
 
 
-void LuaInterpreter::run(std::string script) {
+void LuaInterpreter::run(std::string scriptFile, std::string extra) {
 
 	// add if you wish, standard library for lua, I am not sure how safe this is cross-platform
 	luaL_openlibs(m_mainState);
@@ -17,13 +17,45 @@ void LuaInterpreter::run(std::string script) {
 	addFunctions(m_mainState); // Calls children and adds all functions
 
 	// Loading the string into lua
-	
-	int error = luaL_dostring(m_mainState, script.c_str());
+
+	int error = luaL_dofile(m_mainState, scriptFile.c_str());
 	if (error) {
 		luaError(m_mainState,lua_tostring(m_mainState, -1));
 		lua_pop(m_mainState, 1);
 	}
+
+	error = luaL_dostring(m_mainState, extra.c_str());
+	if(error){
+		luaError(m_mainState, lua_tostring(m_mainState, -1));
+		lua_pop(m_mainState, 1);
+	}
+
 }
+
+void LuaInterpreter::run(std::list<std::string> scripts, std::string extra){
+	
+	luaL_openlibs(m_mainState);
+
+	luaL_dostring(m_mainState, pickleScript.c_str());
+
+	addFunctions(m_mainState);
+
+	for (auto script : scripts){
+		int error = luaL_dofile(m_mainState, script.c_str());
+		if(error){
+			luaError(m_mainState, lua_tostring(m_mainState, -1));
+			lua_pop(m_mainState, 1);
+		}
+	}
+
+	int error = luaL_dostring(m_mainState, extra.c_str());
+	if(error){
+		luaError(m_mainState, lua_tostring(m_mainState, -1));
+		lua_pop(m_mainState, 1);
+	}
+
+}
+
 
 void LuaInterpreter::call(std::string function) {
 	lua_getglobal(m_mainState,function.c_str());
@@ -37,16 +69,24 @@ void LuaInterpreter::call(std::string function) {
 	}
 }
 
-bool LuaInterpreter::fulfills(std::string script, std::string function) {
+bool LuaInterpreter::fulfills(std::list<std::string> scriptFiles, std::string function) {
 	lua_State* mainState = luaL_newstate();
 
-	script = script + "\nreturn " + function;
-
-	luaL_loadstring(mainState, script.c_str());
+	luaL_dostring(mainState, pickleScript.c_str());
+	
+	for(auto scriptFile : scriptFiles){
+		int error = luaL_dofile(mainState, scriptFile.c_str());
+		if(error){
+			luaError(mainState, "Failed loading script: " + scriptFile + " with error: " + lua_tostring(m_mainState, -1) + " When checking if " + function +  " fulfills" );
+			lua_pop(mainState, 1);
+		 }
+	}
 
 	// add if you wish, standard library for lua, I am not sure how safe this is cross-platform
 	luaL_openlibs(mainState);
-	
+
+	luaL_loadstring(mainState, function.c_str());
+		
 	addFunctions(mainState); // Calls children and adds all functions
 							   // Calls the script
 	int error = lua_pcall(mainState, 0, 1, 0);

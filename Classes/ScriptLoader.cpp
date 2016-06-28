@@ -21,8 +21,6 @@ m_LuaScriptIndex = ScriptParser::parseLua(LUA_INDEX_FILE); \
 ScriptParser::XmlScriptIndex ScriptLoader::m_XmlScriptIndex;
 ScriptParser::LuaScriptIndex ScriptLoader::m_LuaScriptIndex;
 std::string ScriptLoader::cachedXMLScripts[XML_SCRIPT_SIZE];
-std::string ScriptLoader::cachedLuaScripts[LUA_SCRIPT_SIZE];
-ScriptLoader::SourceMap ScriptLoader::cachedLuaSeperateScripts[LUA_SEPERATE_SCRIPT_SIZE];
 
 std::string ScriptLoader::loadXmlScript(ScriptLoader::XmlScriptType scriptType) {
 	LOAD_XML_SCRIPT_INDEX();
@@ -33,28 +31,28 @@ std::string ScriptLoader::loadXmlScript(ScriptLoader::XmlScriptType scriptType) 
 
 	switch (scriptType){
 	case XML_CREATURE:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.creatures, "creatures");
+		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.creatures);
 		break;
 	case XML_INTERACTIONS:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.interactions, "interactions");
+		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.interactions);
 		break;
 	case XML_ITEMS:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.items, "items");
+		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.items);
 		break;
 	case XML_MAP:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.map, "map");
+		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.map);
 		break;
 	case XML_MUSIC:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.music, "music");
+		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.music);
 		break;
 	case XML_PLAYERS:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.players, "players");
+		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.players);
 		break;
 	case XML_SPRITES:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.sprites, "sprites");
+		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.sprites);
 		break;
 	case XML_SCHEMATICS:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.schematics, "schematics");
+		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.schematics);
 		break;
 	default:
 		// If the script is not of any of these types, the user is being an idiot, it will return empty string
@@ -64,17 +62,17 @@ std::string ScriptLoader::loadXmlScript(ScriptLoader::XmlScriptType scriptType) 
 	return cachedXMLScripts[scriptType];
 }
 
-std::list<std::string> ScriptLoader::findErrorsXML(std::list<std::string> sourceFiles, std::string filePrefix) {
+std::list<std::string> ScriptLoader::findErrorsXML(std::list<std::string> sourceFiles) {
 	std::list<std::string> re;
 	for (auto currentSourceFile : sourceFiles) {
-		std::string currentSourceString = cocos2d::FileUtils::getInstance()->getStringFromFile(filePrefix+ currentSourceFile);
+		std::string currentSourceString = cocos2d::FileUtils::getInstance()->getStringFromFile( currentSourceFile);
 		if (currentSourceString.empty()) {
 			Debugger::logWarning("Found file " + currentSourceFile + " empty, check if it exists", DEBUG_XML);
 			continue;
 		}
 		XMLErrorParser::XMLError error = XMLErrorParser::parse(currentSourceString);
 		if (error.isError) {
-			Debugger::logError("Found sytax error in XML file "+filePrefix+currentSourceFile+", message is: " + error.message + ": (" + StringOps::to_string(error.marker.lineNumber) + ", " + StringOps::to_string(error.marker.colomnNumber) + ")", DEBUG_XML);
+			Debugger::logError("Found sytax error in XML file "+currentSourceFile+", message is: " + error.message + ": (" + StringOps::to_string(error.marker.lineNumber) + ", " + StringOps::to_string(error.marker.colomnNumber) + ")", DEBUG_XML);
 		}
 		else {
 			re.push_front(currentSourceFile);
@@ -83,22 +81,20 @@ std::list<std::string> ScriptLoader::findErrorsXML(std::list<std::string> source
 	return re;
 }
 
-std::string ScriptLoader::compileXmlScripts(std::list<std::string> sources, std::string folderName) {
+std::string ScriptLoader::compileXmlScripts(std::list<std::string> sources) {
 	std::stringstream sourceStream;
 
-	sources = findErrorsXML(sources, XML_FOLDER + folderName + "/");
+	sources = findErrorsXML(sources);
 
 	// Compiles all the source files into one source
-	for (std::list<std::string>::iterator currentSource = sources.begin(); currentSource != sources.end(); currentSource++) {
-		sourceStream << cocos2d::FileUtils::getInstance()->getStringFromFile(XML_FOLDER+folderName+"/"+*currentSource);
+	for (auto currentSource : sources) {
+		sourceStream << cocos2d::FileUtils::getInstance()->getStringFromFile(currentSource);
 	}
 
-	std::string filePrefix = XML_FOLDER + folderName;
-	
-	return runPreprocessor(sourceStream.str(),filePrefix);
+	return runPreprocessor(sourceStream.str());
 }
 
-std::string ScriptLoader::runPreprocessor(std::string source, std::string filePrefix) {
+std::string ScriptLoader::runPreprocessor(std::string source) {
 	std::stringstream sourceStream(source);
 	std::string line;
 	std::stringstream parsedSource;
@@ -110,9 +106,8 @@ std::string ScriptLoader::runPreprocessor(std::string source, std::string filePr
 
 			if (line.find("file") == 1) {
 				std::string filename = line.substr(6, line.length() - 7);
-				std::string fullFileName = filePrefix + filename;
-				std::string folderFromPath = FOLDER_FROM_PATH(fullFileName);
-				parsedSource << runPreprocessor(cocos2d::FileUtils::getInstance()->getStringFromFile(fullFileName), folderFromPath);
+				std::string folderFromPath = FOLDER_FROM_PATH(filename);
+				parsedSource << runPreprocessor(cocos2d::FileUtils::getInstance()->getStringFromFile(filename));
 			}
 		}
 		else {
@@ -130,49 +125,22 @@ std::string ScriptLoader::compileLuaScripts(std::list<std::string> sources) {
 		sourceStream << cocos2d::FileUtils::getInstance()->getStringFromFile(LUA_FOLDER + *currentSource);
 	}
 
-	std::string filePrefix = LUA_FOLDER + FOLDER_FROM_PATH(sources.front());
-	return runPreprocessor(sourceStream.str(), filePrefix);
+	return runPreprocessor(sourceStream.str());
 }
 
-std::string ScriptLoader::loadLuaScript(ScriptLoader::LuaScriptType scriptType) {
+ScriptLoader::SourceList ScriptLoader::loadLuaScripts(ScriptLoader::LuaScriptType scriptType) {
 	LOAD_LUA_SCRIPT_INDEX();
-	if (!cachedLuaScripts[scriptType].empty()) {
-		return cachedLuaScripts[scriptType];
-	}
 	switch (scriptType) {
 	case LUA_INTERACTIONS:
-		cachedLuaScripts[scriptType] = compileLuaScripts(m_LuaScriptIndex.interactions);
+		return m_LuaScriptIndex.interactions;
 		break;
 	case LUA_STARTUP:
-		cachedLuaScripts[scriptType] = compileLuaScripts(m_LuaScriptIndex.startup);
+		return m_LuaScriptIndex.startup;
 		break;
-	default:
-		return std::string();
-		break;
-	}
-	return cachedLuaScripts[scriptType];
-}
-
-ScriptLoader::SourceMap ScriptLoader::loadSeperateLuaScript(SeperateLuaScriptType luaScriptType) {
-	LOAD_LUA_SCRIPT_INDEX();
-	if (!cachedLuaSeperateScripts[luaScriptType].empty()) {
-		return cachedLuaSeperateScripts[luaScriptType];
-	}
-	switch (luaScriptType) {
 	case LUA_CREATURES:
-		cachedLuaSeperateScripts[luaScriptType] = openScripts(m_LuaScriptIndex.creatures);
-		break;
+		return m_LuaScriptIndex.creatures;
 	default:
-		return SourceMap();
+		return SourceList();
 		break;
 	}
-	return cachedLuaSeperateScripts[luaScriptType];
-}
-
-ScriptLoader::SourceMap ScriptLoader::openScripts(std::list<std::string> sources) {
-	SourceMap re;
-	for (std::list<std::string>::iterator currentSource = sources.begin(); currentSource != sources.end(); currentSource++) {
-		re[FILENAME_FROM_PATH(*currentSource)] = runPreprocessor(cocos2d::FileUtils::getInstance()->getStringFromFile(LUA_FOLDER + *currentSource), FOLDER_FROM_PATH(*currentSource));
-	}
-	return re;
 }

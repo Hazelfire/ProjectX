@@ -5,6 +5,7 @@
 #include "SpriteLoader.h"
 #include "Multiplayer/PuppetMaster.h"
 #include "Multiplayer/XClient.h"
+#include "ResourceMacros.h"
 CreatureList Creature::m_creatureList;
 std::unordered_map<short int, Creature*> Creature::m_creatureReferences;
 
@@ -40,7 +41,7 @@ bool Creature::init(std::string creatureName) {
 	Animal::init(m_creatureInfo.movements,SPRITE_CREATURE, m_creatureInfo.movementSpeed);
 
 	m_creatureAI.init(m_gid);
-	m_creatureAI.run(ScriptLoader::loadSeperateLuaScript(ScriptLoader::LUA_CREATURES).at(m_creatureInfo.ai));
+	m_creatureAI.run(std::string(LUA_FOLDER "creatures/") + m_creatureInfo.ai + ".lua");
 	return true;
 }
 

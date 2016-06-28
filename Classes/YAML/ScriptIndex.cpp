@@ -5,6 +5,7 @@
 #include  <sstream>
 #include "Debug.h"
 #include "CCPlatformMacros.h"
+#include "ResourceMacros.h"
 #define IS_MOBILE (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 
 #if !IS_MOBILE
@@ -37,28 +38,36 @@ ScriptParser::XmlScriptIndex ScriptParser::parseXml(std::string fileName) {
 
 			for (YAML::const_iterator currentScriptNode = scriptsNode.begin(); currentScriptNode != scriptsNode.end(); currentScriptNode++) {
 				if (sectionName == "creatures") {
-					re.creatures.push_back(currentScriptNode->as<std::string>());
+					std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(XML_FOLDER "creatures/" + currentScriptNode->as<std::string>());
+					re.creatures.push_back(fullPath);
 				}
 				else if (sectionName == "interactions") {
-					re.interactions.push_back(currentScriptNode->as<std::string>());
+					std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(XML_FOLDER "interactions/" + currentScriptNode->as<std::string>());
+					re.interactions.push_back(fullPath);
 				}
 				else if (sectionName == "items") {
-					re.items.push_back(currentScriptNode->as<std::string>());
+					std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(XML_FOLDER "items/" + currentScriptNode->as<std::string>());
+					re.items.push_back(fullPath);
 				}
 				else if (sectionName == "map") {
-					re.map.push_back(currentScriptNode->as<std::string>());
+					std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(XML_FOLDER "map/" + currentScriptNode->as<std::string>());
+					re.map.push_back(fullPath);
 				}
 				else if (sectionName == "music") {
-					re.music.push_back(currentScriptNode->as<std::string>());
+					std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(XML_FOLDER "music/" + currentScriptNode->as<std::string>());
+					re.music.push_back(fullPath);
 				}
 				else if (sectionName == "players") {
-					re.players.push_back(currentScriptNode->as<std::string>());
+					std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(XML_FOLDER "players/" + currentScriptNode->as<std::string>());
+					re.players.push_back(fullPath);
 				}
 				else if (sectionName == "sprites" ) {
-					re.sprites.push_back(currentScriptNode->as<std::string>());
+					std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(XML_FOLDER "sprites/" + currentScriptNode->as<std::string>());
+					re.sprites.push_back(fullPath);
 				}
 				else if (sectionName == "schematics") {
-					re.schematics.push_back(currentScriptNode->as<std::string>());
+					std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(XML_FOLDER "schematics/" + currentScriptNode->as<std::string>());
+					re.schematics.push_back(fullPath);
 				}
 			}
 		}
@@ -91,13 +100,16 @@ ScriptParser::LuaScriptIndex ScriptParser::parseLua(std::string fileName) {
 
 			for (YAML::const_iterator currentScriptNode = scriptsNode.begin(); currentScriptNode != scriptsNode.end(); currentScriptNode++) {
 				if (sectionName == "creatures") {
-					re.creatures.push_back("creatures/" + currentScriptNode->as<std::string>());
+					std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(LUA_FOLDER "creatures/" + currentScriptNode->as<std::string>());
+					re.creatures.push_back(fullPath);
 				}
 				else if (sectionName == "interactions") {
-					re.interactions.push_back("interactions/" + currentScriptNode->as<std::string>());
+					std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(LUA_FOLDER "interactions/" + currentScriptNode->as<std::string>());
+					re.interactions.push_back(fullPath);
 				}
 				else if (sectionName == "startup") {
-					re.startup.push_back("startup/" + currentScriptNode->as<std::string>());
+					std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(LUA_FOLDER "startup/" + currentScriptNode->as<std::string>());
+					re.startup.push_back(fullPath);
 				}
 			}
 		}
