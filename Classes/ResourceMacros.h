@@ -74,7 +74,9 @@
 
 	#define PLAYERS_FOLDER RESOURCE_FOLDER "players/"
 
-	#define SPRITES_FOLDER RESOURCE_FOLDER "sprites/"	
+	#define SPRITES_FOLDER RESOURCE_FOLDER "sprites/"
+
+	#define PARTICLES_FOLDER RESOURCE_FOLDER "particles/"
 
 #define SCRIPTS_FOLDER "script/"
 
@@ -85,3 +87,7 @@
 		#define XML_FOLDER SCRIPTS_FOLDER "xml/"
 
 			#define XML_INDEX_FILE XML_FOLDER "xml_index.yml"
+
+		#define YAML_FOLDER SCRIPTS_FOLDER "yaml/"
+
+			#define YAML_INDEX_FILE YAML_FOLDER "yaml_index.yml"

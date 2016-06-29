@@ -58,4 +58,7 @@ private:
 	static int l_playSong(lua_State*);
 	static int l_playSongRegion(lua_State*);
 	
+	// Particles
+	static int l_spawnParticles(lua_State*);
+
 };

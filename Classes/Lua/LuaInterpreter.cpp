@@ -108,7 +108,7 @@ bool LuaInterpreter::fulfills(std::list<std::string> scriptFiles, std::string fu
 void LuaInterpreter::addFunctions(lua_State* mainState) {
 
 	// Math
-	lua_createtable(mainState, 0, 1);
+	lua_createtable(mainState, 0, 2);
 
 	lua_pushstring(mainState, "randomInt");
 	lua_pushcfunction(mainState, l_randomInt);

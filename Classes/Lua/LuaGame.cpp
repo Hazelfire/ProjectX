@@ -7,6 +7,7 @@
 #include "Multiplayer/PuppetMaster.h"
 #include "Multiplayer/XClient.h"
 #include <sstream>
+#include "Particles.h"
 
 void LuaGame::addFunctions(lua_State* mainState) {
 	LuaInterpreter::addFunctions(mainState);
@@ -23,18 +24,6 @@ void LuaGame::addFunctions(lua_State* mainState) {
 
 	NAME_TABLE("Arena");
 
-
-	//Inventory
-	NEW_TABLE_SIZE(5);
-
-	NEW_ROW("giveItem", l_givePlayerItem);
-	NEW_ROW("getQuantityOf", l_getQuantityOf);
-	NEW_ROW("takeItem", l_takeItem);
-	NEW_ROW("canCraftItem", l_canCraftItem);
-	NEW_ROW("hasItemWithTag", l_hasItemWithTag);
-
-	NAME_TABLE("Inventory");
-
 	// Music
 	NEW_TABLE_SIZE(2);
 	
@@ -42,6 +31,13 @@ void LuaGame::addFunctions(lua_State* mainState) {
 	NEW_ROW("playRegionSong", l_playSongRegion);
 
 	NAME_TABLE("Music");
+
+	// Particles
+	NEW_TABLE_SIZE(1);
+
+	NEW_ROW("spawnParticles", l_spawnParticles);
+	
+	NAME_TABLE("Particles");
 
 	lua_pushinteger(mainState, UNTOUCHED);
 	lua_setglobal(mainState, "UNTOUCHED");
@@ -623,8 +619,7 @@ int LuaGame::l_getPlayerByIndex(lua_State* functionState) {
 
 	if (lua_gettop(functionState) == 1) {
 		int index = lua_tointeger(functionState, 1);
-		Mortal* player = PuppetMaster::getPlayer(index);
-		luaW_push<LuaPlayerObject>(functionState, new int(player->getPlayerIndex()));
+		luaW_push<LuaPlayerObject>(functionState, new LuaPlayerObject(index));
 		return 1;
 	}
 	return 0;
@@ -709,5 +704,18 @@ int LuaGame::l_setCreatureProperties(lua_State* functionState) {
 
 		creature->setCreatureProperties(table);
 	}
+	return 0;
+}
+
+int LuaGame::l_spawnParticles(lua_State* functionState) {
+	if (!assertArguments(functionState, "Particles.spawnParticles", {
+		{LUA_TSTRING, LUA_TNUMBER, LUA_TNUMBER}
+	})) return 0;
+
+	std::string particleSystemName = lua_tostring(functionState, 1);
+	float x = lua_tonumber(functionState, 2);
+	float y = lua_tonumber(functionState, 3);
+
+	Particles::spawnParticles(particleSystemName, Vec2f(x, y));
 	return 0;
 }
