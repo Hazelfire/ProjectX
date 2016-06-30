@@ -2,7 +2,7 @@
 #include "PathFinder.h"
 #include "XTileMap.h"
 #include "SpriteLoader.h"
-
+#include "ResourceMacros.h"
 #define DEFAULT_SPEED 3.0f
 
 
@@ -114,6 +114,12 @@ void Animal::changeMovementSprite(Vec2i position) {
 	retain();
 	m_currentSprite->removeFromParentAndCleanup(true);
 	m_currentSprite = SpriteLoader::loadSprite(m_directions.getMovementSource(position), m_spriteType);
+	if (m_currentSprite && !SpriteLoader::isAnimate(m_directions.getMovementSource(position), m_spriteType)) {
+		Sprite* segway = Sprite::create(SEGWAY_SPRITE);
+		segway->getTexture()->setAliasTexParameters();
+		segway->setAnchorPoint(Vec2(0.2, 0.2));
+		m_currentSprite->addChild(segway);
+	}
 	addChild(m_currentSprite);
 }
 

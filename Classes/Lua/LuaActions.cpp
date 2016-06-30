@@ -25,7 +25,8 @@ void LuaActions::addFunctions(lua_State* mainState) {
 
 	NAME_TABLE("Interact");
 
-	// sets the x anad y coordinates to the tiles as globals x and y. This goes against all my knowledge as a programmer but it is efficient and looks nice
+	// sets the x anad y coordinates to the tiles as globals x and y. 
+	// This goes against all my knowledge as a programmer but it is efficient and looks nice
 	lua_pushinteger(mainState, m_Playerx);
 	lua_setglobal(mainState, "x");
 
@@ -34,10 +35,10 @@ void LuaActions::addFunctions(lua_State* mainState) {
 
 	int playerIndex = XClient::getPlayerIndex();
 	
-	luaW_push<LuaPlayerObject>(mainState, new int(playerIndex));
+	luaW_push<LuaPlayerObject>(mainState, new LuaPlayerObject(playerIndex));
 	lua_setglobal(mainState, "player");
 
-	luaW_push<LuaInventoryObject>(mainState, new int(playerIndex));
+	luaW_push<LuaInventoryObject>(mainState, new LuaInventoryObject(playerIndex));
 	lua_setglobal(mainState, "inventory");
 }
 

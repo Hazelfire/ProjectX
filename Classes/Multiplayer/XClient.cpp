@@ -17,11 +17,12 @@ int XClient::m_playerIndex = 0000000000000000000000000000000;
 
 #define GAME_VERSION_NO 1
 
-XClient XClient::m_clientInstance;
+XClient* XClient::m_clientInstance;
 
 void XClient::init(PlayerInformation playerInfo, Lobby* lobby) {
 	m_playerInfo = playerInfo;
 	m_lobby = lobby;
+	m_clientInstance = this;
 }
 
 void XClient::onConnect() {
@@ -228,7 +229,7 @@ void XClient::movePlayer(Vec2i position, unsigned char distance, float speed) {
 }
 
 XClient* XClient::getInstance() {
-	return &m_clientInstance;
+	return m_clientInstance;
 }
 
 void XClient::changeMap(Vec2i position, int state) {

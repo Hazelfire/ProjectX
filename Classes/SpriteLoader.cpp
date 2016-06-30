@@ -42,6 +42,29 @@ cocos2d::Node* SpriteLoader::loadSprite(std::string spriteName, SpriteType type)
 	return re;
 }
 
+bool SpriteLoader::isAnimate(std::string spriteName, SpriteType spriteType) {
+	// Statically loads information
+	static const SpriteParser::SpriteSheetSet spriteInformation = SpriteParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_SPRITES));
+
+	bool re = false;
+	switch (spriteType) {
+	case SPRITE_ITEM:
+		re = searchSpritesForType(spriteInformation.items, spriteInformation.itemsSize, spriteName);
+		break;
+	case SPRITE_CREATURE:
+		re = searchSpritesForType(spriteInformation.creatures, spriteInformation.creaturesSize, spriteName);
+		break;
+	case SPRITE_TILE:
+		re = searchSpritesForType(spriteInformation.tiles, spriteInformation.tilesSize, spriteName);
+		break;
+	case SPRITE_PLAYER:
+		re = searchSpritesForType(spriteInformation.players, spriteInformation.playersSize, spriteName);
+		break;
+	}
+
+	return re;
+}
+
 cocos2d::Node* SpriteLoader::searchSpritesFor(SpriteParser::SpriteSheet* spritesheets,int size, std::string spriteName) {
 
 	// For every spritesheet
@@ -88,6 +111,34 @@ cocos2d::Node* SpriteLoader::searchSpritesFor(SpriteParser::SpriteSheet* sprites
 		}
 	}
 	return nullptr;
+}
+
+bool SpriteLoader::searchSpritesForType(SpriteParser::SpriteSheet* spritesheets, int size, std::string spriteName) {
+	// For every spritesheet
+	for (int spritesheetIndex = 0; spritesheetIndex < size; spritesheetIndex++) {
+
+		// For every non-animated Sprite
+		for (int spriteIndex = 0; spriteIndex < spritesheets[spritesheetIndex].spritesSize; spriteIndex++) {
+
+			// If we have found the sprite
+			if (spritesheets[spritesheetIndex].sprites[spriteIndex].name == spriteName) {
+				// Construct information needed to load the sprite
+				return false;
+			}
+		}
+
+		// We did not manage to find a static sprite, let's see if someone has animated It!
+
+		// For every animated Sprite
+		for (int animateIndex = 0; animateIndex < spritesheets[spritesheetIndex].animatedSize; animateIndex++) {
+
+			// If we have found the sprite
+			if (spritesheets[spritesheetIndex].animated[animateIndex].name == spriteName) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 cocos2d::Node* SpriteLoader::constructSprite(ConstructSpriteInformation spriteInformation) {

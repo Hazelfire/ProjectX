@@ -1,9 +1,44 @@
 #pragma once
 #include "LuaInterpreter.h"
 
-typedef int LuaCreatureObject;
-typedef int LuaPlayerObject;
-typedef int LuaInventoryObject;
+struct LuaCreatureObject {
+	int index;
+	LuaCreatureObject(int pindex) {
+		index = pindex;
+	}
+	LuaCreatureObject() {
+		index = 0;
+	}
+	operator int() const {
+		return index;
+	}
+};
+
+struct LuaPlayerObject {
+	int index;
+	LuaPlayerObject(int pindex) {
+		index = pindex;
+	}
+	LuaPlayerObject() {
+		index = 0;
+	}
+	operator int() const {
+		return index;
+	}
+};
+
+struct LuaInventoryObject {
+	int index;
+	LuaInventoryObject(int pindex) {
+		index = pindex;
+	}
+	LuaInventoryObject() {
+		index = 0;
+	}
+	operator int() const {
+		return index;
+	}
+};
 
 class LuaGame : public LuaInterpreter {
 public:
@@ -58,4 +93,8 @@ private:
 	static int l_playSong(lua_State*);
 	static int l_playSongRegion(lua_State*);
 	
+	// Particles
+	static int l_spawnParticles(lua_State*);
+
+
 };

@@ -7,6 +7,9 @@
 #include "Multiplayer/PuppetMaster.h"
 #include "Multiplayer/XClient.h"
 #include <sstream>
+#include "Particles.h"
+
+
 
 void LuaGame::addFunctions(lua_State* mainState) {
 	LuaInterpreter::addFunctions(mainState);
@@ -23,18 +26,6 @@ void LuaGame::addFunctions(lua_State* mainState) {
 
 	NAME_TABLE("Arena");
 
-
-	//Inventory
-	NEW_TABLE_SIZE(5);
-
-	NEW_ROW("giveItem", l_givePlayerItem);
-	NEW_ROW("getQuantityOf", l_getQuantityOf);
-	NEW_ROW("takeItem", l_takeItem);
-	NEW_ROW("canCraftItem", l_canCraftItem);
-	NEW_ROW("hasItemWithTag", l_hasItemWithTag);
-
-	NAME_TABLE("Inventory");
-
 	// Music
 	NEW_TABLE_SIZE(2);
 	
@@ -42,6 +33,13 @@ void LuaGame::addFunctions(lua_State* mainState) {
 	NEW_ROW("playRegionSong", l_playSongRegion);
 
 	NAME_TABLE("Music");
+
+	// Particles
+	NEW_TABLE_SIZE(1);
+
+	NEW_ROW("spawnParticles", l_spawnParticles);
+	
+	NAME_TABLE("Particles");
 
 	lua_pushinteger(mainState, UNTOUCHED);
 	lua_setglobal(mainState, "UNTOUCHED");
@@ -58,59 +56,62 @@ void LuaGame::addFunctions(lua_State* mainState) {
 	};
 
 	luaL_Reg creature_member[] = {
-		{"moveTo", l_creatureMoveTo},
-		{"moveOn",l_creatureMoveOn},
-		{"getPosition", l_getCreaturePosition},
-		{"getRealPosition", l_getCreatureRealPosition},
-		{"setMovementSpeed", l_setCreatureMovementSpeed},
-		{"getMovementSpeed", l_getCreatureMovementSpeed},
-		{"getName", l_getCreatureName},
-		{"getAI", l_getCreatureAI},
-		{"hasTag", l_creatureHasTag},
-		{"getProperties", l_getCreatureProperties},
-		{"setPropeties", l_setCreatureProperties},
-		{NULL, NULL}
+		{ "moveTo", l_creatureMoveTo },
+		{ "moveOn",l_creatureMoveOn },
+		{ "getPosition", l_getCreaturePosition },
+		{ "getRealPosition", l_getCreatureRealPosition },
+		{ "setMovementSpeed", l_setCreatureMovementSpeed },
+		{ "getMovementSpeed", l_getCreatureMovementSpeed },
+		{ "getName", l_getCreatureName },
+		{ "getAI", l_getCreatureAI },
+		{ "hasTag", l_creatureHasTag },
+		{ "getProperties", l_getCreatureProperties },
+		{ "setPropeties", l_setCreatureProperties },
+		{ NULL, NULL }
 	};
-
-	luaW_register<LuaCreatureObject>(mainState, "Creature", creature_static, creature_member);
-
-	luaL_Reg player_static[] =  {
-		{"getByIndex", l_getPlayerByIndex},
-		{NULL,NULL}
-	};
-
-	luaL_Reg player_member[] = {
-		{"getPosition", l_getPlayerPosition},
-		{"getRealPosition", l_getPlayerRealPosition},
-		{"getPlayerName", l_getPlayerName},
-		{"getClassName", l_getClassName},
-		{"getMovementSpeed", l_getPlayerMovementSpeed},
-		{"getInventory",l_getPlayerInventory},
-		{NULL, NULL}
-	};
-
-	luaW_register<LuaPlayerObject>(mainState, "Player", player_static, player_member);
 
 	luaL_Reg inventory_static[] = {
-		{NULL, NULL}
+		{ NULL, NULL }
 	};
 
 	luaL_Reg inventory_member[] = {
-		{"giveItem",l_givePlayerItem},
-		{"getQuantityOf",l_getQuantityOf},
-		{"takeItem",l_takeItem},
-		{"canCraftItem", l_canCraftItem},
-		{"hasItemWithTag", l_hasItemWithTag},
-		{NULL, NULL}
+		{ "giveItem",l_givePlayerItem },
+		{ "getQuantityOf",l_getQuantityOf },
+		{ "takeItem",l_takeItem },
+		{ "canCraftItem", l_canCraftItem },
+		{ "hasItemWithTag", l_hasItemWithTag },
+		{ NULL, NULL }
 	};
 
-	luaW_register<LuaInventoryObject>(mainState, "Inventory", inventory_static, inventory_member);
+	luaL_Reg player_static[] = {
+		{ "getByIndex", l_getPlayerByIndex },
+		{ NULL,NULL }
+	};
+
+	luaL_Reg player_member[] = {
+		{ "getPosition", l_getPlayerPosition },
+		{ "getRealPosition", l_getPlayerRealPosition },
+		{ "getPlayerName", l_getPlayerName },
+		{ "getClassName", l_getClassName },
+		{ "getMovementSpeed", l_getPlayerMovementSpeed },
+		{ "getInventory",l_getPlayerInventory },
+		{ NULL, NULL }
+	};
+
+	luaW_setfuncs<LuaCreatureObject>(mainState, "Creature", creature_static, creature_member);
+	lua_setglobal(mainState, "Creature");
+
+	luaW_setfuncs<LuaPlayerObject>(mainState, "Player", player_static, player_member);
+	lua_setglobal(mainState, "Player");
+
+	luaW_setfuncs<LuaInventoryObject>(mainState, "Inventory", inventory_static, inventory_member);
+	lua_setglobal(mainState, "Inventory");
 }
 
 void LuaGame::callWithPlayer(std::string function, int player) {
 	lua_getglobal(m_mainState, function.c_str());
 
-	luaW_push<LuaPlayerObject>(m_mainState, new int(player));
+	luaW_push<LuaPlayerObject>(m_mainState, new LuaPlayerObject(player));
 
 	int error = lua_pcall(m_mainState,1, 0, 0);
 	if (error) {
@@ -414,8 +415,7 @@ int LuaGame::l_spawnCreature(lua_State* functionState) {
 		int y = lua_tointeger(functionState, 3);
 		Creature* creature = Creature::spawnCreature(name, Vec2i(x, y));
 		XClient::getInstance()->spawnCreature(name, Vec2i(x,y));
-		LuaCreatureObject* luaCreature = new LuaCreatureObject();
-		*luaCreature = creature->getGID();
+		LuaCreatureObject* luaCreature = new LuaCreatureObject(creature->getGID());
 		luaW_push<LuaCreatureObject>(functionState,luaCreature);
 		return 1;
 	}
@@ -623,8 +623,7 @@ int LuaGame::l_getPlayerByIndex(lua_State* functionState) {
 
 	if (lua_gettop(functionState) == 1) {
 		int index = lua_tointeger(functionState, 1);
-		Mortal* player = PuppetMaster::getPlayer(index);
-		luaW_push<LuaPlayerObject>(functionState, new int(player->getPlayerIndex()));
+		luaW_push<LuaPlayerObject>(functionState, new LuaPlayerObject(index));
 		return 1;
 	}
 	return 0;
@@ -636,7 +635,7 @@ int LuaGame::l_getPlayerInventory(lua_State* functionState) {
 		{ }
 	}, true)) return 0;
 
-	LuaInventoryObject* inventory = luaW_check<LuaPlayerObject>(functionState, 1);
+	LuaInventoryObject* inventory = luaW_check<LuaInventoryObject>(functionState, 1);
 	luaW_push<LuaInventoryObject>(functionState, inventory);
 	return 1;
 }
@@ -709,5 +708,28 @@ int LuaGame::l_setCreatureProperties(lua_State* functionState) {
 
 		creature->setCreatureProperties(table);
 	}
+	return 0;
+}
+
+int LuaGame::l_spawnParticles(lua_State* functionState) {
+	if (!assertArguments(functionState, "Particles.spawnParticles", {
+		{LUA_TSTRING, LUA_TNUMBER, LUA_TNUMBER},
+		{LUA_TSTRING, LUA_TNUMBER, LUA_TNUMBER, LUA_TNUMBER}
+	})) return 0;
+
+	if (lua_gettop(functionState) == 3) {
+		std::string particleSystemName = lua_tostring(functionState, 1);
+		float x = lua_tonumber(functionState, 2);
+		float y = lua_tonumber(functionState, 3);
+		Particles::spawnParticles(particleSystemName, Vec2f(x, y));
+	}
+	else if (lua_gettop(functionState) == 4) {
+		std::string particleSystemName = lua_tostring(functionState, 1);
+		float x = lua_tonumber(functionState, 2);
+		float y = lua_tonumber(functionState, 3);
+		float duration = lua_tonumber(functionState, 4);
+		Particles::spawnParticles(particleSystemName, Vec2f(x, y), duration);
+	}
+
 	return 0;
 }

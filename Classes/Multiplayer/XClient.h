@@ -52,7 +52,7 @@ public:
 	void setTileProperties(Vec2i tileLocation, std::string properties);
 private:
 
-	static XClient m_clientInstance;
+	static XClient* m_clientInstance;
 
 	Lobby* m_lobby;
 

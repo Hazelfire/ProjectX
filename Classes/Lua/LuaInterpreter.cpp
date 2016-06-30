@@ -33,7 +33,7 @@ void LuaInterpreter::run(std::string scriptFile, std::string extra) {
 }
 
 void LuaInterpreter::run(std::list<std::string> scripts, std::string extra){
-	
+		
 	luaL_openlibs(m_mainState);
 
 	luaL_dostring(m_mainState, pickleScript.c_str());
@@ -108,7 +108,7 @@ bool LuaInterpreter::fulfills(std::list<std::string> scriptFiles, std::string fu
 void LuaInterpreter::addFunctions(lua_State* mainState) {
 
 	// Math
-	lua_createtable(mainState, 0, 1);
+	lua_createtable(mainState, 0, 2);
 
 	lua_pushstring(mainState, "randomInt");
 	lua_pushcfunction(mainState, l_randomInt);
