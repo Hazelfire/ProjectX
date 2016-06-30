@@ -506,7 +506,7 @@ int luaW_gc(lua_State* L)
 inline void luaW_registerfuncs(lua_State* L, const luaL_Reg defaulttable[], const luaL_Reg table[])
 {
 	// ... T
-#if LUA_VERSION_NUM > 502
+#if LUA_VERSION_NUM >= 502
 	if (defaulttable)
 		luaL_setfuncs(L, defaulttable, 0); // ... T
 	if (table)
@@ -640,6 +640,7 @@ template <typename T>
 void luaW_register(lua_State* L, const char* classname, const luaL_Reg* table, const luaL_Reg* metatable, T* (*allocator)(lua_State*) = luaW_defaultallocator<T>, void(*deallocator)(lua_State*, T*) = luaW_defaultdeallocator<T>, void(*identifier)(lua_State*, T*) = luaW_defaultidentifier<T>)
 {
 	luaW_setfuncs(L, classname, table, metatable, allocator, deallocator, identifier); // ... T
+	lua_pushvalue(L, -1);
 	lua_setglobal(L, classname); // ... T
 }
 
