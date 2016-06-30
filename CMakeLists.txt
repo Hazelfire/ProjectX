@@ -149,6 +149,7 @@ set(GAME_SRC
   Classes/Creatures.cpp
   Classes/Debug.cpp
   Classes/FileOperation.cpp
+  Classes/Particles.cpp
   Classes/Interactions.cpp
   Classes/Inventory.cpp
   Classes/Mortal.cpp
@@ -225,6 +226,7 @@ set(GAME_HEADERS
   Classes/GameInformation.h
   Classes/Inventory.h
   Classes/Interactions.h
+  Classes/Particles.h
   Classes/Mortal.h
   Classes/MusicEngine.h
   Classes/MyMath.h
