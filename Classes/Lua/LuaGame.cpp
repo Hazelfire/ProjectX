@@ -723,13 +723,5 @@ int LuaGame::l_spawnParticles(lua_State* functionState) {
 		float y = lua_tonumber(functionState, 3);
 		Particles::spawnParticles(particleSystemName, Vec2f(x, y));
 	}
-	else if (lua_gettop(functionState) == 4) {
-		std::string particleSystemName = lua_tostring(functionState, 1);
-		float x = lua_tonumber(functionState, 2);
-		float y = lua_tonumber(functionState, 3);
-		float duration = lua_tonumber(functionState, 4);
-		Particles::spawnParticles(particleSystemName, Vec2f(x, y), duration);
-	}
-
 	return 0;
 }

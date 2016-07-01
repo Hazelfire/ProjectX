@@ -4,5 +4,5 @@
 
 class Particles {
 public:
-	static void spawnParticles(std::string particleSystemName, Vec2f location, float duration = 1.0f);
+	static void spawnParticles(std::string particleSystemName, Vec2f location);
 };
