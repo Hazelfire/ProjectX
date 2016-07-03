@@ -22,7 +22,6 @@ XClient* XClient::m_clientInstance;
 void XClient::init(PlayerInformation playerInfo, Lobby* lobby) {
 	m_playerInfo = playerInfo;
 	m_lobby = lobby;
-	m_clientInstance = this;
 }
 
 void XClient::onConnect() {
@@ -229,7 +228,12 @@ void XClient::movePlayer(Vec2i position, unsigned char distance, float speed) {
 }
 
 XClient* XClient::getInstance() {
+	if(m_clientInstance)
 	return m_clientInstance;
+	else{
+		m_clientInstance = new XClient();
+		return m_clientInstance;
+	}
 }
 
 void XClient::changeMap(Vec2i position, int state) {
