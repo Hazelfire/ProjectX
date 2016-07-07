@@ -20,6 +20,10 @@ int XClient::m_playerIndex = 0000000000000000000000000000000;
 XClient* XClient::m_clientInstance;
 
 void XClient::init(PlayerInformation playerInfo, Lobby* lobby) {
+	m_clientInstance = new XClient(playerInfo, lobby);
+}
+
+XClient::XClient(PlayerInformation playerInfo, Lobby* lobby) {
 	m_playerInfo = playerInfo;
 	m_lobby = lobby;
 }
@@ -229,10 +233,9 @@ void XClient::movePlayer(Vec2i position, unsigned char distance, float speed) {
 
 XClient* XClient::getInstance() {
 	if(m_clientInstance)
-	return m_clientInstance;
-	else{
-		m_clientInstance = new XClient();
 		return m_clientInstance;
+	else{
+		return nullptr;
 	}
 }
 

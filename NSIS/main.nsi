@@ -77,7 +77,6 @@ SectionGroup "Development Tools"
 		
 		SetOutPath $INSTDIR\docs
 		
-		File ProjectXDocs.chm
 		File ProjectXBook.pdf
 		
 	SectionEnd
@@ -89,7 +88,7 @@ Section "Previewer"
 	
 	File /r preview
 	
-	CreateShortcut "$DESKTOP\ProjectX Sprite Previewer.lnk" "$INSTDIR\preview\preview.exe" "" "$INSTDIR\preview\preview.exe" 0
+	CreateShortcut "$DESKTOP\ProjectX Sprite Previewer.lnk" "$INSTDIR\preview\Previewer.exe" "" "$INSTDIR\preview\Previewer.exe" 0
 SectionEnd
 
 Section "Uninstall"
