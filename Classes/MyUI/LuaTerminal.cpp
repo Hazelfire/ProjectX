@@ -1,11 +1,13 @@
 #include "LuaTerminal.h"
 
+LuaTerminal* LuaTerminal::m_terminalInstance = nullptr;
 using namespace cocos2d;
 
 LuaTerminal* LuaTerminal::create() {
 	LuaTerminal* re = new (std::nothrow) LuaTerminal();
 	if (re && re->init()) {
 		re->autorelease();
+		m_terminalInstance = re;
 		return re;
 	}
 	else {
@@ -26,7 +28,6 @@ bool LuaTerminal::init() {
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(keyListener, this);
 
 	m_commandField = XBMPLabel::create("<Enter command>", "Pixelfont", 20, XBMPLabel::LEFT);
-	m_commandField->setAnchorPoint(Vec2(0, 0));
 
 	Vec2 commandPosition = Vec2(visibleSize.height / 10, visibleSize.height / 10);
 	m_commandField->setPosition(commandPosition);
@@ -35,6 +36,10 @@ bool LuaTerminal::init() {
 	setVisible(false);
 	return true;
 
+}
+
+LuaTerminal* LuaTerminal::getInstance() {
+	return m_terminalInstance;
 }
 
 void LuaTerminal::keyPressed(EventKeyboard::KeyCode code, Event*) {
@@ -216,6 +221,31 @@ void LuaTerminal::keyReleased(cocos2d::EventKeyboard::KeyCode code, cocos2d::Eve
 	if (code == EventKeyboard::KeyCode::KEY_SHIFT) {
 		m_caps = !m_caps;
 	}
+}
+
+void LuaTerminal::print(std::string message) {
+	m_logList.push_front(message);
+
+	Size visibleSize = Director::getInstance()->getVisibleSize();
+
+	Vec2 startPosition = Vec2((visibleSize.height / 10), visibleSize.height / 10 + 20);
+
+	Node* termDisplay = Node::create();
+	termDisplay->setName("Display");
+	termDisplay->setPosition(startPosition);
+
+	int i = 0;
+	for (auto currentLog : m_logList) {
+		XBMPLabel* currentLogLabel = XBMPLabel::create(currentLog, "PixelFont", 20, XBMPLabel::LEFT);
+		currentLogLabel->setPosition(Vec2(0, 20*i));
+		termDisplay->addChild(currentLogLabel);
+		i++;
+	}
+
+	if (getChildByName("Display")) {
+		removeChildByName("Display");
+	}
+	addChild(termDisplay);
 }
 
 void LuaTerminal::toggleActive() {
