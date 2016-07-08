@@ -8,6 +8,8 @@
 #include "Debug.h"
 #include "Parser/StringOperations.h"
 #include "Save.h"
+#include "MyUI/LuaTerminal.h"
+
 int WIDTH;
 int HEIGHT;
 
@@ -157,6 +159,13 @@ void Arena::addUI() {
 	// because the infobar needs to be higher than the inventory
 	infoBar->setLocalZOrder(123);
 	m_UILayer->addChild(infoBar);
+
+
+	if (Save::read(&SaveInformation::devMode)) {
+		LuaTerminal* term = LuaTerminal::create();
+
+		m_UILayer->addChild(term);
+	}
 }
 
 void Arena::inventoryOpened(Ref* sender, ui::Button::TouchEventType type) {
