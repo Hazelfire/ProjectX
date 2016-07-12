@@ -65,6 +65,20 @@ void LuaTerminal::keyPressed(EventKeyboard::KeyCode code, Event*) {
 		else if (code == EventKeyboard::KeyCode::KEY_SHIFT) {
 			m_caps = !m_caps;
 		}
+		else if (code == EventKeyboard::KeyCode::KEY_UP_ARROW) {
+			if (m_commandIndex < (int)m_commandList.size() - 1) {
+				m_commandIndex++;
+				m_currentCommand = m_commandList[m_commandList.size() - m_commandIndex - 1];
+				m_commandField->setString(m_currentCommand);
+			}
+		}
+		else if (code == EventKeyboard::KeyCode::KEY_DOWN_ARROW) {
+			if (m_commandIndex > 0) {
+				m_commandIndex--;
+				m_currentCommand = m_commandList[m_commandList.size() - m_commandIndex - 1];
+				m_commandField->setString(m_currentCommand);
+			}
+		}
 		else {
 			switch (code) {
 			case EventKeyboard::KeyCode::KEY_0:
@@ -266,6 +280,8 @@ void LuaTerminal::appendKey(char key) {
 
 void LuaTerminal::runCommand() {
 	m_interpreter.run(std::list<std::string>(), m_currentCommand);
+	m_commandList.push_back(m_currentCommand);
 	m_currentCommand = "";
 	m_commandField->setString("<Enter command>");
+	m_commandIndex = -1;
 }

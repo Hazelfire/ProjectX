@@ -1,6 +1,7 @@
 #include <cocos2d.h>
 #include "Lua\LuaGame.h"
 #include "XBMPLabel.h"
+#include <vector> 
 
 class LuaTerminal : public cocos2d::Node {
 public:
@@ -25,5 +26,7 @@ private:
 	bool m_caps = false;
 
 	std::list<std::string> m_logList;
+	int m_commandIndex = -1;
+	std::vector<std::string> m_commandList;
 	XBMPLabel* m_commandField;
 };
