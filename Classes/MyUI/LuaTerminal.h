@@ -22,7 +22,7 @@ private:
 
 	bool m_active = false; 
 	std::string m_currentCommand;
-	LuaInterpreter m_interpreter;
+	LuaGame m_interpreter;
 	bool m_caps = false;
 
 	std::list<std::string> m_logList;
