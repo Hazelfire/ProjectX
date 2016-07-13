@@ -7,7 +7,7 @@
 // Client with functionality specific to the game
 class XClient : public MultiplayerClient {
 public:
-	
+
 	// an interface for the lobby
 	class Lobby{
 	public:
@@ -20,8 +20,10 @@ public:
 		PlayerList m_connectedPlayers;
 	};
 
+	// Constructor for xclient
+	XClient(PlayerInformation playerInfo, Lobby* lobby);
 	// stores chosen information about the player
-	void init(PlayerInformation gameInfo, Lobby* lobby);
+	static void init(PlayerInformation playerInfo, Lobby* lobby);
 
 	// gets the current player's index
 	static int getPlayerIndex();

@@ -43,7 +43,7 @@ bool MultiplayerLobby::init(GameInformation gameInfo, bool hostMode) {
 	statusLabel->setPosition(visibleSize / 2);
 	addChild(statusLabel);
 
-	XClient::getInstance()->init(gameInfo.playerInfo, this);
+	XClient::init(gameInfo.playerInfo, this);
 
 	if (hostMode) {
 #if NOT_MOBILE

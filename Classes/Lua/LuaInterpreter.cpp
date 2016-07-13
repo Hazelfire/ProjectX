@@ -8,13 +8,6 @@ std::string pickleScript = "----------------------------------------------\r\n--
 
 void LuaInterpreter::run(std::string scriptFile, std::string extra) {
 
-	// add if you wish, standard library for lua, I am not sure how safe this is cross-platform
-	luaL_openlibs(m_mainState);
-
-	// adding pickle utilities
-	luaL_dostring(m_mainState, pickleScript.c_str());
-
-	addFunctions(m_mainState); // Calls children and adds all functions
 
 	// Loading the string into lua
 
@@ -33,12 +26,6 @@ void LuaInterpreter::run(std::string scriptFile, std::string extra) {
 }
 
 void LuaInterpreter::run(std::list<std::string> scripts, std::string extra){
-		
-	luaL_openlibs(m_mainState);
-
-	luaL_dostring(m_mainState, pickleScript.c_str());
-
-	addFunctions(m_mainState);
 
 	for (auto script : scripts){
 		int error = luaL_dofile(m_mainState, script.c_str());
@@ -149,11 +136,19 @@ void LuaInterpreter::addFunctions(lua_State* mainState) {
 }
 
 LuaInterpreter::~LuaInterpreter() {
-	cleanup();
+	lua_close(m_mainState);
 }
 
 LuaInterpreter::LuaInterpreter() {
 	m_mainState = luaL_newstate();
+	
+	// add if you wish, standard library for lua, I am not sure how safe this is cross-platform
+	luaL_openlibs(m_mainState);
+
+	// adding pickle utilities
+	luaL_dostring(m_mainState, pickleScript.c_str());
+
+	addFunctions(m_mainState); // Calls children and adds all functions
 }
 
 void LuaInterpreter::cleanup() {

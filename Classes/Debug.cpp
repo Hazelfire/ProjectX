@@ -2,6 +2,7 @@
 #include "Debug.h"
 #include <iostream>
 #include "base/CCConsole.h"
+#include "MyUI/LuaTerminal.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32 || CC_TARGET_PLATFORM == CC_PLATFORM_LINUX || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
 
@@ -85,18 +86,28 @@ void logToFiles(std::string message) {
 
 void Debugger::log(std::string message, DebugMessageType type) {
 	std::string fullMessage = constructMessage("info", message, type);
+	if (LuaTerminal::getInstance()) {
+		LuaTerminal::getInstance()->print(fullMessage);
+	}
 	CCLOG(fullMessage.c_str(), "");
 	logToFiles(fullMessage);
 }
 
 void Debugger::logWarning(std::string message, DebugMessageType type) {
 	std::string fullMessage = constructMessage("warning", message, type);
+	if (LuaTerminal::getInstance()) {
+		LuaTerminal::getInstance()->print(fullMessage);
+	}
 	CCLOG(fullMessage.c_str(), "");
 	logToFiles(fullMessage);
 }
 
 void Debugger::logError(std::string message, DebugMessageType type) {
 	std::string fullMessage = constructMessage("error", message, type);
+	if (LuaTerminal::getInstance()) {
+		LuaTerminal::getInstance()->print(fullMessage);
+	}
+	
 	CCLOG(fullMessage.c_str(), "");
 
 	logToFiles(fullMessage);
