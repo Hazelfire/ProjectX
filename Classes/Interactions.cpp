@@ -1,28 +1,15 @@
 #include "Interactions.h"
 #include <unordered_map>
 #include "Player.h"
-#include "cocos2d.h"////////////////>
+#include "cocos2d.h"
 #include "Arena.h"
-#include "PathFinder.h"///////////////>
+#include "PathFinder.h"
 #include "ScriptLoader.h"
 #include "ResourceMacros.h"
 #include "Multiplayer/XClient.h"
-#include "Multiplayer/PuppetMaster.h"/*				
-=====================================================\
-'''''''''''''''''''''''''''''''''''''''|	|		  \ 				*Preparing for takeoff*
-.......................................|	|         /					- Shamefully By Sam Nolan
-=====================================================/
-#include "Multiplayer\PuppetMaster.h"
-#include "Multiplayer/XClient.h"
-#include "ResourceMacros.h"
-#include "ScriptLoader.h"
-#include "PathFinder.h"///////////////>
-#include "Arena.h"
-#include "cocos2d.h"////////////////>
-#include "Player.h"
-#include <unordered_map>
-#include "Interactions.h"
-*/
+#include "Multiplayer/PuppetMaster.h"
+
+
 #define LOAD_REPO() if (interactionsRepo.tiles.empty()) { \
 					interactionsRepo = InteractionsParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_INTERACTIONS));\
 					}
@@ -41,34 +28,34 @@ bool Interact::m_choicesNeedToBeDestroyed = false;
 bool Interact::m_choicesIsDestroyed = true;
 Vec2i Interact::m_selectedCoordinates;
 
-void Interact::InteractMap(float x, float y) {
+void Interact::InteractMap(Vec2f tileCoordinates) {
 	// load the Repo if not already
 	LOAD_REPO();
-	Mortal* player = PuppetMaster::getPlayerAt(Vec2f(x, y));
+	Mortal* player = PuppetMaster::getPlayerAt(tileCoordinates);
 	if (player && player->getPlayerIndex() != XClient::getPlayerIndex()) {
 		// it's not me, so it must be a puppet, cast
 		Puppet* puppet = (Puppet*)player;
 		puppet->showInteractions();
 	}
 
-	Creature* creature = Creature::getCreatureAt(Vec2f(x, y));
+	Creature* creature = Creature::getCreatureAt(tileCoordinates);
 	if (creature) {
 		runCreatureInteractions(creature);
 	}
 
-	string tileName = Arena::getMapInstance()->getTileNameAt(Vec2i(x,y));
+	string tileName = Arena::getMapInstance()->getTileNameAt(tileCoordinates);
 	ActionList possibleActions = getPossibleActions(interactionsRepo.tiles[tileName], INTERACT_TILE);
 	if (possibleActions.isMovable) {
 		m_selectedCoordinates = Vec2i(-1, -1);
-		moveOn(x, y);
+		moveOn(tileCoordinates);
 		return;
 	}
 	if (possibleActions.options.size() == 1) {
-		//CCLOG("3");
-		runInteraction(possibleActions.options.front(), x, y);
+
+		runInteraction(possibleActions.options.front(), tileCoordinates);
 	}
 	else if (possibleActions.options.size() > 1) {
-		queryUser(possibleActions.options, x, y);
+		queryUser(possibleActions.options, tileCoordinates);
 	}
 }
 
@@ -85,23 +72,23 @@ ActionList Interact::getPossibleActions(ActionList set, InteractionType type) {
 	return re;
 }
 
-void Interact::runInteraction(Interaction action, int x, int y) {
+void Interact::runInteraction(Interaction action, Vec2i tileCoordinates) {
 	m_selectedCoordinates = Vec2(-1, -1);
-	m_currentLuaParser.init(x, y);
+	m_currentLuaParser.init(tileCoordinates);
 	if (action.instant) {
 		m_currentLuaParser.run(ScriptLoader::loadLuaScripts(ScriptLoader::LUA_INTERACTIONS),action.command);
 	}
 	else {
-		double time = moveTo(x, y);
+		double time = moveTo(tileCoordinates);
 		scheduleCommand(action.command, time);
 	}
 }
 
-void Interact::queryUser(list<Interaction> options, int x, int y) {
+void Interact::queryUser(list<Interaction> options, Vec2i tileCoordinates) {
 
 	// If the item is already selected, do not bring it up
-	if (m_selectedCoordinates == Vec2i(x, y)) return;
-	m_selectedCoordinates = Vec2i(x, y);
+	if (m_selectedCoordinates == Vec2i(tileCoordinates)) return;
+	m_selectedCoordinates = Vec2i(tileCoordinates);
 
 	destroyChoices();
 	m_choicesIsDestroyed = false;
@@ -114,15 +101,15 @@ void Interact::queryUser(list<Interaction> options, int x, int y) {
 	int i = 0;
 	for (std::list<Interaction>::iterator currentInteraction = options.begin(); currentInteraction != options.end(); currentInteraction++) {
 		Interaction currentInteractionObject = *currentInteraction;
-		m_choices->setSectionCallback(i, [currentInteractionObject,x,y]() {
+		m_choices->setSectionCallback(i, [currentInteractionObject,tileCoordinates]() {
 			Interact::destroyChoices();
-			Interact::runInteraction(currentInteractionObject,x,y);
+			Interact::runInteraction(currentInteractionObject, tileCoordinates);
 			
 		});
 		i++;
 	}
 
-	Arena::getMapInstance()->placeNode(Vec2i(x,y),m_choices);
+	Arena::getMapInstance()->placeNode(tileCoordinates,m_choices);
 	// a very large number. Gets it to the top of the screen
 	m_choices->setLocalZOrder(200000000);
 }
@@ -144,30 +131,30 @@ bool Interact::isMovable(string tileName){
 }
 
 //List of interactions
-double Interact::moveOn(int x, int y) {
-	return moveTo(x, y, 0);
+double Interact::moveOn(Vec2f tileCoordinates) {
+	return moveTo(tileCoordinates, 0);
 }
 
-double Interact::moveTo(int x, int y) {
-	return moveTo(x, y, 1);
+double Interact::moveTo(Vec2f tileCoordinates) {
+	return moveTo(tileCoordinates, 1);
 }
 
-double Interact::moveTo(int x, int y, int distance) {
-	return moveTo(x,y,distance,Player::getInstance()->getMovementSpeed());
+double Interact::moveTo(Vec2f tileCoordinates, int distance) {
+	return moveTo(tileCoordinates,distance,Player::getInstance()->getMovementSpeed());
 }
 
-double Interact::moveOn(int x, int y, double speed) {
-	return moveTo(x, y, 0, Player::getInstance()->getMovementSpeed());
+double Interact::moveOn(Vec2f tileCoordinates, double speed) {
+	return moveTo(tileCoordinates, 0, Player::getInstance()->getMovementSpeed());
 }
 
-double Interact::moveTo(int x, int y, int distance, double speed){
+double Interact::moveTo(Vec2f tileCoordinates, int distance, double speed){
 	// if the player has moved, other scheduled commands can be canceled
 	cancelCommand();
 	auto player = Player::getInstance();
 
-	XClient::getInstance()->movePlayer(Vec2i(x, y), distance, speed);
+	XClient::getInstance()->movePlayer(tileCoordinates, distance, speed);
 
-	return player->moveTo(Vec2i(x,y), distance, speed);
+	return player->moveTo(tileCoordinates, distance, speed);
 }
 
 void Interact::scheduleCommand(std::string command, double time) {

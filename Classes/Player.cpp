@@ -48,7 +48,7 @@ bool Player::TouchEvent(Touch* touch, Event* touchEvent) {
 		Vec2 tileCoordinates = XTileMap::findTileLocationAt(worldTouch);
 
 		if (tileCoordinates.x<0 || tileCoordinates.y<0 || tileCoordinates.x>Arena::getMapInstance()->getMapSize().x || tileCoordinates.y> Arena::getMapInstance()->getMapSize().y) return true; // if they clicked out of the map
-		Interact::InteractMap((int)tileCoordinates.x, (int)tileCoordinates.y);
+		Interact::InteractMap(tileCoordinates);
 
 		return true;
 	}
@@ -65,7 +65,6 @@ void Player::configureControls() {
 
 void Player::update(float delta) {
 	Vec2 tileLocation = XTileMap::findTileLocationAt(getPosition());
-	Vec2i mapSize = Arena::getMapInstance()->getMapSize();
 	
 	Arena::getMapInstance()->updateChunks(tileLocation);
 

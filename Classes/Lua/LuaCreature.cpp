@@ -3,6 +3,7 @@
 #include "MyMath.h"
 #include "Creatures.h"
 #include "Arena.h"
+#include "Debug.h"
 
 #define CREATURE_GID "CREATURE_GID"
 
@@ -30,9 +31,8 @@ void LuaCreature::start(lua_State* mainState) {
 	int error =lua_pcall(mainState, 1, 0, 0);
 
 	if (error!=0) {
-#if ((CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID))
-		CCLOG(lua_tostring(mainState, -1));
-#endif
+
+		Debugger::logError(lua_tostring(mainState, 1), DEBUG_LUA);
 		lua_pop(mainState, 1);
 	}
 
@@ -43,6 +43,7 @@ void LuaCreature::addFunctions(lua_State* mainState) {
 	LuaGame::addFunctions(mainState);
 
 	NEW_FUNCTION("getPosition", l_getCreaturePosition);
+	NEW_FUNCTION("getRealPosition", l_getCreatureRealPosition);
 	NEW_FUNCTION("moveOn", l_creatureMoveOn);
 	NEW_FUNCTION("setMovementSpeed", l_setCreatureMovementSpeed);
 	NEW_FUNCTION("getMovementSpeed", l_getCreatureMovementSpeed);
@@ -62,33 +63,53 @@ void LuaCreature::addFunctions(lua_State* mainState) {
 }
 
 int LuaCreature::l_getCreaturePosition(lua_State* functionState) {
+	if(!assertArguments(functionState, "getPosition",
+				{})) return 0;
+
+
 	Creature* creatureReference = getCreatureReference(functionState);
 	Vec2i tilePosition = creatureReference->getTilePosition();
-	lua_pushinteger(functionState, tilePosition.x);
-	lua_pushinteger(functionState, tilePosition.y);
-	
-	return 2;
+	pushVector(functionState, tilePosition);
+
+	return 1;
 }
 
 int LuaCreature::l_getCreatureRealPosition(lua_State* functionState) {
+	if(!assertArguments(functionState, "getRealPosition", {})) return 0;
+
 	Creature* creatureReference = getCreatureReference(functionState);
 	Vec2 realTilePosition = creatureReference->getRealTilePosition();
-	lua_pushnumber(functionState, realTilePosition.x);
-	lua_pushnumber(functionState, realTilePosition.y);
-	return 2;
+	pushVector(functionState, realTilePosition);
+
+	return 1;
 }
 
 int LuaCreature::l_creatureMoveOn(lua_State* functionState) {
+	
+	if(!assertArguments(functionState, "moveOn",{ 
+				{ LUA_TTABLE },
+				{ LUA_TTABLE, LUA_TNUMBER}
+				})) return 0;
+
 	Creature* creatureReference = getCreatureReference(functionState);
-	if (lua_gettop(functionState) == 2) {
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tointeger(functionState, 2);
-		creatureReference->moveOn(Vec2i(x, y));
+	if (lua_gettop(functionState) == 1) {
+		Vec2d position = toVector(functionState, 1);
+		creatureReference->moveOn(position);
+	}
+	else if(lua_gettop(functionState) == 2){
+		Vec2d position = toVector(functionState, 1);
+		double speed  = lua_tonumber(functionState, 2);
+		creatureReference->moveOn(position, speed);
 	}
 	return 0;
 }
 
 int LuaCreature::l_newProximityState(lua_State* functionState) {
+	
+	if(!assertArguments(functionState, "States.newProximityState", {
+				{LUA_TSTRING, LUA_TNUMBER}
+				})) return 0;
+
 	if (lua_gettop(functionState) == 2) {
 		Creature* creatureReference = getCreatureReference(functionState);
 		std::string functionName = lua_tostring(functionState, 1);
@@ -99,6 +120,11 @@ int LuaCreature::l_newProximityState(lua_State* functionState) {
 }
 
 int LuaCreature::l_newUpdateState(lua_State* functionState) {
+	
+	if(!assertArguments(functionState, "States.newUpdateState", {
+				{LUA_TSTRING}
+				})) return 0;
+
 	if(lua_gettop(functionState) == 1){
 		Creature* creatureReference = getCreatureReference(functionState);
 		std::string functionName = lua_tostring(functionState, 1);
@@ -108,6 +134,11 @@ int LuaCreature::l_newUpdateState(lua_State* functionState) {
 }
 
 int LuaCreature::l_newClockState(lua_State* functionState) {
+
+	if(!assertArguments(functionState, "States.newClockState", {
+				{LUA_TSTRING, LUA_TNUMBER}
+				})) return 0;
+
 	if (lua_gettop(functionState) == 2) {
 		Creature* creatureReference = getCreatureReference(functionState);
 		std::string functionName = lua_tostring(functionState, 1);
@@ -119,6 +150,11 @@ int LuaCreature::l_newClockState(lua_State* functionState) {
 }
 
 int LuaCreature::l_deleteState(lua_State* functionState) {
+
+	if(!assertArguments(functionState, "States.deleteState", {
+				{LUA_TSTRING}
+				})) return 0;
+
 	if (lua_gettop(functionState) == 1) {
 		Creature* creatureReference = getCreatureReference(functionState);
 		std::string stateName = lua_tostring(functionState, 1);
@@ -128,6 +164,10 @@ int LuaCreature::l_deleteState(lua_State* functionState) {
 }
 
 int LuaCreature::l_setCreatureMovementSpeed(lua_State* functionState) {
+	if(!assertArguments(functionState, "setMovementSpeed", {
+				{ LUA_TNUMBER }
+				})) return 0;
+
 	if (lua_gettop(functionState) == 1) {
 		Creature* creatureReference = getCreatureReference(functionState);
 		float movementSpeed = lua_tonumber(functionState, 1);
@@ -137,6 +177,9 @@ int LuaCreature::l_setCreatureMovementSpeed(lua_State* functionState) {
 }
 
 int LuaCreature::l_getCreatureMovementSpeed(lua_State* functionState) {
+
+	if(!assertArguments(functionState, "getMovementSpeed", {})) return 0;
+
 	if (lua_gettop(functionState) == 0) {
 		Creature* creatureReference = getCreatureReference(functionState);
 		float movementSpeed = creatureReference->getMovementSpeed();
@@ -147,24 +190,36 @@ int LuaCreature::l_getCreatureMovementSpeed(lua_State* functionState) {
 }
 
 int LuaCreature::l_creatureMoveTo(lua_State* functionState) {
+
+	if(!assertArguments(functionState, "moveTo",{
+				{ LUA_TTABLE },
+				{ LUA_TTABLE, LUA_TNUMBER },
+				{ LUA_TTABLE, LUA_TNUMBER, LUA_TNUMBER}
+				})) return 0;
+
 	Creature* creatureReference = getCreatureReference(functionState);
-	if (lua_gettop(functionState) == 3) {
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tointeger(functionState, 2);
-		int distance = lua_tointeger(functionState, 3);
-		creatureReference->moveTo(Vec2i(x, y), distance);
+	if(lua_gettop(functionState) == 1){
+		Vec2d position = toVector(functionState, 1);
+		creatureReference->moveTo(position);
 	}
-	else if (lua_gettop(functionState) == 4) {
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tointeger(functionState, 2);
+	if (lua_gettop(functionState) == 2) {
+		Vec2d position = toVector(functionState, 1);
 		int distance = lua_tointeger(functionState, 3);
-		double speed = lua_tonumber(functionState, 4);
-		creatureReference->moveTo(Vec2i(x, y), distance, speed);
+		creatureReference->moveTo(position, distance);
+	}
+	else if (lua_gettop(functionState) == 3) {
+		Vec2d position = toVector(functionState, 1);
+		int distance = lua_tointeger(functionState, 2);
+		double speed = lua_tonumber(functionState, 3);
+		creatureReference->moveTo(position, distance, speed);
 	}
 	return 0;
 }
 
 int LuaCreature::l_despawn(lua_State* functionState) {
+
+	if(!assertArguments(functionState, "despawn", {})) return 0;
+
 	Creature* creatureReference = getCreatureReference(functionState);
 	if (lua_gettop(functionState) == 0) {
 		creatureReference->despawn();

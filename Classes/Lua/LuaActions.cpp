@@ -4,12 +4,9 @@
 #include "Inventory.h"
 #include "Multiplayer/XClient.h"
 
-int LuaActions::m_Playerx;
-int LuaActions::m_Playery;
 
-void LuaActions::init(int x, int y) {
-	m_Playerx = x;
-	m_Playery = y;
+void LuaActions::init(Vec2i tileCoordinates) {
+	m_tilePos = tileCoordinates;
 }
 
 void LuaActions::addFunctions(lua_State* mainState) {
@@ -25,13 +22,9 @@ void LuaActions::addFunctions(lua_State* mainState) {
 
 	NAME_TABLE("Interact");
 
-	// sets the x anad y coordinates to the tiles as globals x and y. 
-	// This goes against all my knowledge as a programmer but it is efficient and looks nice
-	lua_pushinteger(mainState, m_Playerx);
-	lua_setglobal(mainState, "x");
-
-	lua_pushinteger(mainState, m_Playery);
-	lua_setglobal(mainState, "y");
+	// The position of the tile that is being clicked on
+	pushVector(mainState, m_tilePos);
+	lua_setglobal(mainState, "tilePos");
 
 	int playerIndex = XClient::getPlayerIndex();
 	
@@ -43,51 +36,59 @@ void LuaActions::addFunctions(lua_State* mainState) {
 }
 
 int LuaActions::l_moveOn(lua_State* functionState) {
-	if (lua_gettop(functionState) == 2) { // if there is 2 arguments
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tointeger(functionState, 2);
-		Interact::moveOn(x, y);
+
+	if(!assertArguments(functionState, "moveOn", {
+				{ LUA_TTABLE },
+				{ LUA_TTABLE, LUA_TNUMBER}
+				})) return 0;
+
+	if (lua_gettop(functionState) == 1) {
+		Vec2d position = toVector(functionState, 1);
+		Interact::moveOn(position);
 	}
-	else if (lua_gettop(functionState) == 3) {
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tointeger(functionState, 2);
-		double speed = lua_tonumber(functionState, 3);
-		Interact::moveOn(x, y, speed);
+	else if (lua_gettop(functionState) == 2) {
+		Vec2d position = toVector(functionState, 1);
+		double speed = lua_tonumber(functionState, 2);
+		Interact::moveOn(position, speed);
 	}
-	Interact::moveOn(m_Playerx, m_Playery);
 	return 0;
 }
 
 int LuaActions::l_moveTo(lua_State* functionState) {
-	if (lua_gettop(functionState) == 2) { // if there is 2 arguments
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tonumber(functionState, 2);
-		Interact::moveTo(x,y);
+
+	if(!assertArguments(functionState, "moveTo", {
+				{ LUA_TTABLE },
+				{ LUA_TTABLE, LUA_TNUMBER },
+				{ LUA_TTABLE, LUA_TNUMBER, LUA_TNUMBER }
+				})) return 0;
+
+	if (lua_gettop(functionState) == 1) { // if there is 2 arguments
+		Vec2d position = toVector(functionState, 1);
+		Interact::moveTo(position);
 	}
-	else if (lua_gettop(functionState) == 3) {
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tointeger(functionState, 2);
-		int distance = lua_tointeger(functionState, 3);
-		Interact::moveTo(x, y, distance);
+	else if (lua_gettop(functionState) == 2) {
+		Vec2d position = toVector(functionState, 1);
+		int distance = lua_tointeger(functionState, 2);
+		Interact::moveTo(position, distance);
 	}
 	else if (lua_gettop(functionState) == 4) {
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tointeger(functionState, 2);
-		int distance = lua_tointeger(functionState, 3);
-		double speed = lua_tonumber(functionState, 4);
-		Interact::moveTo(x, y, distance, speed);
-	}
-	else if (lua_gettop(functionState) == 0) {
-		Interact::moveTo(m_Playerx, m_Playery);
+		Vec2d position = toVector(functionState, 1);
+		int distance = lua_tointeger(functionState, 2);
+		double speed = lua_tonumber(functionState, 3);
+		Interact::moveTo(position, distance, speed);
 	}
 	return 0;
 }
 
 int LuaActions::l_interactMap(lua_State* functionState) {
-	if (lua_gettop(functionState) == 2) {
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tointeger(functionState, 2);
-		Interact::InteractMap(x,y);
+
+	if(!assertArguments(functionState, "interactMap", {
+				{ LUA_TTABLE }
+				})) return 0;
+
+	if (lua_gettop(functionState) == 1) {
+		Vec2d position = toVector(functionState, 1);
+		Interact::InteractMap(position);
 	}
 	return 0;
 }

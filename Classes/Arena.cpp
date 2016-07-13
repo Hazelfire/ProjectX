@@ -140,7 +140,6 @@ void Arena::addUI() {
 	infoBar->setPosition(0, visibleSize.height);
 	infoBar->setScale((float)visibleSize.width / infoBar->getContentSize().width);
 	Size infoBarSize = infoBar->getContentSize();
-	float infoBarScale = infoBar->getScale();
 
 	ui::Button* inventoryButton = ui::Button::create();
 	inventoryButton->loadTextureNormal(INVENTORY_BUTTON);

@@ -125,13 +125,12 @@ void LuaGame::callWithPlayer(std::string function, int player) {
 int LuaGame::l_findNameAt(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena.getTileNameAt", {
-		{LUA_TNUMBER, LUA_TNUMBER}
+		{ LUA_TTABLE }
 	})) return 0;
 
-	if (lua_gettop(functionState) == 2) { // If there is 2 arguments
-		int x = lua_tonumber(functionState, 1);
-		int y = lua_tonumber(functionState, 2);
-		string name = Arena::getMapInstance()->getTileNameAt(Vec2i(x, y));
+	if (lua_gettop(functionState) == 1) { // If there is one arguments
+		Vec2d position = toVector(functionState, 1);
+		string name = Arena::getMapInstance()->getTileNameAt(position);
 		lua_pushstring(functionState, name.c_str());
 		return 1;
 	}
@@ -141,13 +140,12 @@ int LuaGame::l_findNameAt(lua_State* functionState) {
 int LuaGame::l_findRegionAt(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena.getTileRegionAt", {
-		{ LUA_TNUMBER, LUA_TNUMBER }
+		{ LUA_TTABLE }
 	})) return 0;
 
-	if (lua_gettop(functionState) == 2) { // If there is 2 arguments
-		int x = lua_tonumber(functionState, 1);
-		int y = lua_tonumber(functionState, 2);
-		string name = Arena::getMapInstance()->getTileRegionAt(Vec2i(x, y));
+	if (lua_gettop(functionState) == 1) { 
+		Vec2d position = toVector(functionState, 1);
+		string name = Arena::getMapInstance()->getTileRegionAt(position);
 		lua_pushstring(functionState, name.c_str());
 		return 1;
 	}
@@ -164,10 +162,9 @@ int LuaGame::l_getPlayerPosition(lua_State* functionState) {
 	Mortal* player = PuppetMaster::getPlayer(*luaPlayer);
 	Vec2i playerPosition = player->getTilePosition();
 	
-	lua_pushinteger(functionState, playerPosition.x);
-	lua_pushinteger(functionState, playerPosition.y);
+	pushVector(functionState, playerPosition);
 
-	return 2;
+	return 1;
 }
 
 int LuaGame::l_getPlayerRealPosition(lua_State* functionState) {
@@ -180,10 +177,9 @@ int LuaGame::l_getPlayerRealPosition(lua_State* functionState) {
 	Mortal* player = PuppetMaster::getPlayer(*luaPlayer);
 	Vec2 playerLocation = player->getRealTilePosition();
 
-	lua_pushinteger(functionState, playerLocation.x);
-	lua_pushinteger(functionState, playerLocation.y);
+	pushVector(functionState, playerLocation);
 
-	return 2;
+	return 1;
 }
 
 int LuaGame::l_givePlayerItem(lua_State* functionState) {
@@ -242,13 +238,12 @@ int LuaGame::l_getClassName(lua_State* functionState) {
 int LuaGame::l_destroyTile(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena.destroyTile", {
-		{LUA_TNUMBER, LUA_TNUMBER}
+		{LUA_TTABLE}
 	})) return 0;
 
-	if (lua_gettop(functionState) == 2) {
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tointeger(functionState, 2);
-		Arena::getMapInstance()->destroyTile(Vec2i(x,y));
+	if (lua_gettop(functionState) == 1) {
+		Vec2d position = toVector(functionState, 1);
+		Arena::getMapInstance()->destroyTile(position);
 	}
 	return 0;
 }
@@ -256,14 +251,13 @@ int LuaGame::l_destroyTile(lua_State* functionState) {
 int LuaGame::l_setTileState(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena.setTileState", {
-		{LUA_TNUMBER, LUA_TNUMBER, LUA_TNUMBER}
+		{LUA_TTABLE, LUA_TNUMBER}
 	})) return 0;
 
-	if (lua_gettop(functionState) == 3) {
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tointeger(functionState, 2);
-		int state = lua_tointeger(functionState, 3);
-		Arena::getMapInstance()->setTileState(Vec2i(x,y), state);
+	if (lua_gettop(functionState) == 2) {
+		Vec2d position = toVector(functionState, 1);
+		int state = lua_tointeger(functionState, 2);
+		Arena::getMapInstance()->setTileState(position, state);
 	}
 
 	return 0;
@@ -272,13 +266,12 @@ int LuaGame::l_setTileState(lua_State* functionState) {
 int LuaGame::l_getTileState(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena.getTileState", {
-		{ LUA_TNUMBER, LUA_TNUMBER}
+		{ LUA_TTABLE }
 	})) return 0;
 
-	if (lua_gettop(functionState) == 2) {
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tointeger(functionState, 2);
-		int state = Arena::getMapInstance()->getTileState(Vec2i(x, y));
+	if (lua_gettop(functionState) == 1) {
+		Vec2d position = toVector(functionState, 1);
+		int state = Arena::getMapInstance()->getTileState(position);
 		
 		lua_pushinteger(functionState, state);
 		return 1;
@@ -353,14 +346,13 @@ int LuaGame::l_canCraftItem(lua_State* functionState) {
 int LuaGame::l_getTileProperties(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena:getTileProperties", {
-		{ LUA_TNUMBER, LUA_TNUMBER }
+		{ LUA_TTABLE, LUA_TTABLE }
 	})) return 0;
 
-	if (lua_gettop(functionState) == 2) {
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tointeger(functionState, 2);
+	if (lua_gettop(functionState) == 1) {
+		Vec2d position = toVector(functionState, 1);
 	
-		std::string pickledTable = Arena::getMapInstance()->getTileProperties(Vec2i(x, y));
+		std::string pickledTable = Arena::getMapInstance()->getTileProperties(position);
 		if(pickledTable.empty())
 			lua_newtable(functionState);
 		else
@@ -373,18 +365,17 @@ int LuaGame::l_getTileProperties(lua_State* functionState) {
 int LuaGame::l_setTileProperties(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena:setTileProperties", {
-		{ LUA_TNUMBER, LUA_TNUMBER, LUA_TTABLE }
+		{ LUA_TTABLE , LUA_TTABLE }
 	})) return 0;
 
-	if (lua_gettop(functionState) == 3) {
-		int x = lua_tointeger(functionState, 1);
-		int y = lua_tointeger(functionState, 2);
+	if (lua_gettop(functionState) == 2) {
+		Vec2d position = toVector(functionState, 1);
 
-		std::string pickledTable = pickleTable(functionState, 3);
+		std::string pickledTable = pickleTable(functionState, 2);
 						
 		// send everyone the changes and also change our own map
-		XClient::getInstance()->setTileProperties(Vec2i(x, y), pickledTable);
-		Arena::getMapInstance()->setTileProperies(Vec2i(x, y), pickledTable);
+		XClient::getInstance()->setTileProperties(position, pickledTable);
+		Arena::getMapInstance()->setTileProperies(position, pickledTable);
 	}
 	return 0;
 }
@@ -406,15 +397,14 @@ int LuaGame::l_getPlayerMovementSpeed(lua_State* functionState) {
 int LuaGame::l_spawnCreature(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature.spawnCreature", {
-		{ LUA_TSTRING,LUA_TNUMBER,LUA_TNUMBER }
+		{ LUA_TSTRING, LUA_TTABLE }
 	})) return 0;
 
-	if (lua_gettop(functionState) == 3) {
+	if (lua_gettop(functionState) == 2) {
 		std::string name = lua_tostring(functionState, 1);
-		int x = lua_tointeger(functionState, 2);
-		int y = lua_tointeger(functionState, 3);
-		Creature* creature = Creature::spawnCreature(name, Vec2i(x, y));
-		XClient::getInstance()->spawnCreature(name, Vec2i(x,y));
+		Vec2d position = toVector(functionState, 2);
+		Creature* creature = Creature::spawnCreature(name, position);
+		XClient::getInstance()->spawnCreature(name, position);
 		LuaCreatureObject* luaCreature = new LuaCreatureObject(creature->getGID());
 		luaW_push<LuaCreatureObject>(functionState,luaCreature);
 		return 1;
@@ -483,38 +473,35 @@ int LuaGame::l_hasItemWithTag(lua_State* functionState) {
 int LuaGame::l_creatureMoveTo(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:moveTo", {
-		{ LUA_TNUMBER, LUA_TNUMBER },
-		{LUA_TNUMBER, LUA_TNUMBER, LUA_TNUMBER},
-		{LUA_TNUMBER, LUA_TNUMBER, LUA_TNUMBER, LUA_TNUMBER}
+		{ LUA_TTABLE },
+		{ LUA_TTABLE , LUA_TNUMBER},
+		{ LUA_TTABLE, LUA_TNUMBER, LUA_TNUMBER}
 	}, true)) return 0;
 
-	if (lua_gettop(functionState) == 3) {
+	if (lua_gettop(functionState) == 2) {
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
-		int x = lua_tointeger(functionState, 2);
-		int y = lua_tointeger(functionState, 3);
+		Vec2d position = toVector(functionState, 2);
 		Creature* creature = Creature::getWithId(*luaCreature);
-		double time = creature->moveTo(Vec2i(x, y));
+		double time = creature->moveTo(position);
+		lua_pushnumber(functionState, time);
+		return 1;
+	}
+	else if (lua_gettop(functionState) == 3) {
+		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
+		Vec2d position = toVector(functionState, 2);
+		int distance = lua_tointeger(functionState, 3);
+		Creature* creature = Creature::getWithId(*luaCreature);
+		double time = creature->moveTo(position, distance);
 		lua_pushnumber(functionState, time);
 		return 1;
 	}
 	else if (lua_gettop(functionState) == 4) {
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
-		int x = lua_tointeger(functionState, 2);
-		int y = lua_tointeger(functionState, 3);
-		int distance = lua_tointeger(functionState, 4);
+		Vec2d position = toVector(functionState, 2);
+		int distance = lua_tointeger(functionState, 3);
+		double speed = lua_tonumber(functionState, 4);
 		Creature* creature = Creature::getWithId(*luaCreature);
-		double time = creature->moveTo(Vec2i(x, y), distance);
-		lua_pushnumber(functionState, time);
-		return 1;
-	}
-	else if (lua_gettop(functionState) == 5) {
-		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
-		int x = lua_tointeger(functionState, 2);
-		int y = lua_tointeger(functionState, 3);
-		int distance = lua_tointeger(functionState, 4);
-		double speed = lua_tonumber(functionState, 5);
-		Creature* creature = Creature::getWithId(*luaCreature);
-		double time = creature->moveTo(Vec2i(x, y), distance, speed);
+		double time = creature->moveTo(position, distance, speed);
 		lua_pushnumber(functionState, time);
 		return 1;
 	}
@@ -524,26 +511,24 @@ int LuaGame::l_creatureMoveTo(lua_State* functionState) {
 int LuaGame::l_creatureMoveOn(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:moveOn", {
-		{ LUA_TNUMBER, LUA_TNUMBER },
-		{ LUA_TNUMBER, LUA_TNUMBER, LUA_TNUMBER }
+		{ LUA_TTABLE },
+		{ LUA_TTABLE, LUA_TNUMBER }
 	}, true)) return 0;
 
-	if (lua_gettop(functionState) == 3) {
+	if (lua_gettop(functionState) == 2) {
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
-		int x = lua_tointeger(functionState, 2);
-		int y = lua_tointeger(functionState, 3);
+		Vec2d position = toVector(functionState, 2);
 		Creature* creature = Creature::getWithId(*luaCreature);
-		double time = creature->moveOn(Vec2i(x, y));
+		double time = creature->moveOn(position);
 		lua_pushnumber(functionState, time);
 		return 1;
 	}
-	else if(lua_gettop(functionState) == 4){
+	else if(lua_gettop(functionState) == 3){
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
-		int x = lua_tointeger(functionState, 2);
-		int y = lua_tointeger(functionState, 3);
-		double speed = lua_tonumber(functionState, 4);
+		Vec2d position = toVector(functionState, 2);
+		double speed = lua_tonumber(functionState, 3);
 		Creature* creature = Creature::getWithId(*luaCreature);
-		double time = creature->moveOn(Vec2i(x, y), speed);
+		double time = creature->moveOn(position, speed);
 		lua_pushnumber(functionState, time);
 		return 1;
 	}
@@ -560,9 +545,8 @@ int LuaGame::l_getCreaturePosition(lua_State* functionState) {
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
 		Creature* creature = Creature::getWithId(*luaCreature);
 		Vec2i position = creature->getTilePosition();
-		lua_pushinteger(functionState, position.x);
-		lua_pushinteger(functionState, position.y);
-		return 2;
+		pushVector(functionState, position);
+		return 1;
 	}
 	return 0;
 }
@@ -577,9 +561,8 @@ int LuaGame::l_getCreatureRealPosition(lua_State* functionState) {
 		LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
 		Creature* creature = Creature::getWithId(*luaCreature);
 		Vec2 position = creature->getRealTilePosition();
-		lua_pushnumber(functionState, position.x);
-		lua_pushnumber(functionState, position.y);
-		return 2;
+		pushVector(functionState, position);
+		return 1;
 	}
 	return 0;
 }
@@ -713,15 +696,13 @@ int LuaGame::l_setCreatureProperties(lua_State* functionState) {
 
 int LuaGame::l_spawnParticles(lua_State* functionState) {
 	if (!assertArguments(functionState, "Particles.spawnParticles", {
-		{LUA_TSTRING, LUA_TNUMBER, LUA_TNUMBER},
-		{LUA_TSTRING, LUA_TNUMBER, LUA_TNUMBER, LUA_TNUMBER}
+		{LUA_TSTRING, LUA_TTABLE }
 	})) return 0;
 
 	if (lua_gettop(functionState) == 3) {
 		std::string particleSystemName = lua_tostring(functionState, 1);
-		float x = lua_tonumber(functionState, 2);
-		float y = lua_tonumber(functionState, 3);
-		Particles::spawnParticles(particleSystemName, Vec2f(x, y));
+		Vec2d position = toVector(functionState, 2);
+		Particles::spawnParticles(particleSystemName, position);
 	}
 	return 0;
 }

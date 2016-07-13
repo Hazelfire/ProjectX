@@ -11,17 +11,17 @@ USING_NS_CC;
 
 class Interact {
 public:
-	static void InteractMap(float x, float y);
+	static void InteractMap(Vec2f tileCoordinates);
 	static bool isMovable(string);
 
 	//List of different moves, return time needed to complete move
-	static double moveOn(int x, int y);
-	static double moveOn(int x, int y, double speed);
-	static double moveTo(int x, int y,int distance, double speed);
-	static double moveTo(int x, int y, int distance);
-	static double moveTo(int x, int y);
+	static double moveOn(Vec2f tileCoordinates);
+	static double moveOn(Vec2f tileCoordinates, double speed);
+	static double moveTo(Vec2f tileCoordinates, int distance, double speed);
+	static double moveTo(Vec2f tileCoordinates, int distance);
+	static double moveTo(Vec2f tileCoordinates);
 
-	static void runInteraction(Interaction, int x, int y);
+	static void runInteraction(Interaction, Vec2i tileCoordinates);
 
 	static void update(double delta);
 
@@ -33,7 +33,7 @@ private:
 		INTERACT_TILE
 	};
 
-	static void queryUser(list<Interaction>, int x, int y);
+	static void queryUser(list<Interaction>, Vec2i tileCoordinates);
 	static ActionList getPossibleActions(ActionList, InteractionType);
 
 	static void runCreatureInteractions(Creature* creature);

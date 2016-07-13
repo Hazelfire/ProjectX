@@ -418,3 +418,108 @@ void LuaInterpreter::luaError(lua_State* state, std::string message) {
 
 	Debugger::logError(errorMessage, DEBUG_LUA);
 }
+
+
+void LuaInterpreter::pushVector(lua_State* state, Vec2d vector){
+	lua_createtable(state, 0, 2);
+	
+	lua_pushstring(state, "x");
+	lua_pushnumber(state, vector.x);
+	lua_settable(state, -3);
+
+	lua_pushstring(state, "y");
+	lua_pushnumber(state, vector.y);
+	lua_settable(state, -3);
+
+	// Vector meta-methods
+	lua_createtable(state, 0, 10);
+	
+	lua_pushstring(state, "__add");
+	lua_pushcfunction(state, l_addVector);
+	lua_settable(state, -3);
+
+	lua_pushstring(state, "__sub");
+	lua_pushcfunction(state, l_subVector);
+	lua_settable(state, -3);
+
+	lua_pushstring(state, "__mul");
+	lua_pushcfunction(state, l_mulVector);
+	lua_settable(state, -3);
+
+	lua_pushstring(state, "__div");
+	lua_pushcfunction(state, l_divVector);
+	lua_settable(state, -3);
+	
+	lua_pushstring(state, "__len");
+	lua_pushcfunction(state, l_lenVector);
+	lua_settable(state, -3);
+
+	lua_pushstring(state, "__eq");
+	lua_pushcfunction(state, l_eqVector);
+	lua_settable(state, -3);
+
+	lua_setmetatable(state, -2);
+}
+Vec2d LuaInterpreter::toVector(lua_State* state, int index){
+	Vec2d re;
+
+	lua_pushstring(state, "x");
+	lua_gettable(state, index);
+	re.x = lua_tonumber(state, -1);
+	lua_pop(state, 1);
+
+	lua_pushstring(state, "y");
+	lua_gettable(state, index);
+	re.y = lua_tonumber(state, -1);
+	lua_pop(state, 1);
+
+	return re;
+}
+int LuaInterpreter::l_addVector(lua_State* state){
+	Vec2d vec1 = toVector(state, 1);
+	Vec2d vec2 = toVector(state, 2);
+
+	pushVector(state, vec1 + vec2);
+	return 1;
+
+}
+int LuaInterpreter::l_subVector(lua_State* state){
+	Vec2d vec1 = toVector(state, 1);
+	Vec2d vec2 = toVector(state, 2);
+
+	pushVector(state, vec1 - vec2);
+	return 1;	
+}
+int LuaInterpreter::l_mulVector(lua_State* state){
+	Vec2d vec1 = toVector(state, 1);
+	double double2 = lua_tonumber(state, 2);
+
+	pushVector(state, vec1 * double2);
+
+	return 1;
+}
+int LuaInterpreter::l_divVector(lua_State* state){
+	Vec2d vec1 = toVector(state, 1);
+	double double2 = lua_tonumber(state, 2);
+
+	pushVector(state, vec1 / double2);
+
+	return 1;
+}
+int LuaInterpreter::l_lenVector(lua_State* state){
+	Vec2d vec1 = toVector(state, 1);
+
+	lua_pushnumber(state, vec1.length());
+	
+	return 1;
+}
+int LuaInterpreter::l_eqVector(lua_State* state){
+	Vec2d vec1 = toVector(state, 1);
+	Vec2d vec2 = toVector(state, 2);
+
+	lua_pushboolean(state, vec1 == vec2);
+	
+	return 1;
+}
+
+

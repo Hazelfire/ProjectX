@@ -10,9 +10,6 @@
 #define NEW_FUNCTION(__NAME__,__FUNC__) lua_pushcfunction(mainState, __FUNC__); lua_setglobal(mainState, __NAME__);
 #define ASSERT_ARGS(__FNAME__,__ARGUMENTS__) if(!assertArguments(functionState, __FNAME__, __ARGUMENTS__)){ return 0;}
 
-typedef Vec2i LuaVec2i;
-typedef Vec2f LuaVec2f;
-
 class LuaInterpreter {
 public:
 	void run(std::string scriptFile, std::string extra = "");
@@ -48,6 +45,17 @@ protected:
 	static std::string stringOfLuaType(int type);
 	static bool assertArguments(lua_State*, std::string functionName, std::list < std::list<int> > overloads, bool memberMode = false);
 	static void luaError(lua_State* ,std::string message);
+	static void pushVector(lua_State* ,Vec2d vector);
+
+	static Vec2d toVector(lua_State*, int index);
+	// Vector operations
+	static int l_addVector(lua_State*);
+	static int l_subVector(lua_State*);
+	static int l_mulVector(lua_State*);
+	static int l_divVector(lua_State*);
+	static int l_powVector(lua_State*);
+	static int l_lenVector(lua_State*);
+	static int l_eqVector(lua_State*);
 };
 
 

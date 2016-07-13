@@ -3,8 +3,6 @@
 #include "XTileMap.h"
 #include "SpriteLoader.h"
 #include "ResourceMacros.h"
-#define DEFAULT_SPEED 3.0f
-
 
 Animal* Animal::create(MovementDirections directions,SpriteType type, float speed) {
 	Animal* re = new (std::nothrow) Animal();
