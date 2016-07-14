@@ -577,15 +577,19 @@ bool Inventory::InventoryPreviewer::init(Node* background, std::string defaultIt
 
 	std::list<ItemUse> uses = m_itemInformation[defaultItem].uses;
 	int i = 0;
+
+	// For every use
 	for (auto use : uses) {
+		if (i > 2) break; // Only display first 3 interactions
 		XBMPLabel* useLabel = XBMPLabel::create(use.name, "Pixelfont", 44, XBMPLabel::LEFT);
 		useLabel->setPosition((background->getContentSize().height/4) + i/4, (background->getContentSize().height/2) - 44*(i % 4) -44);
 		useLabel->setAnchorPoint(Vec2(0, 1));
 
-		useLabel->setCallback([use]() {
+		useLabel->setCallback([use, defaultItem]() {
 			LuaItemUses interpreter;
+			interpreter.init(defaultItem);
 			if(use.conditional.empty() || interpreter.fulfills(std::list<std::string>(), use.conditional))
-				interpreter.run("", use.command); // empty string for no script files
+				interpreter.run(ScriptLoader::loadLuaScripts(ScriptLoader::LUA_ITEMS), use.command); // empty string for no script files
 		});
 
 		addChild(useLabel);

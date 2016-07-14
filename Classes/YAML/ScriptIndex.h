@@ -24,6 +24,7 @@ public:
 		std::list<std::string> creatures;
 		std::list<std::string> interactions;
 		std::list<std::string> startup;
+		std::list<std::string> items;
 	};
 
 	static bool m_directoriesChecked;

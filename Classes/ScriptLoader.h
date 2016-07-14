@@ -2,7 +2,6 @@
 #include "YAML/ScriptIndex.h"
 #include <unordered_map>
 #define XML_SCRIPT_SIZE 8
-#define LUA_SCRIPT_SIZE 3
 
 class ScriptLoader {
 public:
@@ -24,7 +23,8 @@ public:
 	enum LuaScriptType {
 		LUA_INTERACTIONS,
 		LUA_STARTUP,
-		LUA_CREATURES
+		LUA_CREATURES,
+		LUA_ITEMS
 	};
 
 	static std::string cachedXMLScripts[XML_SCRIPT_SIZE];

@@ -111,6 +111,10 @@ ScriptParser::LuaScriptIndex ScriptParser::parseLua(std::string fileName) {
 					std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(LUA_FOLDER "startup/" + currentScriptNode->as<std::string>());
 					re.startup.push_back(fullPath);
 				}
+				else if (sectionName == "items") {
+					std::string fullpath = cocos2d::FileUtils::getInstance()->fullPathForFilename(LUA_FOLDER "items/" + currentScriptNode->as<std::string>());
+					re.items.push_back(fullpath);
+				}
 			}
 		}
 	}
