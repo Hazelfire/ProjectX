@@ -1,7 +1,7 @@
 #pragma once
-#include "LuaGame.h"
+#include "LuaPersonal.h"
 
-class LuaActions : public LuaGame {
+class LuaActions : public LuaPersonal {
 public:
 	static void init(int x, int y);
 protected:

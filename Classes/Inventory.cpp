@@ -5,6 +5,7 @@
 #include "ScriptLoader.h"
 #include "ResourceMacros.h"
 #include "Debug.h"
+#include "Lua/LuaItemUses.h"
 
 std::map<std::string,ItemProperties> Inventory::m_itemsOwned;
 std::unordered_map<std::string, InventoryItem> Inventory::m_itemInformation;
@@ -18,14 +19,14 @@ Node* Inventory::m_inventoryMenu;
 						m_itemInformation = ItemsParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_ITEMS)).items; \
 					} 
 
-Inventory::Previewer* Inventory::m_inventoryPreviewer;
+Inventory::InventoryPreviewer* Inventory::m_inventoryPreviewer;
 Inventory::InventorySelector* Inventory::m_inventorySelector;
 Inventory::CraftingPreviewer* Inventory::m_craftingItemPreviewer;
 Inventory::CraftingSelector* Inventory::m_craftingList;
 
 //***************************************************************
 // These functions here are made for basic inventory needs, including
-// creating Inventory menu, taking anf giving resources
+// creating Inventory menu, taking and giving resources
 // and various other functions. giving resources and the like
 
 Node* Inventory::createInventoryMenu() {
@@ -50,7 +51,7 @@ Node* Inventory::createInventoryMenu() {
 
 	/*Node* inventoryItemPreviewer = Node::create();
 	Node* inventoryList = Node::create();*/
-	m_inventoryPreviewer = Previewer::create(background, "");
+	m_inventoryPreviewer = InventoryPreviewer::create(background, "");
 	m_inventoryPreviewer->setPosition(Vec2(0, background->getContentSize().height / 2));
 	background->addChild(m_inventoryPreviewer);
 
@@ -74,6 +75,7 @@ Node* Inventory::createInventoryMenu() {
 
 void Inventory::giveItem(std::string itemName, int quantity) {
 	m_itemsOwned[itemName].quantity += quantity;
+	reconstruct();
 }
 
 bool Inventory::touchEvent(Touch* touch, Event* touchEvent) {
@@ -362,8 +364,14 @@ Inventory::Previewer* Inventory::Previewer::create(Node* background, std::string
 
 bool Inventory::Previewer::init(Node* background, std::string defaultItem) {
 	m_background = background;
+
+	// No display if no default item
 	if (defaultItem.empty()) return true;
+
+	// If there is no such item, no display
 	if (m_itemInformation.find(defaultItem) == m_itemInformation.end()) return true;
+
+	// if false, return true (not kidding, check Node::init def)
 	if (!Node::init()) {
 		return false;
 	}
@@ -443,6 +451,8 @@ bool Inventory::CraftingPreviewer::init(Node* background, std::string defaultIte
 	if (!Previewer::init(background, defaultItem)) {
 		return false;
 	}
+
+	if (defaultItem.empty()) return true;
 
 	Node* ingredients = Node::create();
 	ingredients->setAnchorPoint(Vec2(0, 1));
@@ -526,6 +536,7 @@ void Inventory::takeItem(std::string itemName, int quantity) {
 	if (m_itemsOwned[itemName].quantity <= 0) {
 		m_itemsOwned.erase(itemName);
 	}
+	reconstruct();
 }
 
 void Inventory::reconstruct() {
@@ -546,4 +557,39 @@ int Inventory::getQuantityOf(std::string itemName) {
 
 std::unordered_map<std::string, InventoryItem> Inventory::getItems() {
 	return m_itemInformation;
+}
+
+Inventory::InventoryPreviewer* Inventory::InventoryPreviewer::create(Node* background, std::string defaultItem) {
+	InventoryPreviewer* re = new InventoryPreviewer();
+	if (re && re->init(background, defaultItem)) {
+		re->autorelease();
+		return re;
+	}
+	else {
+		delete re;
+		re = nullptr;
+		return nullptr;
+	}
+}
+
+bool Inventory::InventoryPreviewer::init(Node* background, std::string defaultItem) {
+	if (!Previewer::init(background, defaultItem)) return false;
+
+	std::list<ItemUse> uses = m_itemInformation[defaultItem].uses;
+	int i = 0;
+	for (auto use : uses) {
+		XBMPLabel* useLabel = XBMPLabel::create(use.name, "Pixelfont", 44, XBMPLabel::LEFT);
+		useLabel->setPosition((background->getContentSize().height/4) + i/4, (background->getContentSize().height/2) - 44*(i % 4) -44);
+		useLabel->setAnchorPoint(Vec2(0, 1));
+
+		useLabel->setCallback([use]() {
+			LuaItemUses interpreter;
+			if(use.conditional.empty() || interpreter.fulfills(std::list<std::string>(), use.conditional))
+				interpreter.run("", use.command); // empty string for no script files
+		});
+
+		addChild(useLabel);
+		i++;
+	}
+	return true;
 }

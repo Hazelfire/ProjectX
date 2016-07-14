@@ -713,8 +713,7 @@ int LuaGame::l_setCreatureProperties(lua_State* functionState) {
 
 int LuaGame::l_spawnParticles(lua_State* functionState) {
 	if (!assertArguments(functionState, "Particles.spawnParticles", {
-		{LUA_TSTRING, LUA_TNUMBER, LUA_TNUMBER},
-		{LUA_TSTRING, LUA_TNUMBER, LUA_TNUMBER, LUA_TNUMBER}
+		{LUA_TSTRING, LUA_TNUMBER, LUA_TNUMBER}
 	})) return 0;
 
 	if (lua_gettop(functionState) == 3) {

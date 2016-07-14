@@ -49,12 +49,20 @@ private:
 	public:
 		static CraftingPreviewer* create(Node* background, std::string defaultItem);
 		virtual bool init(Node* background, std::string defaultItem);
-		//void setSelectedItem(std::string itemName);
+
+		
 		void setCraftCallback(std::function<void()>);
 		bool callCraftCallback(cocos2d::Touch* touch, cocos2d::Event* event);
 	private:
 		Sprite* m_craftButton;
 		std::function<void()> m_craftCallBack;
+	};
+
+	class InventoryPreviewer : public Previewer {
+	public:
+		static InventoryPreviewer* create(Node* background, std::string defaultItem);
+		virtual bool init(Node* background, std::string defaultItem);
+
 	};
 
 	class Selector: public Node {
@@ -88,7 +96,7 @@ private:
 	protected:
 	};
 
-	static Previewer* m_inventoryPreviewer;
+	static InventoryPreviewer* m_inventoryPreviewer;
 	static InventorySelector* m_inventorySelector;
 	static CraftingPreviewer* m_craftingItemPreviewer;
 	static CraftingSelector* m_craftingList;

@@ -4,10 +4,17 @@
 
 typedef std::unordered_map<std::string, int> Recipe;
 
+struct ItemUse {
+	std::string name;
+	std::string command;
+	std::string conditional;
+};
+
 struct InventoryItem {
 	std::string description;
 	std::list<Recipe> recipies;
 	std::list<std::string> tags;
+	std::list<ItemUse> uses;
 	std::string sprite;
 };
 

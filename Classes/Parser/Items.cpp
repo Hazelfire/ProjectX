@@ -8,6 +8,7 @@ using std::strcpy;
 using std::strcmp;
 struct ItemsParser::Impl {
 	static InventoryItem parseItem(rapidxml::xml_node<>*);
+	static std::list<ItemUse> parseUses(rapidxml::xml_node<>*);
 };
 
 ItemsParser::Impl ItemsParser::impl;
@@ -63,6 +64,26 @@ InventoryItem ItemsParser::Impl::parseItem(rapidxml::xml_node<>* itemNode) {
 				re.tags.push_back(StringOps::trim(currentTag));
 			}
 		}
+		else if (strcmp(childNode->name(), "uses") == 0) {
+			re.uses = parseUses(childNode);
+		}
+	}
+	return re;
+}
+
+std::list<ItemUse> ItemsParser::Impl::parseUses(rapidxml::xml_node<>* usesNode) {
+	std::list<ItemUse> re;
+	for (xml_node<>* actionNode = usesNode->first_node("action"); actionNode; actionNode = actionNode->next_sibling()) {
+		ItemUse currentUse;
+		currentUse.name = actionNode->first_attribute("name")->value();
+		
+		// conditionals for working out whether or not to display the use.
+		// conditional is optional (conditional is conditional)
+		if (actionNode->first_attribute("if"))
+			currentUse.conditional = actionNode->first_attribute("if")->value();
+
+		currentUse.command = actionNode->value();
+		re.push_back(currentUse);
 	}
 	return re;
 }

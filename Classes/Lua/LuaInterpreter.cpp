@@ -9,15 +9,25 @@ std::string pickleScript = "----------------------------------------------\r\n--
 void LuaInterpreter::run(std::string scriptFile, std::string extra) {
 
 
-	// Loading the string into lua
+	
+	// add if you wish, standard library for lua, I am not sure how safe this is cross-platform
+	luaL_openlibs(m_mainState);
 
-	int error = luaL_dofile(m_mainState, scriptFile.c_str());
-	if (error) {
-		luaError(m_mainState,lua_tostring(m_mainState, -1));
-		lua_pop(m_mainState, 1);
+	// adding pickle utilities
+	luaL_dostring(m_mainState, pickleScript.c_str());
+
+	addFunctions(m_mainState); // Calls children and adds all functions
+
+	// Loading the string into lua
+	if (!scriptFile.empty()) {
+		int error = luaL_dofile(m_mainState, scriptFile.c_str());
+		if (error) {
+			luaError(m_mainState, lua_tostring(m_mainState, -1));
+			lua_pop(m_mainState, 1);
+		}
 	}
 
-	error = luaL_dostring(m_mainState, extra.c_str());
+	int error = luaL_dostring(m_mainState, extra.c_str());
 	if(error){
 		luaError(m_mainState, lua_tostring(m_mainState, -1));
 		lua_pop(m_mainState, 1);
@@ -27,6 +37,13 @@ void LuaInterpreter::run(std::string scriptFile, std::string extra) {
 
 void LuaInterpreter::run(std::list<std::string> scripts, std::string extra){
 
+	// add if you wish, standard library for lua, I am not sure how safe this is cross-platform
+	luaL_openlibs(m_mainState);
+
+	// adding pickle utilities
+	luaL_dostring(m_mainState, pickleScript.c_str());
+
+	addFunctions(m_mainState); // Calls children and adds all functions
 	for (auto script : scripts){
 		int error = luaL_dofile(m_mainState, script.c_str());
 		if(error){
@@ -42,7 +59,6 @@ void LuaInterpreter::run(std::list<std::string> scripts, std::string extra){
 	}
 
 }
-
 
 void LuaInterpreter::call(std::string function) {
 	lua_getglobal(m_mainState,function.c_str());
@@ -61,13 +77,7 @@ bool LuaInterpreter::fulfills(std::list<std::string> scriptFiles, std::string fu
 
 	luaL_dostring(mainState, pickleScript.c_str());
 	
-	for(auto scriptFile : scriptFiles){
-		int error = luaL_dofile(mainState, scriptFile.c_str());
-		if(error){
-			luaError(mainState, "Failed loading script: " + scriptFile + " with error: " + lua_tostring(m_mainState, -1) + " When checking if " + function +  " fulfills" );
-			lua_pop(mainState, 1);
-		 }
-	}
+	
 
 	// add if you wish, standard library for lua, I am not sure how safe this is cross-platform
 	luaL_openlibs(mainState);
@@ -76,7 +86,16 @@ bool LuaInterpreter::fulfills(std::list<std::string> scriptFiles, std::string fu
 		
 	addFunctions(mainState); // Calls children and adds all functions
 							   // Calls the script
-	int error = lua_pcall(mainState, 0, 1, 0);
+	for(auto scriptFile : scriptFiles){
+		int error = luaL_dofile(mainState, scriptFile.c_str());
+		if(error){
+			luaError(mainState, "Failed loading script: " + scriptFile + " with error: " + lua_tostring(m_mainState, -1) + " When checking if " + function +  " fulfills" );
+			lua_pop(mainState, 1);
+		 }
+	}	int error = lua_pcall(mainState, 0, 1, 0);
+
+
+
 	if (error) {
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID)
 		luaError(mainState, "Error furfilling requirement: " + function + " error is: " + lua_tostring(mainState, -1));
@@ -141,14 +160,6 @@ LuaInterpreter::~LuaInterpreter() {
 
 LuaInterpreter::LuaInterpreter() {
 	m_mainState = luaL_newstate();
-	
-	// add if you wish, standard library for lua, I am not sure how safe this is cross-platform
-	luaL_openlibs(m_mainState);
-
-	// adding pickle utilities
-	luaL_dostring(m_mainState, pickleScript.c_str());
-
-	addFunctions(m_mainState); // Calls children and adds all functions
 }
 
 void LuaInterpreter::cleanup() {

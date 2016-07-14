@@ -14,16 +14,12 @@ void LuaActions::init(int x, int y) {
 
 void LuaActions::addFunctions(lua_State* mainState) {
 
-	LuaGame::addFunctions(mainState);
+	LuaPersonal::addFunctions(mainState);
 
 	//Interact
-	NEW_TABLE_SIZE(3);
-
-	NEW_ROW("moveOn", l_moveOn);
-	NEW_ROW("moveTo", l_moveTo);
-	NEW_ROW("interactMap", l_interactMap);
-
-	NAME_TABLE("Interact");
+	NEW_FUNCTION("moveOn", l_moveOn);
+	NEW_FUNCTION("moveTo", l_moveTo);
+	NEW_FUNCTION("interactMap", l_interactMap);
 
 	// sets the x anad y coordinates to the tiles as globals x and y. 
 	// This goes against all my knowledge as a programmer but it is efficient and looks nice
@@ -32,14 +28,6 @@ void LuaActions::addFunctions(lua_State* mainState) {
 
 	lua_pushinteger(mainState, m_Playery);
 	lua_setglobal(mainState, "y");
-
-	int playerIndex = XClient::getPlayerIndex();
-	
-	luaW_push<LuaPlayerObject>(mainState, new LuaPlayerObject(playerIndex));
-	lua_setglobal(mainState, "player");
-
-	luaW_push<LuaInventoryObject>(mainState, new LuaInventoryObject(playerIndex));
-	lua_setglobal(mainState, "inventory");
 }
 
 int LuaActions::l_moveOn(lua_State* functionState) {
