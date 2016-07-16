@@ -66,6 +66,9 @@ private:
 	static int l_getClassName(lua_State*);
 	static int l_getPlayerMovementSpeed(lua_State*);
 	static int l_getPlayerInventory(lua_State*);
+	static int l_getPlayerHealth(lua_State*);
+	static int l_healPlayer(lua_State*);
+	static int l_damagePlayer(lua_State*);
 
 	// Inventory
 	static int l_givePlayerItem(lua_State*);

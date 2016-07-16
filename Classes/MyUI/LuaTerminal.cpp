@@ -62,7 +62,7 @@ void LuaTerminal::keyPressed(EventKeyboard::KeyCode code, Event*) {
 		else if (code == EventKeyboard::KeyCode::KEY_CAPS_LOCK) {
 			m_caps = !m_caps;
 		}
-		else if (code == EventKeyboard::KeyCode::KEY_SHIFT) {
+		else if (code == EventKeyboard::KeyCode::KEY_SHIFT || code == EventKeyboard::KeyCode::KEY_RIGHT_SHIFT) {
 			m_caps = !m_caps;
 		}
 		else if (code == EventKeyboard::KeyCode::KEY_UP_ARROW) {
@@ -232,7 +232,7 @@ void LuaTerminal::keyPressed(EventKeyboard::KeyCode code, Event*) {
 
 
 void LuaTerminal::keyReleased(cocos2d::EventKeyboard::KeyCode code, cocos2d::Event*) {
-	if (code == EventKeyboard::KeyCode::KEY_SHIFT) {
+	if (code == EventKeyboard::KeyCode::KEY_SHIFT || code == EventKeyboard::KeyCode::KEY_RIGHT_SHIFT) {
 		m_caps = !m_caps;
 	}
 }

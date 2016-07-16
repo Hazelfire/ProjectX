@@ -67,7 +67,7 @@ void Health::heal(double health) {
 	}
 
 	// update Graphic
-	ClippingRectangleNode* healthSlider = (ClippingRectangleNode*)getChildByName("Health Slide");
+	ClippingRectangleNode* healthSlider = (ClippingRectangleNode*)getChildByName("Health Slider");
 	healthSlider->setClippingRegion(Rect(Vec2::ZERO, Size(healthSlider->getContentSize().width * (m_health / 100.0), healthSlider->getContentSize().height)));
 }
 

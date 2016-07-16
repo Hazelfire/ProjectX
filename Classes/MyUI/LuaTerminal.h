@@ -1,5 +1,5 @@
 #include <cocos2d.h>
-#include "Lua\LuaGame.h"
+#include "Lua\LuaPersonal.h"
 #include "XBMPLabel.h"
 #include <vector> 
 
@@ -22,7 +22,7 @@ private:
 
 	bool m_active = false; 
 	std::string m_currentCommand;
-	LuaGame m_interpreter;
+	LuaPersonal m_interpreter;
 	bool m_caps = false;
 
 	std::list<std::string> m_logList;

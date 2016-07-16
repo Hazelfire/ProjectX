@@ -8,7 +8,7 @@
 #include "Multiplayer/XClient.h"
 #include <sstream>
 #include "Particles.h"
-
+#include "Mechs/Health.h"
 
 
 void LuaGame::addFunctions(lua_State* mainState) {
@@ -95,6 +95,9 @@ void LuaGame::addFunctions(lua_State* mainState) {
 		{ "getClassName", l_getClassName },
 		{ "getMovementSpeed", l_getPlayerMovementSpeed },
 		{ "getInventory",l_getPlayerInventory },
+		{ "getHealth", l_getPlayerHealth},
+		{ "heal", l_healPlayer },
+		{ "damage", l_damagePlayer },
 		{ NULL, NULL }
 	};
 
@@ -638,6 +641,58 @@ int LuaGame::l_getPlayerInventory(lua_State* functionState) {
 	LuaInventoryObject* inventory = luaW_check<LuaInventoryObject>(functionState, 1);
 	luaW_push<LuaInventoryObject>(functionState, inventory);
 	return 1;
+}
+
+int LuaGame::l_getPlayerHealth(lua_State* functionState) {
+	if (!assertArguments(functionState, "Player:getHealth", { {} }, true)) return 0;
+
+	LuaPlayerObject* player = luaW_check<LuaPlayerObject>(functionState, 1);
+
+	if (*player == XClient::getInstance()->getPlayerIndex()) {
+		double health = Health::getInstance()->getHealth();
+		lua_pushnumber(functionState, health);
+		return 1;
+	}
+	else {
+		// If the player you are refering to is not the player that is playing
+		// We do not have a system for this, just return 0
+
+		lua_pushnumber(functionState, 0);
+		return 1;
+	}
+}
+
+int LuaGame::l_healPlayer(lua_State* functionState) {
+	if (!assertArguments(functionState, "Player:heal", {
+		{ LUA_TNUMBER }
+	}, true)) return 0;
+
+	LuaPlayerObject* luaPlayer = luaW_check<LuaPlayerObject>(functionState, 1);
+	double health = lua_tonumber(functionState, 2);
+
+	// If the player is us
+	if (*luaPlayer == XClient::getInstance()->getPlayerIndex()) {
+		Health::getInstance()->heal(health);
+	}
+	// cant do anything yet if not us
+
+	return 0;
+}
+
+int LuaGame::l_damagePlayer(lua_State* functionState) {
+	if (!assertArguments(functionState, "Player:damage", {
+		{ LUA_TNUMBER }
+	}, true)) return 0;
+
+	LuaPlayerObject* luaPlayer = luaW_check<LuaPlayerObject>(functionState, 1);
+	double damageHealth = lua_tonumber(functionState, 2);
+
+	// if player is us
+	if (*luaPlayer == XClient::getInstance()->getPlayerIndex()) {
+		Health::getInstance()->damage(damageHealth);
+	}
+
+	return 0;
 }
 
 int LuaGame::l_getCreatureName(lua_State* functionState) {
