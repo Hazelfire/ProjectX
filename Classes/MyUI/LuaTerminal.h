@@ -1,6 +1,5 @@
 #include <cocos2d.h>
 #include "Lua\LuaPersonal.h"
-#include "XBMPLabel.h"
 #include <vector> 
 
 class LuaTerminal : public cocos2d::Node {
@@ -8,11 +7,17 @@ public:
 	static LuaTerminal* create();
 	static LuaTerminal* getInstance();
 	void print(std::string message);
+
+	void clear();
 private:
 	bool init();
 	
 	void keyPressed(cocos2d::EventKeyboard::KeyCode, cocos2d::Event*);
 	void keyReleased(cocos2d::EventKeyboard::KeyCode, cocos2d::Event*);
+
+	void updateCommandString();
+
+	void refreshTerminal();
 
 	void toggleActive();
 	void appendKey(char key);
@@ -28,5 +33,7 @@ private:
 	std::list<std::string> m_logList;
 	int m_commandIndex = -1;
 	std::vector<std::string> m_commandList;
-	XBMPLabel* m_commandField;
+	cocos2d::LabelTTF* m_commandField;
+	bool m_continuationMode = false;
+
 };

@@ -24,7 +24,8 @@ public:
 		LUA_INTERACTIONS,
 		LUA_STARTUP,
 		LUA_CREATURES,
-		LUA_ITEMS
+		LUA_ITEMS,
+		LUA_CREATURE_ACTIONS
 	};
 
 	static std::string cachedXMLScripts[XML_SCRIPT_SIZE];

@@ -12,7 +12,8 @@ enum DebugMessageType {
 	DEBUG_XML,
 	DEBUG_MAP_SELECTION,
 	DEBUG_LUA,
-	DEBUG_INVENTORY
+	DEBUG_INVENTORY,
+	DEBUG_SPRITES
 };
 
 // A standard debugging tool, comes with logging of errors and information

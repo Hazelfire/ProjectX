@@ -1,3 +1,4 @@
+#pragma once
 #include "LuaGame.h"
 
 class LuaPersonal : public LuaGame {

@@ -50,6 +50,8 @@ std::string constructMessage(std::string type, std::string message, DebugMessage
 	else if (debugType == DEBUG_INVENTORY)
 		re.append("inventory");
 
+	else if (debugType == DEBUG_SPRITES)
+		re.append("sprites");
 
 	re.append(" ] " + message);
 	return re;

@@ -4,14 +4,6 @@
 #include "Inventory.h"
 #include "Multiplayer/XClient.h"
 
-int LuaActions::m_Playerx;
-int LuaActions::m_Playery;
-
-void LuaActions::init(int x, int y) {
-	m_Playerx = x;
-	m_Playery = y;
-}
-
 void LuaActions::addFunctions(lua_State* mainState) {
 
 	LuaPersonal::addFunctions(mainState);
@@ -20,14 +12,6 @@ void LuaActions::addFunctions(lua_State* mainState) {
 	NEW_FUNCTION("moveOn", l_moveOn);
 	NEW_FUNCTION("moveTo", l_moveTo);
 	NEW_FUNCTION("interactMap", l_interactMap);
-
-	// sets the x anad y coordinates to the tiles as globals x and y. 
-	// This goes against all my knowledge as a programmer but it is efficient and looks nice
-	lua_pushinteger(mainState, m_Playerx);
-	lua_setglobal(mainState, "x");
-
-	lua_pushinteger(mainState, m_Playery);
-	lua_setglobal(mainState, "y");
 }
 
 int LuaActions::l_moveOn(lua_State* functionState) {
@@ -42,7 +26,6 @@ int LuaActions::l_moveOn(lua_State* functionState) {
 		double speed = lua_tonumber(functionState, 3);
 		Interact::moveOn(x, y, speed);
 	}
-	Interact::moveOn(m_Playerx, m_Playery);
 	return 0;
 }
 
@@ -64,9 +47,6 @@ int LuaActions::l_moveTo(lua_State* functionState) {
 		int distance = lua_tointeger(functionState, 3);
 		double speed = lua_tonumber(functionState, 4);
 		Interact::moveTo(x, y, distance, speed);
-	}
-	else if (lua_gettop(functionState) == 0) {
-		Interact::moveTo(m_Playerx, m_Playery);
 	}
 	return 0;
 }

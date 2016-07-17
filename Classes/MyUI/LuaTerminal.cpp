@@ -2,7 +2,9 @@
 
 LuaTerminal* LuaTerminal::m_terminalInstance = nullptr;
 using namespace cocos2d;
-
+const std::string commandHeader = "> ";
+const std::string continueHeader = ">> ";
+const std::string returnHeader = "<< ";
 LuaTerminal* LuaTerminal::create() {
 	LuaTerminal* re = new (std::nothrow) LuaTerminal();
 	if (re && re->init()) {
@@ -27,9 +29,11 @@ bool LuaTerminal::init() {
 
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(keyListener, this);
 
-	m_commandField = XBMPLabel::create("<Enter command>", "Pixelfont", 20, XBMPLabel::LEFT);
+	m_commandField = LabelTTF::create(commandHeader, "res/fonts/arial.ttf", 20,Size(visibleSize.width, 25), TextHAlignment::LEFT);
+	m_commandField->setAnchorPoint(Vec2(0, 0));
+	m_commandField->setColor(Color3B::BLACK);
 
-	Vec2 commandPosition = Vec2(visibleSize.height / 10, visibleSize.height / 10);
+	Vec2 commandPosition = Vec2(visibleSize.height / 10, visibleSize.height / 5);
 	m_commandField->setPosition(commandPosition);
 	addChild(m_commandField);
 
@@ -56,8 +60,10 @@ void LuaTerminal::keyPressed(EventKeyboard::KeyCode code, Event*) {
 			runCommand();
 		}
 		else if (code == EventKeyboard::KeyCode::KEY_BACKSPACE) {
-			m_currentCommand.pop_back();
-			m_commandField->setString(m_currentCommand);
+			if (!m_currentCommand.empty()) {
+				m_currentCommand.pop_back();
+				updateCommandString();
+			}
 		}
 		else if (code == EventKeyboard::KeyCode::KEY_CAPS_LOCK) {
 			m_caps = !m_caps;
@@ -69,14 +75,14 @@ void LuaTerminal::keyPressed(EventKeyboard::KeyCode code, Event*) {
 			if (m_commandIndex < (int)m_commandList.size() - 1) {
 				m_commandIndex++;
 				m_currentCommand = m_commandList[m_commandList.size() - m_commandIndex - 1];
-				m_commandField->setString(m_currentCommand);
+				updateCommandString();
 			}
 		}
 		else if (code == EventKeyboard::KeyCode::KEY_DOWN_ARROW) {
 			if (m_commandIndex > 0) {
 				m_commandIndex--;
 				m_currentCommand = m_commandList[m_commandList.size() - m_commandIndex - 1];
-				m_commandField->setString(m_currentCommand);
+				updateCommandString();
 			}
 		}
 		else {
@@ -239,10 +245,15 @@ void LuaTerminal::keyReleased(cocos2d::EventKeyboard::KeyCode code, cocos2d::Eve
 
 void LuaTerminal::print(std::string message) {
 	m_logList.push_front(message);
+	
+	refreshTerminal();
+	
+}
 
+void LuaTerminal::refreshTerminal() {
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 
-	Vec2 startPosition = Vec2((visibleSize.height / 10), visibleSize.height / 10 + 20);
+	Vec2 startPosition = Vec2((visibleSize.height / 10), visibleSize.height / 5 + 23);
 
 	Node* termDisplay = Node::create();
 	termDisplay->setName("Display");
@@ -250,10 +261,20 @@ void LuaTerminal::print(std::string message) {
 
 	int i = 0;
 	for (auto currentLog : m_logList) {
-		XBMPLabel* currentLogLabel = XBMPLabel::create(currentLog, "PixelFont", 20, XBMPLabel::LEFT);
-		currentLogLabel->setPosition(Vec2(0, 20*i));
+		int lineCount = 1;
+		for (auto character : currentLog) {
+			if (character == '\n') {
+				lineCount++;
+			}
+		}
+		LabelTTF* currentLogLabel = LabelTTF::create(currentLog, "res/fonts/arial.ttf", 20,Size(visibleSize.width, 23*lineCount), TextHAlignment::LEFT);
+
+
+		currentLogLabel->setAnchorPoint(Vec2(0, 0));
+		currentLogLabel->setColor(Color3B::BLACK);
+		currentLogLabel->setPosition(Vec2(0, 23*i));
 		termDisplay->addChild(currentLogLabel);
-		i++;
+		i+= lineCount;
 	}
 
 	if (getChildByName("Display")) {
@@ -275,13 +296,61 @@ void LuaTerminal::toggleActive() {
 
 void LuaTerminal::appendKey(char key) {
 	m_currentCommand.push_back(key);
-	m_commandField->setString(m_currentCommand);
+	updateCommandString();
 }
 
 void LuaTerminal::runCommand() {
-	m_interpreter.run(std::list<std::string>(), m_currentCommand);
-	m_commandList.push_back(m_currentCommand);
-	m_currentCommand = "";
-	m_commandField->setString("<Enter command>");
+	if (m_currentCommand.back() == '\\') {
+		std::string lastLine = m_currentCommand.substr(m_currentCommand.find_last_of('\n') + 1, m_currentCommand.size() - m_currentCommand.find_last_of('\n') - 1);
+		print((m_continuationMode ? continueHeader : commandHeader) + lastLine);
+		m_currentCommand.pop_back();
+		m_currentCommand.push_back('\n');
+		m_continuationMode = true;
+		updateCommandString();
+		return;
+	}
+	if (m_continuationMode) {
+		// They are finally running their multiline command! we should only print the last
+		// line as the rest has already been printed
+		std::string lastLine = m_currentCommand.substr(m_currentCommand.find_last_of('\n') + 1, m_currentCommand.size() - m_currentCommand.find_last_of('\n') - 1);
+		print(continueHeader + lastLine);
+	}
+	else {
+		print(commandHeader + m_currentCommand);
+	}
+	std::string returnValue = m_interpreter.run(std::list<std::string>(), m_currentCommand);
+	if (!returnValue.empty())
+		print(returnHeader + returnValue);
+
+	if (m_continuationMode) {
+		// This command came in multiple lines, for recalling, we should
+		// split these lines up
+		std::stringstream ss(m_currentCommand);
+		std::string line;
+		while (std::getline(ss, line, '\n')){
+			m_commandList.push_back(line);
+		}
+	}
+	else {
+		m_commandList.push_back(m_currentCommand);
+	}
+	m_currentCommand = "";	
+	m_continuationMode = false;
+	updateCommandString();
 	m_commandIndex = -1;
+}
+
+void LuaTerminal::clear() {
+	m_logList.clear();
+	refreshTerminal();
+}
+
+void LuaTerminal::updateCommandString() {
+	if (m_continuationMode) {
+		// This is a multiline command! The user must be very good at this.. We should only display the last line
+		std::string lastLine = m_currentCommand.substr(m_currentCommand.find_last_of('\n') + 1, m_currentCommand.size() - m_currentCommand.find_last_of('\n') - 1);
+		m_commandField->setString(continueHeader+ lastLine);
+	}
+	else
+		m_commandField->setString(commandHeader + m_currentCommand);
 }

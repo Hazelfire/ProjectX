@@ -1,7 +1,7 @@
 #pragma once
 #include "LuaActions.h"
 
-class LuaCreatureActions : LuaActions {
+class LuaCreatureActions : public LuaActions {
 public:
 	void init(LuaCreatureObject luaCreature);
 protected:

@@ -26,7 +26,12 @@ AllInventoryItems ItemsParser::parse(std::string source) {
 
 	for (xml_node<>* childNode = doc.first_node(); childNode; childNode =childNode->next_sibling()) {
 		if (strcmp(childNode->name(), "item") == 0) {
-			re.items[childNode->first_attribute("name")->value()] = impl.parseItem(childNode);
+			std::string itemName = childNode->first_attribute("name")->value();
+			if (itemName.empty())
+			{
+				int cow = 1 + 1;
+			}
+			re.items[itemName] = impl.parseItem(childNode);
 		}
 	}
 	delete[] newText;

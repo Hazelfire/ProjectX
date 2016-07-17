@@ -5,11 +5,18 @@
 
 #define DEFAULT_CREATURE_SPEED 0.3
 
+struct CreatureInteraction {
+	std::string name;
+	std::string command;
+	std::string conditional;
+};
+
 struct CreatureInformation {
 	std::list<std::string> tags;
 	std::string ai;
 	MovementDirections movements;
 	float movementSpeed = DEFAULT_CREATURE_SPEED;
+	std::list<CreatureInteraction> interactions;
 };
 
 struct CreatureList {

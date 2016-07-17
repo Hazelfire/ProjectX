@@ -47,6 +47,24 @@ CreatureInformation CreatureParser::Impl::parseCreature(xml_node<>* creatureNode
 		}
 	}
 
+
+	if (creatureNode->first_node("interactions")) {
+		
+		xml_node<>* interactionsNode = creatureNode->first_node("interactions");
+		for (xml_node<>* actionNode = interactionsNode->first_node("action"); actionNode; actionNode = actionNode->next_sibling()) {
+			CreatureInteraction interaction;
+
+			if (actionNode->first_attribute("name"))
+				interaction.name = actionNode->first_attribute("name")->value();
+
+			interaction.command = actionNode->value();
+
+			if (actionNode->first_attribute("if"))
+				interaction.conditional = actionNode->first_attribute("if")->value();
+			re.interactions.push_back(interaction);
+		}
+	}
+
 	return re;
 
 }

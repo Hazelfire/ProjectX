@@ -195,6 +195,12 @@ bool Inventory::Selector::init(Node* background, Inventory::Previewer* previewer
 			std::string itemSpriteName = itemInformation.sprite.empty() ? itemName: itemInformation.sprite;
 
 			Node* itemPicture = SpriteLoader::loadSprite(itemSpriteName, SPRITE_ITEM);
+
+			if (itemPicture == nullptr) {
+				// Sprite loading failed, skip
+				continue;
+			}
+
 			itemPicture->setAnchorPoint(Vec2(0, 1));
 			craftingItemTag->addChild(itemPicture);
 
@@ -517,15 +523,16 @@ bool Inventory::CraftingPreviewer::callCraftCallback(cocos2d::Touch* touch, coco
 		while ((currentNode = currentNode->getParent()) != nullptr) { // this works, gets the right size... Basically times the size by all the parent's scales
 			currentSize = currentSize*currentNode->getScale();
 		}
+		
+		std::string itemName = getSelectedItem();
 
 		Rect worldRect = Rect(worldPosition, currentSize);
 		if (worldRect.containsPoint(touchLocation)) {
-			auto recipe = getFirstCraftableRecipe(m_itemInformation[getSelectedItem()].recipies);
+			auto recipe = getFirstCraftableRecipe(m_itemInformation[itemName].recipies);
 			for (std::unordered_map<std::string, int>::iterator currentIngredient = recipe->begin(); currentIngredient != recipe->end(); currentIngredient++) {
 				takeItem(currentIngredient->first, currentIngredient->second);
 			}
-			giveItem(getSelectedItem(), 1);
-			reconstruct();
+			giveItem(itemName, 1);
 			return true;
 		}
 		return false;
