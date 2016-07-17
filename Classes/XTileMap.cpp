@@ -210,6 +210,13 @@ void XTileMap::updateChunks(Vec2 tileLocation) {
 	Vec2i newChunk = getChunkCoordinates(tileLocation);
 	if (renderedChunk != newChunk) {
 		Vec2i movement = newChunk - renderedChunk;
+		if (movement.length() >= 2) {
+			// WOAH, This guy skipped a few chunks. Lets just scrap all the current chunks and rerender them
+			// This should only happen with teleportation
+			cullChunkBlock(renderedChunk);
+			renderChunkBlock(newChunk);
+			return;
+		}
 		Vec2i firstChunkRenderOffset;
 		Vec2i firstChunkCullOffset;
 		if (movement.sum() > 0) {

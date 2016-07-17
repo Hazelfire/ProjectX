@@ -50,7 +50,6 @@ private:
 	// Map Lua functions
 	static int l_findNameAt(lua_State*);
 	static int l_findRegionAt(lua_State*);
-	static int l_interactMap(lua_State*);
 	static int l_destroyTile(lua_State*);
 	static int l_setTileState(lua_State*);
 	static int l_getTileState(lua_State*);
@@ -65,7 +64,12 @@ private:
 	static int l_getPlayerName(lua_State*);
 	static int l_getClassName(lua_State*);
 	static int l_getPlayerMovementSpeed(lua_State*);
+	static int l_setPlayerMovementSpeed(lua_State*);
 	static int l_getPlayerInventory(lua_State*);
+	static int l_getPlayerHealth(lua_State*);
+	static int l_healPlayer(lua_State*);
+	static int l_damagePlayer(lua_State*);
+	static int l_teleportPlayer(lua_State*);
 
 	// Inventory
 	static int l_givePlayerItem(lua_State*);
@@ -96,5 +100,6 @@ private:
 	// Particles
 	static int l_spawnParticles(lua_State*);
 
-
+	static int l_print(lua_State*);
+	static int l_clear(lua_State*);
 };

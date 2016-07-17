@@ -17,7 +17,7 @@
 USING_NS_CC;
 using namespace std;
 
-LuaActions Interact::m_currentLuaParser;
+LuaTileActions Interact::m_currentLuaParser;
 ActionMap Interact::interactionsRepo;
 std::string Interact::m_scheduledCommand;
 double Interact::m_scheduledCommandTime;
@@ -62,12 +62,22 @@ void Interact::InteractMap(Vec2f tileCoordinates) {
 ActionList Interact::getPossibleActions(ActionList set, InteractionType type) {
 	ActionList re;
 	re.isMovable = set.isMovable;
-	for (std::list<Interaction>::iterator currentInteraction = set.options.begin(); currentInteraction != set.options.end(); currentInteraction++) {
-		LuaGame interpreter;
-		if (currentInteraction->ifConditional.empty()) 
-			re.options.push_back(*currentInteraction);
-		else if (interpreter.fulfills(ScriptLoader::loadLuaScripts(ScriptLoader::LUA_INTERACTIONS), currentInteraction->ifConditional))
-			re.options.push_back(*currentInteraction);
+	for (auto currentInteraction : set.options) {
+		if (type == INTERACT_TILE) {
+			LuaTileActions interpreter;
+			if (currentInteraction.ifConditional.empty())
+				re.options.push_back(currentInteraction);
+			else if (interpreter.fulfills(ScriptLoader::loadLuaScripts(ScriptLoader::LUA_INTERACTIONS), currentInteraction.ifConditional))
+				re.options.push_back(currentInteraction);
+		} else{
+			LuaCreatureActions interpreter;
+			if (currentInteraction.ifConditional.empty())
+				re.options.push_back(currentInteraction);
+
+			else if (interpreter.fulfills(ScriptLoader::loadLuaScripts(ScriptLoader::LUA_CREATURE_ACTIONS), currentInteraction.ifConditional))
+				re.options.push_back(currentInteraction);
+
+		}
 	}
 	return re;
 }

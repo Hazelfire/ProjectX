@@ -1,5 +1,6 @@
 #include "SpriteLoader.h"
 #include "ScriptLoader.h"
+#include "Debug.h"
 
 cocos2d::Node* SpriteLoader::loadSprite(std::string spriteName) {
 	cocos2d::Node* re = nullptr;
@@ -110,6 +111,7 @@ cocos2d::Node* SpriteLoader::searchSpritesFor(SpriteParser::SpriteSheet* sprites
 			}
 		}
 	}
+	Debugger::logError("Could not find sprite for " + spriteName, DEBUG_SPRITES);
 	return nullptr;
 }
 

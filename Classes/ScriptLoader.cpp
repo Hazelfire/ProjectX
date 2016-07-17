@@ -139,6 +139,10 @@ ScriptLoader::SourceList ScriptLoader::loadLuaScripts(ScriptLoader::LuaScriptTyp
 		break;
 	case LUA_CREATURES:
 		return m_LuaScriptIndex.creatures;
+	case LUA_ITEMS:
+		return m_LuaScriptIndex.items;
+	case LUA_CREATURE_ACTIONS:
+		return m_LuaScriptIndex.creatureInteractions;
 	default:
 		return SourceList();
 		break;

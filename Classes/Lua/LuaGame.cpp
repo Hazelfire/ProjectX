@@ -8,7 +8,8 @@
 #include "Multiplayer/XClient.h"
 #include <sstream>
 #include "Particles.h"
-
+#include "Mechs/Health.h"
+#include "MyUI/LuaTerminal.h"
 
 
 void LuaGame::addFunctions(lua_State* mainState) {
@@ -40,6 +41,10 @@ void LuaGame::addFunctions(lua_State* mainState) {
 	NEW_ROW("spawnParticles", l_spawnParticles);
 	
 	NAME_TABLE("Particles");
+
+	// Terminal
+	NEW_FUNCTION("print", l_print);
+	NEW_FUNCTION("clear", l_clear);
 
 	lua_pushinteger(mainState, UNTOUCHED);
 	lua_setglobal(mainState, "UNTOUCHED");
@@ -94,7 +99,12 @@ void LuaGame::addFunctions(lua_State* mainState) {
 		{ "getPlayerName", l_getPlayerName },
 		{ "getClassName", l_getClassName },
 		{ "getMovementSpeed", l_getPlayerMovementSpeed },
+		{ "setMovementSpeed", l_setPlayerMovementSpeed },
 		{ "getInventory",l_getPlayerInventory },
+		{ "getHealth", l_getPlayerHealth},
+		{ "heal", l_healPlayer },
+		{ "damage", l_damagePlayer },
+		{ "teleport", l_teleportPlayer },
 		{ NULL, NULL }
 	};
 
@@ -106,6 +116,7 @@ void LuaGame::addFunctions(lua_State* mainState) {
 
 	luaW_setfuncs<LuaInventoryObject>(mainState, "Inventory", inventory_static, inventory_member);
 	lua_setglobal(mainState, "Inventory");
+
 }
 
 void LuaGame::callWithPlayer(std::string function, int player) {
@@ -394,6 +405,21 @@ int LuaGame::l_getPlayerMovementSpeed(lua_State* functionState) {
 	return 1;
 }
 
+int LuaGame::l_setPlayerMovementSpeed(lua_State* functionState) {
+	if (!assertArguments(functionState, "Player:setMovementSpeed", {
+		{ LUA_TNUMBER }
+	}, true)) return 0;
+
+	LuaPlayerObject* luaPlayer = luaW_check<LuaPlayerObject>(functionState, 1);
+	double movementSpeed = lua_tonumber(functionState, 2);
+
+	if (*luaPlayer == XClient::getInstance()->getPlayerIndex()) {
+		Player::getInstance()->setMovementSpeed(movementSpeed);
+	}
+
+	return 0;
+}
+
 int LuaGame::l_spawnCreature(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature.spawnCreature", {
@@ -623,6 +649,58 @@ int LuaGame::l_getPlayerInventory(lua_State* functionState) {
 	return 1;
 }
 
+int LuaGame::l_getPlayerHealth(lua_State* functionState) {
+	if (!assertArguments(functionState, "Player:getHealth", { {} }, true)) return 0;
+
+	LuaPlayerObject* player = luaW_check<LuaPlayerObject>(functionState, 1);
+
+	if (*player == XClient::getInstance()->getPlayerIndex()) {
+		double health = Health::getInstance()->getHealth();
+		lua_pushnumber(functionState, health);
+		return 1;
+	}
+	else {
+		// If the player you are refering to is not the player that is playing
+		// We do not have a system for this, just return 0
+
+		lua_pushnumber(functionState, 0);
+		return 1;
+	}
+}
+
+int LuaGame::l_healPlayer(lua_State* functionState) {
+	if (!assertArguments(functionState, "Player:heal", {
+		{ LUA_TNUMBER }
+	}, true)) return 0;
+
+	LuaPlayerObject* luaPlayer = luaW_check<LuaPlayerObject>(functionState, 1);
+	double health = lua_tonumber(functionState, 2);
+
+	// If the player is us
+	if (*luaPlayer == XClient::getInstance()->getPlayerIndex()) {
+		Health::getInstance()->heal(health);
+	}
+	// cant do anything yet if not us
+
+	return 0;
+}
+
+int LuaGame::l_damagePlayer(lua_State* functionState) {
+	if (!assertArguments(functionState, "Player:damage", {
+		{ LUA_TNUMBER }
+	}, true)) return 0;
+
+	LuaPlayerObject* luaPlayer = luaW_check<LuaPlayerObject>(functionState, 1);
+	double damageHealth = lua_tonumber(functionState, 2);
+
+	// if player is us
+	if (*luaPlayer == XClient::getInstance()->getPlayerIndex()) {
+		Health::getInstance()->damage(damageHealth);
+	}
+
+	return 0;
+}
+
 int LuaGame::l_getCreatureName(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:getCreatureName", {
@@ -696,13 +774,58 @@ int LuaGame::l_setCreatureProperties(lua_State* functionState) {
 
 int LuaGame::l_spawnParticles(lua_State* functionState) {
 	if (!assertArguments(functionState, "Particles.spawnParticles", {
-		{LUA_TSTRING, LUA_TTABLE }
+		{ LUA_TSTRING, LUA_TTABLE }
 	})) return 0;
 
 	if (lua_gettop(functionState) == 3) {
 		std::string particleSystemName = lua_tostring(functionState, 1);
 		Vec2d position = toVector(functionState, 2);
 		Particles::spawnParticles(particleSystemName, position);
+	}
+	return 0;
+}
+
+int LuaGame::l_print(lua_State* functionState) {
+
+	int argCount = lua_gettop(functionState);
+	
+	for (int argIndex = 1; argIndex <= argCount; argIndex++) {
+
+		std::string message;
+		if (lua_isstring(functionState, argIndex))
+			message = lua_tostring(functionState, argIndex);
+		else if (lua_istable(functionState,argIndex))
+			message = pickleTable(functionState, argIndex);
+		else
+			message = getType(functionState, argIndex);
+
+		if (LuaTerminal::getInstance()) {
+			LuaTerminal::getInstance()->print(message);
+		}
+	}
+	return 0;
+}
+
+int LuaGame::l_clear(lua_State* functionState) {
+	if (!assertArguments(functionState, "clear", {
+		{}
+	})) return 0;
+
+	if (LuaTerminal::getInstance()) {
+		LuaTerminal::getInstance()->clear();
+	}
+	return 0;
+}
+int LuaGame::l_teleportPlayer(lua_State* functionState) {
+	if (!assertArguments(functionState, "player:teleport", {
+		{ LUA_TTABLE }
+	}, true)) return 0;
+
+	LuaPlayerObject* luaPlayer = luaW_check<LuaPlayerObject>(functionState, 1);
+	Vec2d tilePos = toVector(functionState, 1);
+
+	if (*luaPlayer == XClient::getInstance()->getPlayerIndex()) {
+		Player::getInstance()->setTilePosition(tilePos);
 	}
 	return 0;
 }

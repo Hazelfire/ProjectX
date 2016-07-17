@@ -1,7 +1,7 @@
 #include <string>
 #include "cocos2d.h"
 #include "Parser/Responces.h"
-#include "Lua/LuaActions.h"
+#include "Lua/LuaTileActions.h"
 #include "Lua/LuaCreatureActions.h"
 #include "SelectionWheel.h"
 #include "MyMath.h"
@@ -42,7 +42,7 @@ private:
 
 	static void cancelCommand();
 	static void scheduleCommand(std::string, double time);
-	static LuaActions m_currentLuaParser;
+	static LuaTileActions m_currentLuaParser;
 	static LuaCreatureActions m_currentCreatureParser;
 
 	// Choices

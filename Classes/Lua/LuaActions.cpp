@@ -4,35 +4,14 @@
 #include "Inventory.h"
 #include "Multiplayer/XClient.h"
 
-
-void LuaActions::init(Vec2i tileCoordinates) {
-	m_tilePos = tileCoordinates;
-}
-
 void LuaActions::addFunctions(lua_State* mainState) {
 
-	LuaGame::addFunctions(mainState);
+	LuaPersonal::addFunctions(mainState);
 
 	//Interact
-	NEW_TABLE_SIZE(3);
-
-	NEW_ROW("moveOn", l_moveOn);
-	NEW_ROW("moveTo", l_moveTo);
-	NEW_ROW("interactMap", l_interactMap);
-
-	NAME_TABLE("Interact");
-
-	// The position of the tile that is being clicked on
-	pushVector(mainState, m_tilePos);
-	lua_setglobal(mainState, "tilePos");
-
-	int playerIndex = XClient::getPlayerIndex();
-	
-	luaW_push<LuaPlayerObject>(mainState, new LuaPlayerObject(playerIndex));
-	lua_setglobal(mainState, "player");
-
-	luaW_push<LuaInventoryObject>(mainState, new LuaInventoryObject(playerIndex));
-	lua_setglobal(mainState, "inventory");
+	NEW_FUNCTION("moveOn", l_moveOn);
+	NEW_FUNCTION("moveTo", l_moveTo);
+	NEW_FUNCTION("interactMap", l_interactMap);
 }
 
 int LuaActions::l_moveOn(lua_State* functionState) {
@@ -71,7 +50,7 @@ int LuaActions::l_moveTo(lua_State* functionState) {
 		int distance = lua_tointeger(functionState, 2);
 		Interact::moveTo(position, distance);
 	}
-	else if (lua_gettop(functionState) == 4) {
+	else if (lua_gettop(functionState) == 3) {
 		Vec2d position = toVector(functionState, 1);
 		int distance = lua_tointeger(functionState, 2);
 		double speed = lua_tonumber(functionState, 3);

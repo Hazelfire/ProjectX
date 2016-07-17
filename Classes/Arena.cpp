@@ -9,6 +9,7 @@
 #include "Parser/StringOperations.h"
 #include "Save.h"
 #include "MyUI/LuaTerminal.h"
+#include "Mechs/Health.h"
 
 int WIDTH;
 int HEIGHT;
@@ -158,6 +159,12 @@ void Arena::addUI() {
 	// because the infobar needs to be higher than the inventory
 	infoBar->setLocalZOrder(123);
 	m_UILayer->addChild(infoBar);
+
+
+	// Health Bar
+	Health* healthBar = Health::create();
+	healthBar->setPosition(Vec2(visibleSize.width / 2, healthBar->getContentSize().height));
+	m_UILayer->addChild(healthBar);
 
 
 	if (Save::read(&SaveInformation::devMode)) {

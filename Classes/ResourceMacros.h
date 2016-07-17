@@ -11,6 +11,9 @@
 			#define INFO_BAR_IMAGE GAME_UI_FOLDER "InfoBar.png"
 			#define INVENTORY_BUTTON GAME_UI_FOLDER "Inventory button.png"
 			#define INTERACTIONS_SELECTOR GAME_UI_FOLDER "interactions selector.png"
+			#define HEALTH_FULL_IMAGE GAME_UI_FOLDER "healthFull.png"
+			#define HEALTH_EMPTY_IMAGE GAME_UI_FOLDER "healthEmpty.png"
+			#define HEALTH_FRAME GAME_UI_FOLDER "healthFrame.png"
 
 		#define INVENTORY_FOLDER UI_FOLDER "inventory/"
 
