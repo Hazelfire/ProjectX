@@ -1,10 +1,9 @@
 #include "ScriptIndex.h"
-#include <CCFileUtils.h>
+#include <cocos2d.h>
 #include <yaml-cpp/yaml.h>
 #include "../Parser/StringOperations.h"
 #include  <sstream>
 #include "Debug.h"
-#include "CCPlatformMacros.h"
 #include "ResourceMacros.h"
 #define IS_MOBILE (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 
@@ -175,5 +174,7 @@ std::string ScriptParser::createScriptIndex(std::string fileName) {
 
 	cocos2d::FileUtils::getInstance()->writeStringToFile(ss.str(), fileName);
 	return ss.str();
+#else
+	return cocos2d::FileUtils::getInstance()->getStringFromFile(fileName);
 #endif
 }

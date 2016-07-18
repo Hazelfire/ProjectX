@@ -1,5 +1,5 @@
 #include "LuaInterpreter.h"
-#include <CCFileUtils.h>
+#include <cocos2d.h>
 #include "Debug.h"
 #include "Parser/StringOperations.h"
 

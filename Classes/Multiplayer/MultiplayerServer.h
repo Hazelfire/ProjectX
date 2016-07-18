@@ -1,4 +1,4 @@
-#include "CCPlatformMacros.h"
+#include <cocos2d.h>
 #include <string>
 #define DEFAULT_PORT "44075"
 

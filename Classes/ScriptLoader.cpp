@@ -1,7 +1,7 @@
 #include "ScriptLoader.h"
 #include "ResourceMacros.h"
 #include <sstream>
-#include <CCFileUtils.h>
+#include <cocos2d.h>
 #include "Debug.h"
 #include "Parser/ErrorParser.h"
 #include "Parser/StringOperations.h"

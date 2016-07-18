@@ -92,20 +92,20 @@ MESSAGE_TYPE_3(MMAP_PROPERTY_CHANGE, Vec2i, std::string, int);
 // 2: the creature's coordinates
 // 3: the distance
 // 4: the speed
-#define MCREATURE_MOVE_TO '\0x0e'
+#define MCREATURE_MOVE_TO '\x0e'
 MESSAGE_TYPE_4(MCREATURE_MOVE_TO, unsigned int, Vec2i, unsigned char, float);
 
 // A creature has spawned
 // 1: the creatures name
 // 2: the coordinates of the creature
-#define MCREATURE_SPAWN '\0x0f'
+#define MCREATURE_SPAWN '\x0f'
 MESSAGE_TYPE_2(MCREATURE_SPAWN, std::string, Vec2i);
 
 // Gives a player an item
 // 1: the player's index
 // 2: the item's name
 // 3: the quantity
-#define MGIVE_PLAYER_ITEM '\0x10'
+#define MGIVE_PLAYER_ITEM '\x10'
 MESSAGE_TYPE_3(MGIVE_PLAYER_ITEM, unsigned char, std::string, unsigned int);
 
 // Takes items from the player

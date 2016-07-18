@@ -1,5 +1,5 @@
 #include "FontParser.h"
-#include "CCFileUtils.h"
+#include <cocos2d.h>
 #include <sstream>
 #include "StringOperations.h"
 #include "../ResourceMacros.h"

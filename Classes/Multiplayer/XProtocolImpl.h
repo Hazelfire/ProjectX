@@ -1,7 +1,7 @@
 
 #include "MyMath.h"
-typedef char XMessageType;
-template<XMessageType type> class XMessage;
+
+template<char type> class XMessage;
 namespace XProtocol {
 	/*
 	This header file defines the XProtocol and provides a nice interface for it's use, please continue down the page for actual protocols
@@ -18,7 +18,7 @@ namespace XProtocol {
 	}; \
 	\
 \
-	template <XMessageType otherType>\
+	template <char otherType>\
 	XMessage(XMessage<otherType> genericMessage){ \
 			type = genericMessage.type; \
 			payload = genericMessage.payload;\
@@ -41,7 +41,7 @@ namespace XProtocol {
 				\
 private: \
 				\
-	XMessageType type; \
+	char type; \
 	std::vector<std::string> payload; \
 public: 
 
@@ -197,7 +197,7 @@ XMESSAGE_BASE \
 
 
 
-template <XMessageType messageType>
+template <char messageType>
 class XMessage {
 	XMESSAGE_BASE
 };
@@ -245,6 +245,6 @@ public:
 
 	bool isType(const char other) { return(type == other); }
 
-	XMessageType type;
+	char type;
 	std::vector<std::string> payload;
 };

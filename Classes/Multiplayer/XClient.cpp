@@ -10,8 +10,6 @@
 #include "Creatures.h"
 #include "Inventory.h"
 
-#include "Sources/HashDirectory.h"
-
 // a lot of zeroes does not neccesarily mean a big number
 int XClient::m_playerIndex = 0000000000000000000000000000000;
 

@@ -137,7 +137,7 @@ if ( WIN32 )
 )
 endif( WIN32 )
 
-find_package(Boost 1.40 REQUIRED COMPONENTS filesystem thread)
+find_package(Boost 1.60 REQUIRED COMPONENTS filesystem thread)
 
 include_directories(${Boost_INCLUDE_DIRS})
 set(GAME_SRC
@@ -166,13 +166,19 @@ set(GAME_SRC
   
   Classes/Lua/LuaActions.cpp
   Classes/Lua/LuaCreature.cpp
+  Classes/Lua/LuaCreatureActions.cpp
   Classes/Lua/LuaGame.cpp
   Classes/Lua/LuaInterpreter.cpp
+  Classes/Lua/LuaItemUses.cpp
+  Classes/Lua/LuaPersonal.cpp
+  Classes/Lua/LuaTileActions.cpp
   
   Classes/MapGen/MapGenerator.cpp
   Classes/MapGen/PerlinNoise.cpp
   Classes/MapGen/Schematics.cpp
   
+  Classes/Mechs/Health.cpp
+
   Classes/Multiplayer/MultiplayerClient.cpp
   Classes/Multiplayer/MultiplayerLobby.cpp
   Classes/Multiplayer/MultiplayerServer.cpp
@@ -184,6 +190,7 @@ set(GAME_SRC
   Classes/Multiplayer/XServer.cpp
   
   Classes/MyUI/Dialougue.cpp
+  Classes/MyUI/LuaTerminal.cpp
   
   Classes/Parser/Characters.cpp
   Classes/Parser/CreaturesParser.cpp
@@ -247,13 +254,19 @@ set(GAME_HEADERS
   
   Classes/Lua/LuaActions.h
   Classes/Lua/LuaCreature.h
+  Classes/Lua/LuaCreatureActions.h
   Classes/Lua/LuaGame.h
+  Classes/Lua/LuaItemUses.h
+  Classes/Lua/LuaPersonal.h
+  Classes/Lua/LuaTileActions.h
   Classes/Lua/LuaInterpreter.h
   Classes/Lua/luawrapper.hpp
   
   Classes/MapGen/MapGenerator.h
   Classes/MapGen/PerlinNoise.h
   Classes/MapGen/Schematics.h
+
+  Classes/Mechs/Health.h
   
   Classes/Multiplayer/MultiplayerClient.h
   Classes/Multiplayer/MultiplayerLobby.h
@@ -267,6 +280,7 @@ set(GAME_HEADERS
   Classes/Multiplayer/XServer.h
   
   Classes/MyUI/Dialougue.h
+  Classes/MyUI/LuaTerminal.h
   
   Classes/Parser/Characters.h
   Classes/Parser/CreaturesParser.h

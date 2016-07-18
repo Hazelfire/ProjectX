@@ -1,5 +1,4 @@
 #include "LuaCreature.h"
-#include "CCPlatformMacros.h"
 #include "MyMath.h"
 #include "Creatures.h"
 #include "Arena.h"

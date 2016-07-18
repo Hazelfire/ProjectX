@@ -1,7 +1,6 @@
 #include "XMLCommon.h"
-#include "CCCommon.h"
 #include "base/CCDirector.h"
-#include <CCFileUtils.h>
+#include <cocos2d.h>
 #include "Debug.h"
 #include "StringOperations.h"
 
