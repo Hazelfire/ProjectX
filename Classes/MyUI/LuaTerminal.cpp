@@ -300,7 +300,7 @@ void LuaTerminal::appendKey(char key) {
 }
 
 void LuaTerminal::runCommand() {
-	if (m_currentCommand.back() == '\\') {
+	if (!m_currentCommand.empty() && m_currentCommand.back() == '\\') {
 		std::string lastLine = m_currentCommand.substr(m_currentCommand.find_last_of('\n') + 1, m_currentCommand.size() - m_currentCommand.find_last_of('\n') - 1);
 		print((m_continuationMode ? continueHeader : commandHeader) + lastLine);
 		m_currentCommand.pop_back();
@@ -318,21 +318,23 @@ void LuaTerminal::runCommand() {
 	else {
 		print(commandHeader + m_currentCommand);
 	}
-	std::string returnValue = m_interpreter.run(std::list<std::string>(), m_currentCommand);
-	if (!returnValue.empty())
-		print(returnHeader + returnValue);
+	if (!m_currentCommand.empty()) {
+		std::string returnValue = m_interpreter.run(std::list<std::string>(), m_currentCommand);
+		if (!returnValue.empty())
+			print(returnHeader + returnValue);
 
-	if (m_continuationMode) {
-		// This command came in multiple lines, for recalling, we should
-		// split these lines up
-		std::stringstream ss(m_currentCommand);
-		std::string line;
-		while (std::getline(ss, line, '\n')){
-			m_commandList.push_back(line);
+		if (m_continuationMode) {
+			// This command came in multiple lines, for recalling, we should
+			// split these lines up
+			std::stringstream ss(m_currentCommand);
+			std::string line;
+			while (std::getline(ss, line, '\n')) {
+				m_commandList.push_back(line);
+			}
 		}
-	}
-	else {
-		m_commandList.push_back(m_currentCommand);
+		else {
+			m_commandList.push_back(m_currentCommand);
+		}
 	}
 	m_currentCommand = "";	
 	m_continuationMode = false;

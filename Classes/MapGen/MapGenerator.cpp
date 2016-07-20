@@ -103,8 +103,8 @@ MapTile MapGenerator::Impl::applyRule(int x, int y,const RuleTile& rule, int& se
 
 	if (rule.ruleType== "perlin") {
 		//If there has not already been an engine generated for this seed
-	if(pNoiseEngines.find(seed) == pNoiseEngines.end()){
-		//Create the engine
+		if(pNoiseEngines.find(seed) == pNoiseEngines.end()){
+			//Create the engine
 			PerlinNoise pn(seed);
 			pNoiseEngines[seed] = pn;
 
@@ -125,6 +125,59 @@ MapTile MapGenerator::Impl::applyRule(int x, int y,const RuleTile& rule, int& se
 		}
 		else {
 			return re;
+		}
+	}
+	else if (rule.ruleType == "fractal") {
+		double scaleBase = rule.scaleBase;
+		double suppresionBase = rule.supressBase;
+		int fractalIterations = rule.iterations;
+		if(pNoiseEngines.find(seed) == pNoiseEngines.end()){
+		//Create the engine
+			PerlinNoise pn(seed);
+			pNoiseEngines[seed] = pn;
+			double heightCount = 0.0;
+			for (int i = 0; i < fractalIterations; i++) {
+				if (i % 4 == 0) {
+					heightCount += (pn.noise((double)(x)*(rule.scale * (powf(scaleBase, i))) / 50, (double)y*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+				}
+				else if (i % 4 == 1) {
+					heightCount += (pn.noise((double)(32000 - x)*(rule.scale * (powf(scaleBase, i))) / 50, (double)y*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+				}
+				else if (i % 4 == 2) {
+					heightCount += (pn.noise((double)x*(rule.scale * (powf(scaleBase, i))) / 50, (double)(32000 - y)*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+				}
+				else if (i % 4 == 3) {
+					heightCount += (pn.noise((double)(32000 - x)*(rule.scale * (powf(scaleBase, i))) / 50, (double)(32000 - y)*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+				}
+			}
+
+			double divisor = 0.0;
+			for (int i = 0; i < fractalIterations; i++)
+				divisor += 1.0 / powf(suppresionBase, i);
+
+			randomHeight = heightCount / divisor;
+		}
+		else {
+			PerlinNoise pn = pNoiseEngines[seed];
+			double heightCount = 0.0;
+			for (int i = 0; i < fractalIterations; i++) {
+				if (i % 4 == 1) {
+					heightCount += (pn.noise((double)(x)*(rule.scale * (powf(scaleBase, i))) / 50, (double)y*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+				}
+				else if (i % 4 == 2) {
+					heightCount += (pn.noise((double)(32000 - x)*(rule.scale * (powf(scaleBase, i))) / 50, (double)y*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+				}
+				else if (i % 4 == 3) {
+					heightCount += (pn.noise((double)x*(rule.scale * (powf(scaleBase, i))) / 50, (double)(32000 - y)*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+				}
+				else if (i % 4 == 0) {
+					heightCount += (pn.noise((double)(32000 - x)*(rule.scale * (powf(scaleBase, i))) / 50, (double)(32000 - y)*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+				}
+			}
+			double divisor = 0.0;
+			for (int i = 0; i < fractalIterations; i++)
+				divisor += 1.0 / powf(suppresionBase, i);
+			randomHeight = heightCount / divisor;
 		}
 	}
 

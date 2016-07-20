@@ -82,6 +82,10 @@ PerlinNoise::PerlinNoise(unsigned int seed) {
 }
 
 double PerlinNoise::noise(double xin, double yin) {
+
+	// This is because 0,0 will always be 50, or average. This compensates.
+	xin += 2;
+	yin += 2;
 	double n0, n1, n2; // Noise contributions from the three corners
 					   // Skew the input space to determine which simplex cell we're in
 	double F2 = 0.5*(sqrt(3.0) - 1.0);

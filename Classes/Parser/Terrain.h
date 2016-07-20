@@ -17,6 +17,9 @@ struct RuleTile {
 	float scale;
 	std::string inside;
 	double height;
+	double supressBase = 3.0;
+	double scaleBase = 3.0;
+	int iterations = 10;
 	int ruleTilesSize = 0;
 	RuleTile* ruleTiles;
 	std::string region;

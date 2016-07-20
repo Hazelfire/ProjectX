@@ -152,6 +152,15 @@ RuleTile TerrainParser::Impl::parseRule(rapidxml::xml_node<>* rule)
 			else if (strcmp(ruleAttr->name(), "inside") == 0) {
 				re.inside = ruleAttr->value();
 			}
+			else if (strcmp(ruleAttr->name(), "suppBase") == 0) {
+				re.supressBase = atof(ruleAttr->value());
+			}
+			else if (strcmp(ruleAttr->name(), "scaleBase") == 0) {
+				re.scaleBase = atof(ruleAttr->value());
+			}
+			else if (strcmp(ruleAttr->name(), "iter") == 0) {
+				re.iterations = atoi(ruleAttr->value());
+			}
 		}
 		else if (strcmp(rule->name(), "tile") == 0) {
 			re.ruleTileType = TILE_TYPE;
