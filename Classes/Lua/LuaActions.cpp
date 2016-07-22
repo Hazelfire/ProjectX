@@ -17,8 +17,8 @@ void LuaActions::addFunctions(lua_State* mainState) {
 int LuaActions::l_moveOn(lua_State* functionState) {
 
 	if(!assertArguments(functionState, "moveOn", {
-				{ LUA_TTABLE },
-				{ LUA_TTABLE, LUA_TNUMBER}
+				{ LUA_TVECTOR },
+				{ LUA_TVECTOR, LUA_TNUMBER}
 				})) return 0;
 
 	if (lua_gettop(functionState) == 1) {
@@ -36,9 +36,9 @@ int LuaActions::l_moveOn(lua_State* functionState) {
 int LuaActions::l_moveTo(lua_State* functionState) {
 
 	if(!assertArguments(functionState, "moveTo", {
-				{ LUA_TTABLE },
-				{ LUA_TTABLE, LUA_TNUMBER },
-				{ LUA_TTABLE, LUA_TNUMBER, LUA_TNUMBER }
+				{ LUA_TVECTOR },
+				{ LUA_TVECTOR, LUA_TNUMBER },
+				{ LUA_TVECTOR, LUA_TNUMBER, LUA_TNUMBER }
 				})) return 0;
 
 	if (lua_gettop(functionState) == 1) { // if there is 2 arguments
@@ -62,7 +62,7 @@ int LuaActions::l_moveTo(lua_State* functionState) {
 int LuaActions::l_interactMap(lua_State* functionState) {
 
 	if(!assertArguments(functionState, "interactMap", {
-				{ LUA_TTABLE }
+				{ LUA_TVECTOR }
 				})) return 0;
 
 	if (lua_gettop(functionState) == 1) {

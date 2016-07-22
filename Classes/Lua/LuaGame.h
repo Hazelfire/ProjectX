@@ -58,7 +58,9 @@ private:
 
 	// Player Lua functions
 	static int l_getPlayerByIndex(lua_State*);
+	static int l_getPlayerType(lua_State*);
 
+	static int l_playerToString(lua_State*);
 	static int l_getPlayerPosition(lua_State*);
 	static int l_getPlayerRealPosition(lua_State*);
 	static int l_getPlayerName(lua_State*);
@@ -72,6 +74,9 @@ private:
 	static int l_teleportPlayer(lua_State*);
 
 	// Inventory
+	static int l_getInventoryType(lua_State*);
+
+	static int l_inventoryToString(lua_State*);
 	static int l_givePlayerItem(lua_State*);
 	static int l_getQuantityOf(lua_State*);
 	static int l_takeItem(lua_State*);
@@ -80,7 +85,9 @@ private:
 
 	// Creatures
 	static int l_spawnCreature(lua_State*);
+	static int l_getCreatureType(lua_State*);
 
+	static int l_creatureToString(lua_State*);
 	static int l_creatureMoveTo(lua_State*);
 	static int l_creatureMoveOn(lua_State*);
 	static int l_getCreaturePosition(lua_State*);

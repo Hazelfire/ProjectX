@@ -5,7 +5,7 @@
 #include "XServer.h"
 #include "XProtocol.hpp"
 #include "Parser/StringOperations.h"
-#include "Sources/HashDirectory.h"
+
 // destroys element and squashes vector
 template <class AnyType>
 void squashVector(std::vector<AnyType> & vector, int index) {

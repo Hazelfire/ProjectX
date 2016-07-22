@@ -86,8 +86,8 @@ int LuaCreature::l_getCreatureRealPosition(lua_State* functionState) {
 int LuaCreature::l_creatureMoveOn(lua_State* functionState) {
 	
 	if(!assertArguments(functionState, "moveOn",{ 
-				{ LUA_TTABLE },
-				{ LUA_TTABLE, LUA_TNUMBER}
+				{ LUA_TVECTOR },
+				{ LUA_TVECTOR, LUA_TNUMBER}
 				})) return 0;
 
 	Creature* creatureReference = getCreatureReference(functionState);
@@ -191,9 +191,9 @@ int LuaCreature::l_getCreatureMovementSpeed(lua_State* functionState) {
 int LuaCreature::l_creatureMoveTo(lua_State* functionState) {
 
 	if(!assertArguments(functionState, "moveTo",{
-				{ LUA_TTABLE },
-				{ LUA_TTABLE, LUA_TNUMBER },
-				{ LUA_TTABLE, LUA_TNUMBER, LUA_TNUMBER}
+				{ LUA_TVECTOR },
+				{ LUA_TVECTOR, LUA_TNUMBER },
+				{ LUA_TVECTOR, LUA_TNUMBER, LUA_TNUMBER}
 				})) return 0;
 
 	Creature* creatureReference = getCreatureReference(functionState);

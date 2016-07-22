@@ -57,10 +57,12 @@ void LuaGame::addFunctions(lua_State* mainState) {
 	
 	luaL_Reg creature_static[] = {
 		{ "spawnCreature", l_spawnCreature },
+		{ "getType", l_getCreatureType },
 		{ NULL, NULL }
 	};
 
 	luaL_Reg creature_member[] = {
+		{ "toString", l_creatureToString },
 		{ "moveTo", l_creatureMoveTo },
 		{ "moveOn",l_creatureMoveOn },
 		{ "getPosition", l_getCreaturePosition },
@@ -76,10 +78,12 @@ void LuaGame::addFunctions(lua_State* mainState) {
 	};
 
 	luaL_Reg inventory_static[] = {
+		{ "getType", l_getInventoryType},
 		{ NULL, NULL }
 	};
 
 	luaL_Reg inventory_member[] = {
+		{ "toString", l_inventoryToString },
 		{ "giveItem",l_givePlayerItem },
 		{ "getQuantityOf",l_getQuantityOf },
 		{ "takeItem",l_takeItem },
@@ -90,10 +94,12 @@ void LuaGame::addFunctions(lua_State* mainState) {
 
 	luaL_Reg player_static[] = {
 		{ "getByIndex", l_getPlayerByIndex },
+		{ "getType", l_getPlayerType },
 		{ NULL,NULL }
 	};
 
 	luaL_Reg player_member[] = {
+		{ "toString", l_playerToString },
 		{ "getPosition", l_getPlayerPosition },
 		{ "getRealPosition", l_getPlayerRealPosition },
 		{ "getPlayerName", l_getPlayerName },
@@ -136,7 +142,7 @@ void LuaGame::callWithPlayer(std::string function, int player) {
 int LuaGame::l_findNameAt(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena.getTileNameAt", {
-		{ LUA_TTABLE }
+		{ LUA_TVECTOR }
 	})) return 0;
 
 	if (lua_gettop(functionState) == 1) { // If there is one arguments
@@ -151,7 +157,7 @@ int LuaGame::l_findNameAt(lua_State* functionState) {
 int LuaGame::l_findRegionAt(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena.getTileRegionAt", {
-		{ LUA_TTABLE }
+		{ LUA_TVECTOR }
 	})) return 0;
 
 	if (lua_gettop(functionState) == 1) { 
@@ -249,7 +255,7 @@ int LuaGame::l_getClassName(lua_State* functionState) {
 int LuaGame::l_destroyTile(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena.destroyTile", {
-		{LUA_TTABLE}
+		{ LUA_TVECTOR }
 	})) return 0;
 
 	if (lua_gettop(functionState) == 1) {
@@ -262,7 +268,7 @@ int LuaGame::l_destroyTile(lua_State* functionState) {
 int LuaGame::l_setTileState(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena.setTileState", {
-		{LUA_TTABLE, LUA_TNUMBER}
+		{ LUA_TVECTOR , LUA_TNUMBER}
 	})) return 0;
 
 	if (lua_gettop(functionState) == 2) {
@@ -277,7 +283,7 @@ int LuaGame::l_setTileState(lua_State* functionState) {
 int LuaGame::l_getTileState(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena.getTileState", {
-		{ LUA_TTABLE }
+		{ LUA_TVECTOR }
 	})) return 0;
 
 	if (lua_gettop(functionState) == 1) {
@@ -357,7 +363,7 @@ int LuaGame::l_canCraftItem(lua_State* functionState) {
 int LuaGame::l_getTileProperties(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena:getTileProperties", {
-		{ LUA_TTABLE, LUA_TTABLE }
+		{ LUA_TVECTOR, LUA_TTABLE }
 	})) return 0;
 
 	if (lua_gettop(functionState) == 1) {
@@ -376,7 +382,7 @@ int LuaGame::l_getTileProperties(lua_State* functionState) {
 int LuaGame::l_setTileProperties(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Arena:setTileProperties", {
-		{ LUA_TTABLE , LUA_TTABLE }
+		{ LUA_TVECTOR , LUA_TTABLE }
 	})) return 0;
 
 	if (lua_gettop(functionState) == 2) {
@@ -423,7 +429,7 @@ int LuaGame::l_setPlayerMovementSpeed(lua_State* functionState) {
 int LuaGame::l_spawnCreature(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature.spawnCreature", {
-		{ LUA_TSTRING, LUA_TTABLE }
+		{ LUA_TSTRING, LUA_TVECTOR }
 	})) return 0;
 
 	if (lua_gettop(functionState) == 2) {
@@ -499,9 +505,9 @@ int LuaGame::l_hasItemWithTag(lua_State* functionState) {
 int LuaGame::l_creatureMoveTo(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:moveTo", {
-		{ LUA_TTABLE },
-		{ LUA_TTABLE , LUA_TNUMBER},
-		{ LUA_TTABLE, LUA_TNUMBER, LUA_TNUMBER}
+		{ LUA_TVECTOR },
+		{ LUA_TVECTOR , LUA_TNUMBER},
+		{ LUA_TVECTOR, LUA_TNUMBER, LUA_TNUMBER}
 	}, true)) return 0;
 
 	if (lua_gettop(functionState) == 2) {
@@ -537,8 +543,8 @@ int LuaGame::l_creatureMoveTo(lua_State* functionState) {
 int LuaGame::l_creatureMoveOn(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:moveOn", {
-		{ LUA_TTABLE },
-		{ LUA_TTABLE, LUA_TNUMBER }
+		{ LUA_TVECTOR },
+		{ LUA_TVECTOR, LUA_TNUMBER }
 	}, true)) return 0;
 
 	if (lua_gettop(functionState) == 2) {
@@ -759,7 +765,7 @@ int LuaGame::l_getCreatureProperties(lua_State* functionState) {
 int LuaGame::l_setCreatureProperties(lua_State* functionState) {
 
 	if (!assertArguments(functionState, "Creature:setProperties", {
-		{LUA_TTABLE}
+		{ LUA_TVECTOR }
 	}, true)) return 0;
 
 	if (lua_gettop(functionState) == 2) {
@@ -774,7 +780,7 @@ int LuaGame::l_setCreatureProperties(lua_State* functionState) {
 
 int LuaGame::l_spawnParticles(lua_State* functionState) {
 	if (!assertArguments(functionState, "Particles.spawnParticles", {
-		{ LUA_TSTRING, LUA_TTABLE }
+		{ LUA_TSTRING, LUA_TVECTOR }
 	})) return 0;
 
 	if (lua_gettop(functionState) == 3) {
@@ -818,14 +824,57 @@ int LuaGame::l_clear(lua_State* functionState) {
 }
 int LuaGame::l_teleportPlayer(lua_State* functionState) {
 	if (!assertArguments(functionState, "player:teleport", {
-		{ LUA_TTABLE }
+		{ LUA_TVECTOR }
 	}, true)) return 0;
 
 	LuaPlayerObject* luaPlayer = luaW_check<LuaPlayerObject>(functionState, 1);
-	Vec2d tilePos = toVector(functionState, 1);
+	Vec2d tilePos = toVector(functionState, 2);
 
 	if (*luaPlayer == XClient::getInstance()->getPlayerIndex()) {
 		Player::getInstance()->setTilePosition(tilePos);
 	}
 	return 0;
+}
+
+int LuaGame::l_getCreatureType(lua_State* functionState) {
+	lua_pushstring(functionState, "Creature");
+	return 1;
+}
+
+int LuaGame::l_getInventoryType(lua_State* functionState) {
+	lua_pushstring(functionState, "Inventory");
+	return 1;
+}
+
+int LuaGame::l_getPlayerType(lua_State* functionState){
+	lua_pushstring(functionState, "Player");
+	return 1;
+}
+
+int LuaGame::l_inventoryToString(lua_State* functionState) {
+	LuaInventoryObject* inventory = luaW_check<LuaInventoryObject>(functionState, 1);
+	LuaPlayerObject luaPlayer = (int)*inventory;
+	Mortal* player = PuppetMaster::getPlayer(luaPlayer);
+	
+	std::string stringRepresentation = "Inventory of Player " +StringOps::to_string(player->getPlayerIndex()) + ":" + player->getPlayerName();
+	lua_pushstring(functionState, stringRepresentation.c_str());
+	return 1;
+}
+
+int LuaGame::l_creatureToString(lua_State* functionState) {
+	LuaCreatureObject* luaCreature = luaW_check<LuaCreatureObject>(functionState, 1);
+	Creature* creature = Creature::getWithId(*luaCreature);
+
+	std::string stringRepresentation = "Creature " + creature->getCreatureName() + " at " + vectorToString(creature->getTilePosition());
+
+	return 1;
+}
+
+int LuaGame::l_playerToString(lua_State* functionState) {
+	LuaPlayerObject* luaPlayer = luaW_check<LuaPlayerObject>(functionState, 1);
+	Mortal* player = PuppetMaster::getPlayer(*luaPlayer);
+	
+	std::string stringRepresentation = "Player " +StringOps::to_string(player->getPlayerIndex()) + ":" + player->getPlayerName();
+	lua_pushstring(functionState, stringRepresentation.c_str());
+	return 1;
 }

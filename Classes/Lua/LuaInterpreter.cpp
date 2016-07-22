@@ -404,7 +404,7 @@ bool LuaInterpreter::assertArguments(lua_State* state,std::string functionName, 
 
 	// printing used overload
 	for (int i = memberMode?2:1; i <= lua_gettop(state); i++) {
-		errorMessage.append(getType(state, i));
+		errorMessage.append(stringOfLuaType(getType(state, i)));
 		if (i != lua_gettop(state))
 			errorMessage.append(", ");
 	}
@@ -429,9 +429,73 @@ bool LuaInterpreter::assertArguments(lua_State* state,std::string functionName, 
 	return false;
 }
 
-std::string LuaInterpreter::getType(lua_State* state, int index) {
-	return stringOfLuaType(lua_type(state, index));
-	
+int LuaInterpreter::getType(lua_State* state, int index) {
+
+	// Here is what lua thinks it is, but I have invented a few types
+	// So it may not be
+	int initialType = lua_type(state, index);
+
+	// There is a chance here this may be a vector, not a table, lets check
+	if (initialType == LUA_TTABLE) {
+
+		// Does it have an x value?
+		lua_pushstring(state, "x");
+		lua_gettable(state, index);
+
+		// Is the x value not a number?
+		if (!lua_isnumber(state, -1)) {
+			// Nope, not a vector
+			lua_pop(state, 1);
+			return LUA_TTABLE;
+		}
+		lua_pop(state, 1);
+
+		// valid x! lets check y
+		lua_pushstring(state, "y");
+		lua_gettable(state, index);
+
+		if (!lua_isnumber(state, -1)) {
+			lua_pop(state, 1);
+			return LUA_TTABLE;
+		}
+
+		// has an x and y, is a vector
+		return LUA_TVECTOR;
+
+	}
+	else if (initialType == LUA_TUSERDATA) {
+		// It is unlikely for this to be userdata
+		// lets see if we can call a getType function
+
+		lua_pushstring(state, "getType");
+		lua_gettable(state, index);
+		int error = lua_pcall(state, 1, LUA_MULTRET, 0);
+		if (error) {
+			// There was an error! This probably means this
+			// Really was userdata.
+			return LUA_TUSERDATA;
+		}
+		if (lua_isstring(state, -1)) {
+			// Returned a type for us to look at! lets check it
+			std::string userdataType = lua_tostring(state, -1);
+
+			if (userdataType == "Creature") {
+				return LUA_TCREATURE;
+			}
+			else if (userdataType == "Player") {
+				return LUA_TPLAYER;
+			}
+			else if (userdataType == "Inventory") {
+				return LUA_TINVENTORY;
+			}
+		}
+
+	}
+
+	// Otherwise, lua was right, and it was the type they
+	// thought it was
+
+	return initialType;
 }
 
 std::string LuaInterpreter::stringOfLuaType(int type) {
@@ -453,6 +517,14 @@ std::string LuaInterpreter::stringOfLuaType(int type) {
 		return "userdata";
 	else if (type == LUA_TTHREAD)
 		return "thread";
+	else if (type == LUA_TPLAYER)
+		return "Player";
+	else if (type == LUA_TINVENTORY)
+		return "Inventory";
+	else if (type == LUA_TCREATURE)
+		return "Creature";
+	else if (type == LUA_TVECTOR)
+		return "vector";
 	else
 		return "none";
 }
@@ -577,7 +649,6 @@ int LuaInterpreter::l_eqVector(lua_State* state){
 	return 1;
 }
 
-
 int LuaInterpreter::l_vecConstruct(lua_State* functionState){
 	if(!assertArguments(functionState, "Vec", {
 			{  },
@@ -594,4 +665,9 @@ int LuaInterpreter::l_vecConstruct(lua_State* functionState){
 	}
 
 	return 1;
+}
+
+std::string LuaInterpreter::vectorToString(Vec2d vector) {
+	std::string stringRepresentation = "(" + StringOps::to_string(vector.x) + ", " + StringOps::to_string(vector.y) + ")";
+	return stringRepresentation;
 }
