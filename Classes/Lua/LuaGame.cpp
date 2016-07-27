@@ -39,7 +39,7 @@ void LuaGame::addFunctions(lua_State* mainState) {
 		0,
 		{ "print",
 		"prints a message to the console, and will print anything",
-		{ { { -1, "" }} }, // -1 is a magic number, basically means that it takes any number of arguments
+		{ { { -1, "..." }} }, // -1 is a magic number, basically means that it takes any number of arguments
 		0,
 		l_print });
 	lua_setglobal(mainState, "print");
@@ -905,7 +905,7 @@ int LuaGame::l_spawnParticles(lua_State* functionState) {
 }
 
 int LuaGame::l_print(lua_State* functionState) {
-
+	CHECK_ARGS;
 	int argCount = lua_gettop(functionState);
 	
 	for (int argIndex = 1; argIndex <= argCount; argIndex++) {
@@ -913,7 +913,7 @@ int LuaGame::l_print(lua_State* functionState) {
 		std::string message;
 		if (lua_isstring(functionState, argIndex))
 			message = lua_tostring(functionState, argIndex);
-		else if (lua_istable(functionState,argIndex))
+		else if (lua_istable(functionState, argIndex))
 			message = pickleTable(functionState, argIndex);
 		else
 			message = getType(functionState, argIndex);

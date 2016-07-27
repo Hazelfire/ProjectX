@@ -293,7 +293,7 @@ bool LuaInterpreter::assertArguments(lua_State* state) {
 			std::string type = lua_tostring(state, -1);
 			if (type == "help") {
 				// It is a help object! sweet! Lets print the docs to the console
-				std::string docs = lua_tostring(state, lua_upvalueindex(UP_DOCS));
+				std::string docs = constructHelp(state);
 				if (LuaTerminal::getInstance())
 					LuaTerminal::getInstance()->print(docs);
 				return false;
@@ -303,45 +303,20 @@ bool LuaInterpreter::assertArguments(lua_State* state) {
 
 	std::string functionName = lua_tostring(state, lua_upvalueindex(UP_NAME));
 
-	LuaOverloadList overloads;
-	lua_pushnil(state);
-	while (lua_next(state, lua_upvalueindex(UP_OVERLOAD)) != 0) {
-		LuaOverload currentOverload;
-		lua_pushnil(state);
-		while (lua_next(state, -2) != 0) {
-
-			std::pair<int, std::string> parameter;
-
-			// Get paramater type
-			// type = paramater[1]
-			lua_pushinteger(state, 1);
-			lua_gettable(state, -2);
-			parameter.first = lua_tointeger(state, -1);
-			lua_pop(state, 1);
-
-			// Get paramater name
-			// name = paramater[2]
-			lua_pushinteger(state, 2);
-			lua_gettable(state, -2);
-			parameter.second = lua_tostring(state, -1);
-			lua_pop(state, 1);
-
-			currentOverload.push_front(parameter);
-			lua_pop(state, 1);
-		}
-
-		overloads.push_front(currentOverload);
-		lua_pop(state, 1);
-	}
+	LuaOverloadList overloads = getOverloads(state);
 
 	for (auto currentOverload : overloads) {
+
+		// Magic number, -1 means that there can be an unlimited amount of arguments
+		if (!currentOverload.empty() && currentOverload.front().first == -1) return true;
+
 
 		if (currentOverload.size() != lua_gettop(state)) continue; // if the number of paramaters do not match, it is definitely not a valid overload, continue
 
 		bool overloadValid = true;
 		int argumentIndex =  1;
 		for (auto currentParameter : currentOverload) {
-			
+
 			auto type = registeredTypes[currentParameter.first];
 			// first is name, second is "is function", returns if it is one or not
 			// We are more interested in the second right now
@@ -466,6 +441,8 @@ std::string LuaInterpreter::stringOfLuaType(int type) {
 		return "creature";
 	else if (type == LUA_TVECTOR)
 		return "vector";
+	else if (type == -1)
+		return "anything";
 	else
 		return "none";
 }
@@ -792,6 +769,12 @@ void LuaInterpreter::pushHelp(lua_State* functionState) {
 int LuaInterpreter::l_help(lua_State* functionState) {
 	CHECK_ARGS;
 
+	if (lua_isnil(functionState, 1)) {
+		if (LuaTerminal::getInstance())
+			LuaTerminal::getInstance()->print("No such function");
+		return 0;
+	}
+
 	pushHelp(functionState);
 	int error = lua_pcall(functionState, 1, 0, 0);
 	if (error) {
@@ -799,4 +782,65 @@ int LuaInterpreter::l_help(lua_State* functionState) {
 	}
 
 	return 0;
+}
+
+std::string LuaInterpreter::constructHelp(lua_State* functionState){
+	std::string helpMessage = lua_tostring(functionState, lua_upvalueindex(UP_DOCS));
+	helpMessage += "\nOverloads:";
+	LuaOverloadList overloads = getOverloads(functionState);
+
+	for (auto currentOverload : overloads) {
+		helpMessage += "\n    " + stringOfLuaType(lua_tonumber(functionState, lua_upvalueindex(UP_RETURNTYPE)));
+		helpMessage += " " + std::string(lua_tostring(functionState, lua_upvalueindex(UP_NAME)));
+		helpMessage += "(";
+
+		int paramaterIndex = 1;
+		for (auto currentParamater : currentOverload) {
+			helpMessage += stringOfLuaType(currentParamater.first);
+			helpMessage += " " + currentParamater.second;
+
+			if (paramaterIndex != currentOverload.size()) {
+				helpMessage += ", ";
+			}
+			paramaterIndex++;
+		}
+
+		helpMessage += ")";
+	}
+	return helpMessage;
+}
+
+LuaOverloadList LuaInterpreter::getOverloads(lua_State* state) {
+	LuaOverloadList overloads;
+	lua_pushnil(state);
+	while (lua_next(state, lua_upvalueindex(UP_OVERLOAD)) != 0) {
+		LuaOverload currentOverload;
+		lua_pushnil(state);
+		while (lua_next(state, -2) != 0) {
+
+			std::pair<int, std::string> parameter;
+
+			// Get paramater type
+			// type = paramater[1]
+			lua_pushinteger(state, 1);
+			lua_gettable(state, -2);
+			parameter.first = lua_tointeger(state, -1);
+			lua_pop(state, 1);
+
+			// Get paramater name
+			// name = paramater[2]
+			lua_pushinteger(state, 2);
+			lua_gettable(state, -2);
+			parameter.second = lua_tostring(state, -1);
+			lua_pop(state, 1);
+
+			currentOverload.push_front(parameter);
+			lua_pop(state, 1);
+		}
+
+		overloads.push_front(currentOverload);
+		lua_pop(state, 1);
+	}
+
+	return overloads;
 }

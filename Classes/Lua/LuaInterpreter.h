@@ -118,4 +118,7 @@ protected:
 
 	// type definitions
 	static std::vector<std::pair<std::string, int(*)(lua_State*, int)>> registeredTypes;
+
+	static std::string constructHelp(lua_State*);
+	static LuaOverloadList getOverloads(lua_State*);
 };
