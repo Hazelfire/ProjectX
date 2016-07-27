@@ -2,6 +2,7 @@
 #include <cocos2d.h>
 #include "Debug.h"
 #include "Parser/StringOperations.h"
+#include "MyUI/LuaTerminal.h"
 
 std::string pickleScript = "----------------------------------------------\r\n-- Pickle.lua\r\n-- A table serialization utility for lua\r\n-- Steve Dekorte, http://www.dekorte.com, Apr 2000\r\n-- Freeware\r\n----------------------------------------------\r\n\r\nfunction _pickle(t)\r\n  return Pickle:clone():pickle_(t)\r\nend\r\n\r\nPickle = {\r\n  clone = function (t) local nt={}; for i, v in pairs(t) do nt[i]=v end return nt end \r\n}\r\n\r\nfunction Pickle:pickle_(root)\r\n  if type(root) ~= \"table\" then \r\n    error(\"can only pickle tables, not \".. type(root)..\"s\")\r\n  end\r\n  self._tableToRef = {}\r\n  self._refToTable = {}\r\n  local savecount = 0\r\n  self:ref_(root)\r\n  local s = \"\"\r\n\r\n  while #self._refToTable > savecount do\r\n    savecount = savecount + 1\r\n    local t = self._refToTable[savecount]\r\n    s = s..\"{\\n\"\r\n    for i, v in pairs(t) do\r\n        s = string.format(\"%s[%s]=%s,\\n\", s, self:value_(i), self:value_(v))\r\n    end\r\n    s = s..\"},\\n\"\r\n  end\r\n\r\n  return string.format(\"{%s}\", s)\r\nend\r\n\r\nfunction Pickle:value_(v)\r\n  local vtype = type(v)\r\n  if     vtype == \"string\" then return string.format(\"%q\", v)\r\n  elseif vtype == \"number\" then return v\r\n  elseif vtype == \"boolean\" then return tostring(v)\r\n  elseif vtype == \"table\" then return \"{\"..self:ref_(v)..\"}\"\r\n  else --error(\"pickle a \"..type(v)..\" is not supported\")\r\n  end  \r\nend\r\n\r\nfunction Pickle:ref_(t)\r\n  local ref = self._tableToRef[t]\r\n  if not ref then \r\n    if t == self then error(\"can't pickle the pickle class\") end\r\n    table.insert(self._refToTable, t)\r\n    ref = #self._refToTable\r\n    self._tableToRef[t] = ref\r\n  end\r\n  return ref\r\nend\r\n\r\n----------------------------------------------\r\n-- unpickle\r\n----------------------------------------------\r\n\r\nfunction _unpickle(s)\r\n  if type(s) ~= \"string\" then\r\n    error(\"can't unpickle a \"..type(s)..\", only strings\")\r\n  end\r\n  local gentables = load(\"return \"..s)\r\n  local tables = gentables()\r\n  \r\n  for tnum = 1, #tables do\r\n    local t = tables[tnum]\r\n    local tcopy = {}; for i, v in pairs(t) do tcopy[i] = v end\r\n    for i, v in pairs(tcopy) do\r\n      local ni, nv\r\n      if type(i) == \"table\" then ni = tables[i[1]] else ni = i end\r\n      if type(v) == \"table\" then nv = tables[v[1]] else nv = v end\r\n      t[i] = nil\r\n      t[ni] = nv\r\n    end\r\n  end\r\n  return tables[1]\r\nend";
 
@@ -179,6 +180,15 @@ void LuaInterpreter::addFunctions(lua_State* mainState) {
 		0,
 		l_debugLogError });
 	lua_setglobal(mainState, "logError");
+
+	pushCFunction(mainState,
+		0,
+		{ "help",
+		"Prints help information regarging the function",
+		{ { { LUA_TFUNCTION, "function" } } },
+		0,
+		l_help });
+	lua_setglobal(mainState, "help");
 	
 
 	// Vectors
@@ -273,6 +283,24 @@ void LuaInterpreter::unPickleTable(lua_State* state, std::string pickledTable) {
 
 bool LuaInterpreter::assertArguments(lua_State* state) {
 	
+	// Lets quickly check if this function is being called in "Help mode"
+	//  i.e. has the help object as the first argument
+	if (lua_type(state, 1) == LUA_TTABLE) {
+		lua_getmetatable(state, 1);
+		lua_pushstring(state, "type");
+		lua_gettable(state, -2);
+		if (lua_isstring(state, -1)) {
+			std::string type = lua_tostring(state, -1);
+			if (type == "help") {
+				// It is a help object! sweet! Lets print the docs to the console
+				std::string docs = lua_tostring(state, lua_upvalueindex(UP_DOCS));
+				if (LuaTerminal::getInstance())
+					LuaTerminal::getInstance()->print(docs);
+				return false;
+			}
+		}
+	}
+
 	std::string functionName = lua_tostring(state, lua_upvalueindex(UP_NAME));
 
 	LuaOverloadList overloads;
@@ -755,4 +783,20 @@ int LuaInterpreter::isCreature(lua_State* state, int index) {
 	}
 	lua_pop(state, 2);
 	return FALSE;
+}
+
+void LuaInterpreter::pushHelp(lua_State* functionState) {
+	pushObject(functionState, "help", {});
+}
+
+int LuaInterpreter::l_help(lua_State* functionState) {
+	CHECK_ARGS;
+
+	pushHelp(functionState);
+	int error = lua_pcall(functionState, 1, 0, 0);
+	if (error) {
+		std::string error = lua_tostring(functionState, -1);
+	}
+
+	return 0;
 }

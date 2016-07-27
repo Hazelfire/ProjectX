@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include "lua.hpp"
 #include <list>
@@ -46,6 +47,8 @@ protected:
 	static int l_debugLogWarning(lua_State*);
 	static int l_debugLogError(lua_State*);
 
+	static int l_help(lua_State*);
+
 	// table pickling (serialization)
 	static std::string pickleTable(lua_State*, int index);
 	static void unPickleTable(lua_State*, std::string);
@@ -73,6 +76,9 @@ protected:
 	
 	// Pushes a generic object with some common features
 	static void pushObject(lua_State*, std::string objectName, std::list<MyCFunction> memberFunctions);
+
+	// Pushes the help object onto the stack
+	static void pushHelp(lua_State*);
 	static int l_objectFailIndex(lua_State* functionState);
 	static void pushSelf(lua_State* functionState);
 	static void pushSelfMeta(lua_State* functionState, std::string metaIndex);

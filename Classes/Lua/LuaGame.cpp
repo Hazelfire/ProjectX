@@ -39,7 +39,7 @@ void LuaGame::addFunctions(lua_State* mainState) {
 		0,
 		{ "print",
 		"prints a message to the console, and will print anything",
-		{ {} },
+		{ { { -1, "" }} }, // -1 is a magic number, basically means that it takes any number of arguments
 		0,
 		l_print });
 	lua_setglobal(mainState, "print");
