@@ -8,9 +8,6 @@ void LuaPersonal::addFunctions(lua_State* state) {
 
 	int playerIndex = XClient::getPlayerIndex();
 	
-	luaW_push<LuaPlayerObject>(state, new LuaPlayerObject(playerIndex));
+	pushPlayer(state, playerIndex);
 	lua_setglobal(state, "player");
-
-	luaW_push<LuaInventoryObject>(state, new LuaInventoryObject(playerIndex));
-	lua_setglobal(state, "inventory");
 }

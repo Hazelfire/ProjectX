@@ -41,30 +41,106 @@ void LuaCreature::addFunctions(lua_State* mainState) {
 
 	LuaGame::addFunctions(mainState);
 
-	NEW_FUNCTION("getPosition", l_getCreaturePosition);
-	NEW_FUNCTION("getRealPosition", l_getCreatureRealPosition);
-	NEW_FUNCTION("moveOn", l_creatureMoveOn);
-	NEW_FUNCTION("setMovementSpeed", l_setCreatureMovementSpeed);
-	NEW_FUNCTION("getMovementSpeed", l_getCreatureMovementSpeed);
-	NEW_FUNCTION("moveTo", l_creatureMoveTo);
-	NEW_FUNCTION("despawn", l_despawn);
-	
-	NEW_TABLE_SIZE(4);
-	
-	NEW_ROW("newProximityState", l_newProximityState);
-	NEW_ROW("newUpdateState", l_newUpdateState);
-	NEW_ROW("newClockState", l_newClockState);
-	NEW_ROW("deleteState", l_deleteState);
+	pushCFunction(mainState,
+		0,
+		{ "getPosition",
+		"Returns the position of the creature",
+		{ { } },
+		LUA_TVECTOR,
+		l_getCreaturePosition });
+	lua_setglobal(mainState, "getPosition");
 
-	NAME_TABLE("States");
+	pushCFunction(mainState,
+		0,
+		{ "moveOn",
+		"Moves the creature onto the tile",
+		{ { { LUA_TVECTOR, "destination" } },
+		{ { LUA_TVECTOR, "destination" }, { LUA_TNUMBER, "distance" } },
+		{ { LUA_TVECTOR, "destination" }, { LUA_TNUMBER, "distance" }, { LUA_TNUMBER, "speed"} } },
+		LUA_TNUMBER,
+		l_creatureMoveOn});
+	lua_setglobal(mainState, "moveOn");
+
+	pushCFunction(mainState,
+		0,
+		{ "setSpeed",
+		"Sets the movement speed of the creature in tiles per second",
+		{ { { LUA_TNUMBER, "speed" } } },
+		0,
+		l_setCreatureMovementSpeed });
+	lua_setglobal(mainState, "setSpeed");
+	
+	pushCFunction(mainState,
+		0,
+		{ "getSpeed",
+		"Returns the movement speed of the creature in tiles per second",
+		{ { } },
+		LUA_TNUMBER,
+		l_getCreatureMovementSpeed });
+	lua_setglobal(mainState, "getSpeed");
+
+	pushCFunction(mainState,
+		0,
+		{ "moveTo",
+		"Moves the creature towards the tile given",
+		{ { { LUA_TVECTOR, "destination" } },
+		{ { LUA_TVECTOR, "destination" }, { LUA_TNUMBER, "distance" } },
+		{ { LUA_TVECTOR, "destination" }, { LUA_TNUMBER, "distance" }, { LUA_TNUMBER, "speed" } } },
+		LUA_TNUMBER,
+		l_creatureMoveTo });
+	lua_setglobal(mainState, "moveTo");
+
+	pushCFunction(mainState,
+		0,
+		{ "despawn",
+		"Despawns the creature",
+		{ { } },
+		0,
+		l_despawn });
+	lua_setglobal(mainState, "despawn");
+	
+	pushCFunction(mainState,
+		0,
+		{ "newProximityState",
+		"Creates a new proximity state",
+		{ { { LUA_TSTRING, "stateName" }, { LUA_TNUMBER, "distance" } } },
+		0,
+		l_newProximityState });
+	lua_setglobal(mainState, "newProximityState");
+
+	pushCFunction(mainState,
+		0,
+		{ "newUpdateState",
+		"Creates a new update state",
+		{ { { LUA_TSTRING, "stateName" } } },
+		0,
+		l_newUpdateState });
+	lua_setglobal(mainState, "newUpdateState");
+	
+	pushCFunction(mainState,
+		0,
+		{ "newClockState",
+		"Creates a new clock state",
+		{ { { LUA_TSTRING, "stateName" }, { LUA_TNUMBER, "interval" } } },
+		0,
+		l_newClockState });
+	lua_getglobal(mainState, "newClockState");
+
+	pushCFunction(mainState,
+		0,
+		{ "deleteState",
+		"Deletes the given state",
+		{ { { LUA_TSTRING, "stateName" } } },
+		0,
+		l_deleteState });
+	lua_setglobal(mainState, "deleteState");
+
 	lua_pushinteger(mainState, (short int)m_creatureGID);
 	lua_setglobal(mainState, CREATURE_GID);
 }
 
 int LuaCreature::l_getCreaturePosition(lua_State* functionState) {
-	if(!assertArguments(functionState, "getPosition",
-				{})) return 0;
-
+	CHECK_ARGS;
 
 	Creature* creatureReference = getCreatureReference(functionState);
 	Vec2i tilePosition = creatureReference->getTilePosition();
@@ -74,7 +150,7 @@ int LuaCreature::l_getCreaturePosition(lua_State* functionState) {
 }
 
 int LuaCreature::l_getCreatureRealPosition(lua_State* functionState) {
-	if(!assertArguments(functionState, "getRealPosition", {})) return 0;
+	CHECK_ARGS;
 
 	Creature* creatureReference = getCreatureReference(functionState);
 	Vec2 realTilePosition = creatureReference->getRealTilePosition();
@@ -84,11 +160,7 @@ int LuaCreature::l_getCreatureRealPosition(lua_State* functionState) {
 }
 
 int LuaCreature::l_creatureMoveOn(lua_State* functionState) {
-	
-	if(!assertArguments(functionState, "moveOn",{ 
-				{ LUA_TVECTOR },
-				{ LUA_TVECTOR, LUA_TNUMBER}
-				})) return 0;
+	CHECK_ARGS;
 
 	Creature* creatureReference = getCreatureReference(functionState);
 	if (lua_gettop(functionState) == 1) {
@@ -104,10 +176,7 @@ int LuaCreature::l_creatureMoveOn(lua_State* functionState) {
 }
 
 int LuaCreature::l_newProximityState(lua_State* functionState) {
-	
-	if(!assertArguments(functionState, "States.newProximityState", {
-				{LUA_TSTRING, LUA_TNUMBER}
-				})) return 0;
+	CHECK_ARGS;
 
 	if (lua_gettop(functionState) == 2) {
 		Creature* creatureReference = getCreatureReference(functionState);
@@ -119,10 +188,7 @@ int LuaCreature::l_newProximityState(lua_State* functionState) {
 }
 
 int LuaCreature::l_newUpdateState(lua_State* functionState) {
-	
-	if(!assertArguments(functionState, "States.newUpdateState", {
-				{LUA_TSTRING}
-				})) return 0;
+	CHECK_ARGS;
 
 	if(lua_gettop(functionState) == 1){
 		Creature* creatureReference = getCreatureReference(functionState);
@@ -133,10 +199,7 @@ int LuaCreature::l_newUpdateState(lua_State* functionState) {
 }
 
 int LuaCreature::l_newClockState(lua_State* functionState) {
-
-	if(!assertArguments(functionState, "States.newClockState", {
-				{LUA_TSTRING, LUA_TNUMBER}
-				})) return 0;
+	CHECK_ARGS;
 
 	if (lua_gettop(functionState) == 2) {
 		Creature* creatureReference = getCreatureReference(functionState);
@@ -149,10 +212,7 @@ int LuaCreature::l_newClockState(lua_State* functionState) {
 }
 
 int LuaCreature::l_deleteState(lua_State* functionState) {
-
-	if(!assertArguments(functionState, "States.deleteState", {
-				{LUA_TSTRING}
-				})) return 0;
+	CHECK_ARGS;
 
 	if (lua_gettop(functionState) == 1) {
 		Creature* creatureReference = getCreatureReference(functionState);
@@ -163,9 +223,7 @@ int LuaCreature::l_deleteState(lua_State* functionState) {
 }
 
 int LuaCreature::l_setCreatureMovementSpeed(lua_State* functionState) {
-	if(!assertArguments(functionState, "setMovementSpeed", {
-				{ LUA_TNUMBER }
-				})) return 0;
+	CHECK_ARGS;
 
 	if (lua_gettop(functionState) == 1) {
 		Creature* creatureReference = getCreatureReference(functionState);
@@ -176,8 +234,7 @@ int LuaCreature::l_setCreatureMovementSpeed(lua_State* functionState) {
 }
 
 int LuaCreature::l_getCreatureMovementSpeed(lua_State* functionState) {
-
-	if(!assertArguments(functionState, "getMovementSpeed", {})) return 0;
+	CHECK_ARGS;
 
 	if (lua_gettop(functionState) == 0) {
 		Creature* creatureReference = getCreatureReference(functionState);
@@ -189,12 +246,7 @@ int LuaCreature::l_getCreatureMovementSpeed(lua_State* functionState) {
 }
 
 int LuaCreature::l_creatureMoveTo(lua_State* functionState) {
-
-	if(!assertArguments(functionState, "moveTo",{
-				{ LUA_TVECTOR },
-				{ LUA_TVECTOR, LUA_TNUMBER },
-				{ LUA_TVECTOR, LUA_TNUMBER, LUA_TNUMBER}
-				})) return 0;
+	CHECK_ARGS;
 
 	Creature* creatureReference = getCreatureReference(functionState);
 	if(lua_gettop(functionState) == 1){
@@ -216,8 +268,7 @@ int LuaCreature::l_creatureMoveTo(lua_State* functionState) {
 }
 
 int LuaCreature::l_despawn(lua_State* functionState) {
-
-	if(!assertArguments(functionState, "despawn", {})) return 0;
+	CHECK_ARGS;
 
 	Creature* creatureReference = getCreatureReference(functionState);
 	if (lua_gettop(functionState) == 0) {

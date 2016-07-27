@@ -7,6 +7,6 @@ void LuaCreatureActions::init(LuaCreatureObject luaCreature) {
 void LuaCreatureActions::addFunctions(lua_State* mainState) {
 	LuaActions::addFunctions(mainState);
 
-	luaW_push<LuaCreatureObject>(mainState, new LuaCreatureObject(m_luaCreature));
+	pushCreature(mainState, m_luaCreature);
 	lua_setglobal(mainState, "creature");
 }

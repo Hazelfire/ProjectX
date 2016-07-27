@@ -44,65 +44,64 @@ class LuaGame : public LuaInterpreter {
 public:
 	void callWithPlayer(std::string function, int player);
 protected:
-	virtual void addFunctions(lua_State*);
+	virtual void addFunctions(lua_State*);	
+	static void pushTile(lua_State*, Vec2i tilePosition);
+	static void pushPlayer(lua_State*, int playerIndex);
+	static void pushCreature(lua_State*, int id);
 private:
 
 	// Map Lua functions
-	static int l_findNameAt(lua_State*);
-	static int l_findRegionAt(lua_State*);
-	static int l_destroyTile(lua_State*);
-	static int l_setTileState(lua_State*);
-	static int l_getTileState(lua_State*);
-	static int l_getTileProperties(lua_State*);
-	static int l_setTileProperties(lua_State*);
+
+	static int l_tileConstruct(lua_State*);
+
+
+	static int l_tileGetName(lua_State*);
+	static int l_tileGetRegion(lua_State*);
+	static int l_tileDestroy(lua_State*);
+	static int l_tileSetState(lua_State*);
+	static int l_tileGetState(lua_State*);
+	static int l_tileGetProperties(lua_State*);
+	static int l_tileSetProperties(lua_State*);
+	static int l_tileGetPosition(lua_State*);
 
 	// Player Lua functions
-	static int l_getPlayerByIndex(lua_State*);
-	static int l_getPlayerType(lua_State*);
+	static int l_playerConstruct(lua_State*);
+	
 
 	static int l_playerToString(lua_State*);
-	static int l_getPlayerPosition(lua_State*);
-	static int l_getPlayerRealPosition(lua_State*);
-	static int l_getPlayerName(lua_State*);
-	static int l_getClassName(lua_State*);
-	static int l_getPlayerMovementSpeed(lua_State*);
-	static int l_setPlayerMovementSpeed(lua_State*);
-	static int l_getPlayerInventory(lua_State*);
-	static int l_getPlayerHealth(lua_State*);
-	static int l_healPlayer(lua_State*);
-	static int l_damagePlayer(lua_State*);
-	static int l_teleportPlayer(lua_State*);
-
-	// Inventory
-	static int l_getInventoryType(lua_State*);
-
-	static int l_inventoryToString(lua_State*);
-	static int l_givePlayerItem(lua_State*);
-	static int l_getQuantityOf(lua_State*);
-	static int l_takeItem(lua_State*);
-	static int l_canCraftItem(lua_State*);
-	static int l_hasItemWithTag(lua_State*);
+	static int l_playerGetPosition(lua_State*);
+	static int l_playerGetName(lua_State*);
+	static int l_playerGetClass(lua_State*);
+	static int l_playerGetSpeed(lua_State*);
+	static int l_playerSetSpeed(lua_State*);
+	static int l_playerGetHealth(lua_State*);
+	static int l_playerSetHealth(lua_State*);
+	static int l_playerHeal(lua_State*);
+	static int l_playerDamage(lua_State*);
+	static int l_playerTeleport(lua_State*);
+	static int l_playerGiveItem(lua_State*);
+	static int l_playerGetItemQuantity(lua_State*);
+	static int l_playerTakeItem(lua_State*);
+	static int l_playerCanCraftItem(lua_State*);
+	static int l_playerHasItemWithTag(lua_State*);
 
 	// Creatures
-	static int l_spawnCreature(lua_State*);
-	static int l_getCreatureType(lua_State*);
+	static int l_creatureConstruct(lua_State*);
 
 	static int l_creatureToString(lua_State*);
 	static int l_creatureMoveTo(lua_State*);
 	static int l_creatureMoveOn(lua_State*);
-	static int l_getCreaturePosition(lua_State*);
-	static int l_getCreatureRealPosition(lua_State*);
-	static int l_setCreatureMovementSpeed(lua_State*);
-	static int l_getCreatureMovementSpeed(lua_State*);
-	static int l_getCreatureName(lua_State*);
-	static int l_getCreatureAI(lua_State*);
+	static int l_creatureGetPosition(lua_State*);
+	static int l_creatureGetSpeed(lua_State*);
+	static int l_creatureSetSpeed(lua_State*);
+	static int l_creatureGetName(lua_State*);
+	static int l_creatureGetAI(lua_State*);
 	static int l_creatureHasTag(lua_State*);
-	static int l_getCreatureProperties(lua_State*);
-	static int l_setCreatureProperties(lua_State*);
+	static int l_creatureGetProperties(lua_State*);
+	static int l_creatureSetProperties(lua_State*);
 
 	// Music
 	static int l_playSong(lua_State*);
-	static int l_playSongRegion(lua_State*);
 	
 	// Particles
 	static int l_spawnParticles(lua_State*);

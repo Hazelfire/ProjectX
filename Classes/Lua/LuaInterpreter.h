@@ -1,19 +1,28 @@
 #include <string>
 #include "lua.hpp"
 #include <list>
-#include "luawrapper.hpp"
+#include <vector>
 #include "MyMath.h"
 
 #define NEW_TABLE_SIZE(__SIZE__) lua_createtable(mainState, 0, __SIZE__);
-#define NEW_ROW(__NAME__, __FUNC__) lua_pushstring(mainState, __NAME__); lua_pushcfunction(mainState, __FUNC__); lua_settable(mainState, -3);
+#define NEW_ROW(__NAME__,__DOCS__, __OVERLOADS__,  __FUNC__ ) lua_pushstring(mainState, __NAME__); pushCFunction(mainState, 0, __NAME__, __DOCS__, __OVERLAODS__, __FUNC__); lua_settable(mainState, -3);
 #define NAME_TABLE(__NAME__) lua_setglobal(mainState, __NAME__);
-#define NEW_FUNCTION(__NAME__,__FUNC__) lua_pushcfunction(mainState, __FUNC__); lua_setglobal(mainState, __NAME__);
-#define ASSERT_ARGS(__FNAME__,__ARGUMENTS__) if(!assertArguments(functionState, __FNAME__, __ARGUMENTS__)){ return 0;}
-
+#define CHECK_ARGS if(!assertArguments(functionState)) return 0
+#define GET_META_INT(__VAR__, __INDEX__) pushSelfMeta(functionState, __INDEX__); int __VAR__ = lua_tointeger(functionState, -1); lua_pop(functionState, 1)
+#define GET_META_VEC(__VAR__, __INDEX__) pushSelfMeta(functionState, __INDEX__); Vec2d __VAR__ = toVector(functionState, -1); lua_pop(functionState, 1)
 #define LUA_TPLAYER 9
-#define LUA_TINVENTORY 10
+#define LUA_TTILE 10
 #define LUA_TVECTOR 11
 #define LUA_TCREATURE 12
+
+#define UP_SELF 1
+#define UP_NAME 2
+#define UP_DOCS 3
+#define UP_OVERLOAD 4
+#define UP_RETURNTYPE 5
+
+typedef std::list<std::pair<int, std::string>> LuaOverload;
+typedef std::list<LuaOverload> LuaOverloadList;
 
 class LuaInterpreter {
 public:
@@ -31,27 +40,51 @@ protected:
 	lua_State* m_mainState;
 
 	// lua functions
-	// Math
-	static int l_randomInt(lua_State*);
-	static int l_randomReal(lua_State*);
-
-	// File
-	static int l_readStringFromFile(lua_State*);
 
 	// Debug
 	static int l_debugLog(lua_State*);
 	static int l_debugLogWarning(lua_State*);
 	static int l_debugLogError(lua_State*);
 
-	// various tools
+	// table pickling (serialization)
 	static std::string pickleTable(lua_State*, int index);
 	static void unPickleTable(lua_State*, std::string);
-	static int getType(lua_State*, int index);
-	static std::string stringOfLuaType(int type);
-	static bool assertArguments(lua_State*, std::string functionName, std::list < std::list<int> > overloads, bool memberMode = false);
-	static void luaError(lua_State* ,std::string message);
-	static void pushVector(lua_State* ,Vec2d vector);
 
+	// special getType, supports my types
+	static int getType(lua_State*, int index);
+	
+	// Returns a string representation of the type
+	static std::string stringOfLuaType(int type);
+
+	// Checks the given arguemnents against the function's overload
+	static bool assertArguments(lua_State*);
+
+	// Displays an error along with a traceback (if needed)
+	static void luaError(lua_State* ,std::string message);
+
+
+	struct MyCFunction {
+		std::string functionName;
+		std::string functionDocs;
+		LuaOverloadList overloads;
+		int returnType;
+		lua_CFunction l_CFunction;
+	};
+	
+	// Pushes a generic object with some common features
+	static void pushObject(lua_State*, std::string objectName, std::list<MyCFunction> memberFunctions);
+	static int l_objectFailIndex(lua_State* functionState);
+	static void pushSelf(lua_State* functionState);
+	static void pushSelfMeta(lua_State* functionState, std::string metaIndex);
+
+	// Pushes a C function onto the stack, with a couple more features
+	// Using 0 as a parent will make it static
+	static void pushCFunction(lua_State*, int parent, MyCFunction function);
+
+	// Pushes a vector onto the stack
+	static void pushVector(lua_State* ,Vec2d vector);
+	
+	// String representation of a vector
 	static std::string vectorToString(Vec2d vector);
 	static Vec2d toVector(lua_State*, int index);
 	// Vector operations
@@ -63,9 +96,20 @@ protected:
 	static int l_eqVector(lua_State*);
 
 	static int l_vecConstruct(lua_State*);
+
+	// type checkers
+	static int isNil(lua_State* state, int index) { return lua_isnil(state, index); };
+	static int isBoolean(lua_State* state, int index) { return lua_isboolean(state, index); };
+	static int isNumber(lua_State* state, int index) { return lua_isnumber(state, index); };
+	static int isString(lua_State* state, int index) { return lua_isstring(state, index); };
+	static int isTable(lua_State* state, int index) { return lua_istable(state, index); };
+	static int isFunction(lua_State* state, int index) { return lua_isfunction(state, index); };
+
+	static int isPlayer(lua_State* state, int index);
+	static int isTile(lua_State* state, int index);
+	static int isVector(lua_State* state, int index);
+	static int isCreature(lua_State* state, int index);
+
+	// type definitions
+	static std::vector<std::pair<std::string, int(*)(lua_State*, int)>> registeredTypes;
 };
-
-
-
-
-
