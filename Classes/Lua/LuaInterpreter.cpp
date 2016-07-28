@@ -8,7 +8,7 @@ std::string pickleScript = "----------------------------------------------\r\n--
 
 
 std::vector<std::pair<std::string, int(*)(lua_State*, int)>> LuaInterpreter::registeredTypes = {
-	{"nil", isNil},
+	{ "nil", isNil},
 	{ "boolean", isBoolean},
 	{ "lightuserdata", nullptr},
 	{ "number", isNumber },
@@ -296,9 +296,11 @@ bool LuaInterpreter::assertArguments(lua_State* state) {
 				std::string docs = constructHelp(state);
 				if (LuaTerminal::getInstance())
 					LuaTerminal::getInstance()->print(docs);
+				lua_pop(state, 2);
 				return false;
 			}
 		}
+		lua_pop(state, 2);
 	}
 
 	std::string functionName = lua_tostring(state, lua_upvalueindex(UP_NAME));
@@ -767,13 +769,13 @@ void LuaInterpreter::pushHelp(lua_State* functionState) {
 }
 
 int LuaInterpreter::l_help(lua_State* functionState) {
-	CHECK_ARGS;
 
 	if (lua_isnil(functionState, 1)) {
 		if (LuaTerminal::getInstance())
 			LuaTerminal::getInstance()->print("No such function");
 		return 0;
 	}
+	CHECK_ARGS;
 
 	pushHelp(functionState);
 	int error = lua_pcall(functionState, 1, 0, 0);
