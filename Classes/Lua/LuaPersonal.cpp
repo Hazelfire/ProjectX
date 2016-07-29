@@ -9,5 +9,5 @@ void LuaPersonal::addFunctions(lua_State* state) {
 	int playerIndex = XClient::getPlayerIndex();
 	
 	pushPlayer(state, playerIndex);
-	lua_setglobal(state, "player");
+	lua_setglobal(state, "me");
 }

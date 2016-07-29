@@ -3,6 +3,8 @@
 #include "XTileMap.h"
 #include "SpriteLoader.h"
 #include "ResourceMacros.h"
+#include "Arena.h"
+#include "Debug.h"
 
 Animal* Animal::create(MovementDirections directions,SpriteType type, float speed) {
 	Animal* re = new (std::nothrow) Animal();
@@ -47,6 +49,11 @@ float Animal::getMovementSpeed() {
 }
 
 void Animal::setTilePosition(Vec2i position) {
+	Vec2i mapSize = Arena::getMapInstance()->getMapSize();
+	if (position.x < 0 || position.x >= mapSize.x || position.y < 0 || position.y > mapSize.y) {
+		Debugger::logError("Attempted to teleport outside the map", DEBUG_GENERIC);
+		return;
+	}
 	setPosition(XTileMap::findWorldLocationAt(position));
 }
 

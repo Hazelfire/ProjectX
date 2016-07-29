@@ -363,6 +363,12 @@ XMapTile XTileMap::getUpperExternalTile(Vec2i tileCoordinates) {
 XMapTile* XTileMap::getExternalTile(Vec2i coordinates) {
 
 	XMapTile* tiles = new XMapTile[2];
+
+	if (coordinates.x < 0 || coordinates.x >= getMapSize().x || coordinates.y < 0 || coordinates.y >= getMapSize().y) {
+		Debugger::logError("Tried to get the coordinates of a tile outside the map", DEBUG_MAPGEN);
+		return tiles;
+	}
+
 	MapTile* mapGenTile = MapGenerator::generateTile(m_mapName, coordinates, m_seed);
 	
 	tiles[0].name = mapGenTile[0].name;

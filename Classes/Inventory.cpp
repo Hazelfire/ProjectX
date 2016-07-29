@@ -74,7 +74,17 @@ Node* Inventory::createInventoryMenu() {
 }
 
 void Inventory::giveItem(std::string itemName, int quantity) {
-	m_itemsOwned[itemName].quantity += quantity;
+	if (m_itemInformation.find(itemName) == m_itemInformation.end()) {
+		// There is no such object... just report the error.
+		Debugger::logError("Tried to give/take non-existant item: " + itemName, DEBUG_ITEMS);
+		return;
+	}
+	if (m_itemsOwned[itemName].quantity + quantity <= 0) {
+		m_itemsOwned.erase(itemName); // If there are no more of the item left, remove it
+	}
+	else {
+		m_itemsOwned[itemName].quantity += quantity;
+	}
 	reconstruct();
 }
 
@@ -408,7 +418,7 @@ bool Inventory::Previewer::init(Node* background, std::string defaultItem) {
 
 	XBMPLabel* descriptionLabel = XBMPLabel::create(itemInformation.description, 
 		"Pixelfont",
-		11,
+		6,
 		XBMPLabel::LEFT);
 	descriptionLabel->setPosition(Vec2(0 , (background->getContentSize().height / 2) - ITEM_SIZE*PREVIEW_ITEM_SCALE));
 	descriptionLabel->setScale(4);
@@ -539,11 +549,7 @@ bool Inventory::CraftingPreviewer::callCraftCallback(cocos2d::Touch* touch, coco
 }
 
 void Inventory::takeItem(std::string itemName, int quantity) {
-	m_itemsOwned[itemName].quantity -= quantity;
-	if (m_itemsOwned[itemName].quantity <= 0) {
-		m_itemsOwned.erase(itemName);
-	}
-	reconstruct();
+	giveItem(itemName, -quantity);
 }
 
 void Inventory::reconstruct() {

@@ -1,5 +1,6 @@
 #include "Health.h"
 #include "ResourceMacros.h"
+#include "Debug.h"
 
 using namespace cocos2d;
 
@@ -76,5 +77,13 @@ void Health::damage(double health) {
 }
 
 void Health::setHealth(double health) {
+	if (health < 0 ){
+		Debugger::logError("Attempted to set health lower than 0", DEBUG_GENERIC);
+		return;
+	}
+	else if (health > 100) {
+		Debugger::logError("Attempted to set health higher than 100", DEBUG_GENERIC);
+		return;
+	}
 	heal(health - m_health);
 }

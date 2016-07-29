@@ -62,12 +62,13 @@ void LuaGame::addFunctions(lua_State* mainState) {
 	lua_pushinteger(mainState, DEPLETED);
 	lua_setglobal(mainState, "DEPLETED");
 	
-	pushCFunction(mainState, 0,
-	{ "creature",
-	"Spawns a creature at a position and returns an instance of it",
-	{ { { LUA_TSTRING, "creatureName" }, { LUA_TVECTOR, "spawnPosition" } } },
-	LUA_TCREATURE,
-	l_creatureConstruct });
+	pushCFunction(mainState, 
+		0,
+		{ "creature",
+		"Spawns a creature at a position and returns an instance of it",
+		{ { { LUA_TSTRING, "creatureName" }, { LUA_TVECTOR, "spawnPosition" } } },
+		LUA_TCREATURE,
+		l_creatureConstruct });
 
 	lua_setglobal(mainState, "creature");
 
@@ -81,6 +82,16 @@ void LuaGame::addFunctions(lua_State* mainState) {
 		l_tileConstruct });
 
 	lua_setglobal(mainState, "tile");
+
+	pushCFunction(mainState,
+		0,
+		{ "player",
+		"Returns the player with the given index",
+		{ { { LUA_TNUMBER, "index" } } },
+		LUA_TPLAYER,
+		l_tileConstruct });
+
+	lua_setglobal(mainState, "player");
 }
 
 void LuaGame::callWithPlayer(std::string function, int player) {
