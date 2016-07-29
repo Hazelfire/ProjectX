@@ -34,6 +34,5 @@ private:
 	int m_commandIndex = -1;
 	std::vector<std::string> m_commandList;
 	cocos2d::LabelTTF* m_commandField;
-	bool m_continuationMode = false;
 
 };

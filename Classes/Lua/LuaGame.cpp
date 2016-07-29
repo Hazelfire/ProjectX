@@ -112,6 +112,12 @@ void LuaGame::callWithPlayer(std::string function, int player) {
 
 void LuaGame::pushTile(lua_State* state, Vec2i tilePosition) {
 	pushObject(state, "tile", {
+		{ "toString",
+		"Returns a string representation of the tile",
+		{ {} },
+		LUA_TSTRING,
+		l_tileToString},
+
 		{ "getName",
 		"Returns the name of the tile",
 		{ { } },
@@ -182,6 +188,15 @@ int LuaGame::l_tileConstruct(lua_State* functionState) {
 		pushTile(functionState, toVector(functionState, 1));
 	}
 
+	return 1;
+}
+
+int LuaGame::l_tileToString(lua_State* functionState) {
+	CHECK_ARGS;
+	GET_META_VEC(position, "position");
+
+	std::string message = Arena::getMapInstance()->getTileNameAt(position) + " tile at " + vectorToString(position);
+	lua_pushstring(functionState, message.c_str());
 	return 1;
 }
 
@@ -750,6 +765,8 @@ int LuaGame::l_creatureToString(lua_State* functionState) {
 
 	std::string stringRepresentation = "Creature " + creature->getCreatureName() + " at " + vectorToString(creature->getTilePosition());
 
+	lua_pushstring(functionState, stringRepresentation.c_str());
+
 	return 1;
 }
 
@@ -920,17 +937,9 @@ int LuaGame::l_print(lua_State* functionState) {
 	int argCount = lua_gettop(functionState);
 	
 	for (int argIndex = 1; argIndex <= argCount; argIndex++) {
-
-		std::string message;
-		if (lua_isstring(functionState, argIndex))
-			message = lua_tostring(functionState, argIndex);
-		else if (lua_istable(functionState, argIndex))
-			message = pickleTable(functionState, argIndex);
-		else
-			message = getType(functionState, argIndex);
-
+		
 		if (LuaTerminal::getInstance()) {
-			LuaTerminal::getInstance()->print(message);
+			LuaTerminal::getInstance()->print(toString(functionState, argIndex));
 		}
 	}
 	return 0;

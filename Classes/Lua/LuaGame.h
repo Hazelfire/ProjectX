@@ -54,7 +54,7 @@ private:
 
 	static int l_tileConstruct(lua_State*);
 
-
+	static int l_tileToString(lua_State*);
 	static int l_tileGetName(lua_State*);
 	static int l_tileGetRegion(lua_State*);
 	static int l_tileDestroy(lua_State*);

@@ -300,44 +300,15 @@ void LuaTerminal::appendKey(char key) {
 }
 
 void LuaTerminal::runCommand() {
-	if (!m_currentCommand.empty() && m_currentCommand.back() == '\\') {
-		std::string lastLine = m_currentCommand.substr(m_currentCommand.find_last_of('\n') + 1, m_currentCommand.size() - m_currentCommand.find_last_of('\n') - 1);
-		print((m_continuationMode ? continueHeader : commandHeader) + lastLine);
-		m_currentCommand.pop_back();
-		m_currentCommand.push_back('\n');
-		m_continuationMode = true;
-		updateCommandString();
-		return;
-	}
-	if (m_continuationMode) {
-		// They are finally running their multiline command! we should only print the last
-		// line as the rest has already been printed
-		std::string lastLine = m_currentCommand.substr(m_currentCommand.find_last_of('\n') + 1, m_currentCommand.size() - m_currentCommand.find_last_of('\n') - 1);
-		print(continueHeader + lastLine);
-	}
-	else {
-		print(commandHeader + m_currentCommand);
-	}
+	print(commandHeader + m_currentCommand);
 	if (!m_currentCommand.empty()) {
-		std::string returnValue = m_interpreter.run(std::list<std::string>(), m_currentCommand);
+		std::string returnValue = m_interpreter.run(std::list<std::string>(), "return " + m_currentCommand);
 		if (!returnValue.empty())
 			print(returnHeader + returnValue);
 
-		if (m_continuationMode) {
-			// This command came in multiple lines, for recalling, we should
-			// split these lines up
-			std::stringstream ss(m_currentCommand);
-			std::string line;
-			while (std::getline(ss, line, '\n')) {
-				m_commandList.push_back(line);
-			}
-		}
-		else {
-			m_commandList.push_back(m_currentCommand);
-		}
+		m_commandList.push_back(m_currentCommand);
 	}
 	m_currentCommand = "";	
-	m_continuationMode = false;
 	updateCommandString();
 	m_commandIndex = -1;
 }
@@ -348,11 +319,5 @@ void LuaTerminal::clear() {
 }
 
 void LuaTerminal::updateCommandString() {
-	if (m_continuationMode) {
-		// This is a multiline command! The user must be very good at this.. We should only display the last line
-		std::string lastLine = m_currentCommand.substr(m_currentCommand.find_last_of('\n') + 1, m_currentCommand.size() - m_currentCommand.find_last_of('\n') - 1);
-		m_commandField->setString(continueHeader+ lastLine);
-	}
-	else
-		m_commandField->setString(commandHeader + m_currentCommand);
+	m_commandField->setString(commandHeader + m_currentCommand);
 }

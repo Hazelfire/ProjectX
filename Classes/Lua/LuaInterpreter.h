@@ -15,6 +15,8 @@
 #define LUA_TTILE 10
 #define LUA_TVECTOR 11
 #define LUA_TCREATURE 12
+#define LUA_TEVERYTHING -1
+#define LUA_TANYTHING -2
 
 #define UP_SELF 1
 #define UP_NAME 2
@@ -48,10 +50,14 @@ protected:
 	static int l_debugLogError(lua_State*);
 
 	static int l_help(lua_State*);
+	static int l_type(lua_State*);
 
 	// table pickling (serialization)
 	static std::string pickleTable(lua_State*, int index);
 	static void unPickleTable(lua_State*, std::string);
+
+	// Attempts to turn any value into a string.
+	static std::string toString(lua_State*, int index);
 
 	// special getType, supports my types
 	static int getType(lua_State*, int index);
@@ -65,6 +71,9 @@ protected:
 	// Displays an error along with a traceback (if needed)
 	static void luaError(lua_State* ,std::string message);
 
+	// Serializes the entire stack into comma seperated values and
+	// smart toString
+	static std::string serializeStack(lua_State*);
 
 	struct MyCFunction {
 		std::string functionName;
@@ -100,6 +109,8 @@ protected:
 	static int l_divVector(lua_State*);
 	static int l_lenVector(lua_State*);
 	static int l_eqVector(lua_State*);
+
+	static int l_vectorToString(lua_State*);
 
 	static int l_vecConstruct(lua_State*);
 

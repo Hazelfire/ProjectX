@@ -50,7 +50,7 @@ std::string LuaInterpreter::run(std::string scriptFile, std::string extra) {
 		lua_pop(m_mainState, 1);
 	}
 
-	return "";
+	return serializeStack(m_mainState);
 
 }
 
@@ -76,29 +76,25 @@ std::string LuaInterpreter::run(std::list<std::string> scripts, std::string extr
 		lua_pop(m_mainState, 1);
 	}
 	
-	if (lua_gettop(m_mainState) == 0) {
+	return serializeStack(m_mainState);
+
+}
+std::string LuaInterpreter::serializeStack(lua_State* state) {
+
+	if (lua_gettop(state) == 0) {
 		return "";
 	}
 	else {
 		std::string returnValues;
-		for (int argumentIndex = 1; argumentIndex <= lua_gettop(m_mainState); argumentIndex++) {
+		while(lua_gettop(state) != 0){
 			
-			if (lua_isstring(m_mainState, argumentIndex)) {
-				returnValues += lua_tostring(m_mainState, argumentIndex);
-			}
-			else if (lua_istable(m_mainState, argumentIndex)) {
-				returnValues += pickleTable(m_mainState, argumentIndex);
-			}
-			else {
-				returnValues += getType(m_mainState, argumentIndex);
-			}
-
-			if (argumentIndex != lua_gettop(m_mainState))
+			returnValues += toString(state, -1);
+			lua_pop(state, 1);
+			if (0 != lua_gettop(state))
 				returnValues += ", ";
 		}
 		return returnValues;
 	}
-
 }
 
 void LuaInterpreter::call(std::string function) {
@@ -190,6 +186,16 @@ void LuaInterpreter::addFunctions(lua_State* mainState) {
 		l_help });
 	lua_setglobal(mainState, "help");
 	
+
+	pushCFunction(mainState,
+		0,
+		{ "type",
+		"Returns the type of the item given",
+		{ { { -1, "item" } } },
+		LUA_TSTRING,
+		l_type });
+
+	lua_setglobal(mainState, "type");
 
 	// Vectors
 	pushCFunction(mainState, 
@@ -381,7 +387,7 @@ int LuaInterpreter::getType(lua_State* state, int index) {
 		lua_gettable(state, -2);
 		std::string type;
 		if (lua_isstring(state, -1))
-			std::string type = lua_tostring(state, -1);
+			type = lua_tostring(state, -1);
 		else
 			return LUA_TTABLE; // table does not have a type value in it's metatable
 							   // It is a table, not one of my objects
@@ -443,7 +449,9 @@ std::string LuaInterpreter::stringOfLuaType(int type) {
 		return "creature";
 	else if (type == LUA_TVECTOR)
 		return "vector";
-	else if (type == -1)
+	else if (type == LUA_TEVERYTHING)
+		return "everything";
+	else if (type == LUA_TANYTHING)
 		return "anything";
 	else
 		return "none";
@@ -580,7 +588,13 @@ void LuaInterpreter::luaError(lua_State* state, std::string message) {
 
 
 void LuaInterpreter::pushVector(lua_State* state, Vec2d vector){
-	pushObject(state, "vector", {});
+	pushObject(state, "vector", {
+		{ "toString",
+		"Returns a string representation of the vector",
+		{ { } },
+		LUA_TSTRING,
+		l_vectorToString}
+	});
 
 	lua_pushstring(state, "x");
 	lua_pushnumber(state, vector.x);
@@ -678,6 +692,16 @@ int LuaInterpreter::l_eqVector(lua_State* state){
 
 	lua_pushboolean(state, vec1 == vec2);
 	
+	return 1;
+}
+
+int LuaInterpreter::l_vectorToString(lua_State* functionState) {
+	CHECK_ARGS;
+	pushSelf(functionState);
+	Vec2d vector = toVector(functionState, -1);
+	std::string stringRepresentation = vectorToString(vector);
+
+	lua_pushstring(functionState, stringRepresentation.c_str());
 	return 1;
 }
 
@@ -845,4 +869,44 @@ LuaOverloadList LuaInterpreter::getOverloads(lua_State* state) {
 	}
 
 	return overloads;
+}
+
+int LuaInterpreter::l_type(lua_State* functionState) {
+	CHECK_ARGS;
+	std::string type = stringOfLuaType(getType(functionState, 1));
+	lua_pushstring(functionState, type.c_str());
+	return 1;
+}
+
+std::string LuaInterpreter::toString(lua_State* functionState, int index) {
+	if (index < 0) {
+		index = lua_gettop(functionState) + index + 1;
+	}
+
+	std::string stringRep;
+	if (lua_isstring(functionState, index))
+		stringRep = lua_tostring(functionState, index);
+	else if (lua_istable(functionState, index)) {
+		// Might be one of my objects, lets check.
+		lua_getmetatable(functionState, index);
+		lua_pushstring(functionState, "type");
+		lua_gettable(functionState, -2);
+		if (lua_isstring(functionState, -1)) {
+			// It IS!!! Lets call it's toString function
+			
+			lua_getfield(functionState, index, "toString");
+			lua_pcall(functionState, 0, LUA_MULTRET, 0);
+			
+			stringRep = lua_tostring(functionState, -1);
+			lua_pop(functionState, 1);
+		}
+		else {
+			// Pardon me, I was wrong. Just pickle the table and show them
+			stringRep = pickleTable(functionState, index);
+		}
+			lua_pop(functionState, 2);
+		}
+	else
+		stringRep = stringOfLuaType(getType(functionState, index));
+	return stringRep;
 }
