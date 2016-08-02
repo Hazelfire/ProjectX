@@ -49,6 +49,8 @@ class XTileMap : public cocos2d::Node {
 
 	// This returns the name of the upmost tile
 	std::string getTileNameAt(Vec2i); 
+	std::string getTileNameAt(Vec2i, int layerIndex);
+
 
 	void updateChunks(Vec2);
 	void cullChunkBlock(Vec2i);

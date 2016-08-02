@@ -33,6 +33,7 @@ public:
 	std::string run(std::list<std::string> scriptFiles, std::string extra = "");
 	void call(std::string function);
 	bool fulfills(std::list<std::string> script, std::string function);
+
 	LuaInterpreter();
 	~LuaInterpreter();
 protected:
@@ -49,7 +50,6 @@ protected:
 	static int l_debugLogWarning(lua_State*);
 	static int l_debugLogError(lua_State*);
 
-	static int l_help(lua_State*);
 	static int l_type(lua_State*);
 
 	// table pickling (serialization)
@@ -111,6 +111,11 @@ protected:
 	static int l_eqVector(lua_State*);
 
 	static int l_vectorToString(lua_State*);
+	static int l_vectorDot(lua_State*);
+	static int l_vectorAbsAngle(lua_State*);
+	static int l_vectorLength(lua_State*);
+	static int l_vectorDistance(lua_State*);
+	static int l_vectorNormalize(lua_State*);
 
 	static int l_vecConstruct(lua_State*);
 

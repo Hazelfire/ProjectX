@@ -204,6 +204,17 @@ std::string XTileMap::getTileNameAt(Vec2i tileCoordinates){
 	return "";
 }
 
+std::string XTileMap::getTileNameAt(Vec2i tileCoordinates, int layerIndex) {
+	std::string tileName = getMapTileAt(tileCoordinates, layerIndex).name;
+	int state = getTileState(tileCoordinates);
+	if (!tileName.empty() && !(state == DESTROYED && layerIndex == 1)) {
+		return tileName;
+	}
+	else {
+		return "";
+	}
+}
+
 
 // This function updates the chunks needed, it got a lot larger as I made it a bit more smart (increasing performance)
 void XTileMap::updateChunks(Vec2 tileLocation) {

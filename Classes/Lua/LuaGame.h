@@ -99,6 +99,7 @@ private:
 	static int l_creatureHasTag(lua_State*);
 	static int l_creatureGetProperties(lua_State*);
 	static int l_creatureSetProperties(lua_State*);
+	static int l_creatureDespawn(lua_State*);
 
 	// Music
 	static int l_playSong(lua_State*);
@@ -108,4 +109,5 @@ private:
 
 	static int l_print(lua_State*);
 	static int l_clear(lua_State*);
+	static int l_help(lua_State*);
 };

@@ -55,7 +55,9 @@ void Arena::create(GameInformation gameInfo){
 
 	m_arenaScene = Scene::create();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
-	//The layer arangement that I used seems a bit stange, all you need to know is that the camera is the youngest layer. (in a children sort of way)
+
+	// The layer arangement that I used seems a bit stange, all you need to know is that the 
+	// camera is the youngest layer. (in a children sort of way)
 	Layer* viewport = Layer::create();
 	viewport->setScale(PIXELATION);
 	viewport->setName("viewport");

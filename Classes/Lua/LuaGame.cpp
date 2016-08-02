@@ -53,6 +53,15 @@ void LuaGame::addFunctions(lua_State* mainState) {
 		l_clear });
 	lua_setglobal(mainState, "clear");
 
+	pushCFunction(mainState,
+		0,
+		{ "help",
+		"Prints help information regarging the function",
+		{ { { LUA_TFUNCTION, "function" } } },
+		0,
+		l_help });
+	lua_setglobal(mainState, "help");
+
 	lua_pushinteger(mainState, UNTOUCHED);
 	lua_setglobal(mainState, "UNTOUCHED");
 
@@ -120,7 +129,8 @@ void LuaGame::pushTile(lua_State* state, Vec2i tilePosition) {
 
 		{ "getName",
 		"Returns the name of the tile",
-		{ { } },
+		{ { },
+		{ { LUA_TNUMBER, "layerIndex" } } },
 		LUA_TSTRING,
 		l_tileGetName },
 
@@ -203,9 +213,15 @@ int LuaGame::l_tileToString(lua_State* functionState) {
 int LuaGame::l_tileGetName(lua_State* functionState) {
 	CHECK_ARGS;
 	GET_META_VEC(position, "position");
-
-	string name = Arena::getMapInstance()->getTileNameAt(position);
-	lua_pushstring(functionState, name.c_str());
+	if (lua_gettop(functionState) == 0) {
+		string name = Arena::getMapInstance()->getTileNameAt(position);
+		lua_pushstring(functionState, name.c_str());
+	}
+	else if (lua_gettop(functionState) == 1) {
+		int layerIndex = lua_tointeger(functionState, 1);
+		std::string name = Arena::getMapInstance()->getTileNameAt(position, layerIndex);
+		lua_pushstring(functionState, name.c_str());
+	}
 	
 	return 1;
 }
@@ -364,7 +380,8 @@ void LuaGame::pushPlayer(lua_State* state, int playerIndex) {
 
 		{ "teleport",
 		"Teleports the player to the given location",
-		{ { { LUA_TVECTOR, "position" } } },
+		{ { { LUA_TVECTOR, "position" } },
+		{ { LUA_TNUMBER, "x" }, { LUA_TNUMBER, "y" } } },
 		0,
 		l_playerTeleport},
 
@@ -548,8 +565,14 @@ int LuaGame::l_playerDamage(lua_State* functionState) {
 int LuaGame::l_playerTeleport(lua_State* functionState) {
 	CHECK_ARGS;
 	GET_META_INT(index, "index");
-
-	Vec2d tilePos = toVector(functionState, 1);
+	Vec2d tilePos;
+	if(lua_gettop(functionState) == 1)
+		tilePos = toVector(functionState, 1);
+	else {
+		double x = lua_tonumber(functionState, 1);
+		double y = lua_tonumber(functionState, 2);
+		tilePos = Vec2d(x, y);
+	}
 
 	if (index == XClient::getInstance()->getPlayerIndex()) {
 		Player::getInstance()->setTilePosition(tilePos);
@@ -729,7 +752,13 @@ void LuaGame::pushCreature(lua_State* state, int id) {
 		"Sets the properties table of the creature",
 		{ { { LUA_TTABLE, "propertiesTable" } } },
 		0,
-		l_creatureSetProperties}
+		l_creatureSetProperties},
+
+		{ "despawn",
+		"Despawns the creature",
+		{ { } },
+		0,
+		l_creatureDespawn}
 
 	});
 
@@ -911,6 +940,15 @@ int LuaGame::l_creatureSetProperties(lua_State* functionState) {
 	return 0;
 }
 
+int LuaGame::l_creatureDespawn(lua_State* functionState) {
+	CHECK_ARGS;
+	GET_META_INT(creatureId, "id");
+
+	Creature* creature = Creature::getWithId(creatureId);
+	creature->despawn();
+	return 0;
+}
+
 int LuaGame::l_playSong(lua_State* functionState) {
 	CHECK_ARGS;
 
@@ -951,6 +989,24 @@ int LuaGame::l_clear(lua_State* functionState) {
 	if (LuaTerminal::getInstance()) {
 		LuaTerminal::getInstance()->clear();
 	}
+	return 0;
+}
+
+int LuaGame::l_help(lua_State* functionState) {
+
+	if (lua_isnil(functionState, 1)) {
+		if (LuaTerminal::getInstance())
+			LuaTerminal::getInstance()->print("No such function");
+		return 0;
+	}
+	CHECK_ARGS;
+
+	pushHelp(functionState);
+	int error = lua_pcall(functionState, 1, 0, 0);
+	if (error) {
+		std::string error = lua_tostring(functionState, -1);
+	}
+
 	return 0;
 }
 

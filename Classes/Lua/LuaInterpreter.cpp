@@ -179,16 +179,6 @@ void LuaInterpreter::addFunctions(lua_State* mainState) {
 
 	pushCFunction(mainState,
 		0,
-		{ "help",
-		"Prints help information regarging the function",
-		{ { { LUA_TFUNCTION, "function" } } },
-		0,
-		l_help });
-	lua_setglobal(mainState, "help");
-	
-
-	pushCFunction(mainState,
-		0,
 		{ "type",
 		"Returns the type of the item given",
 		{ { { -1, "item" } } },
@@ -593,7 +583,37 @@ void LuaInterpreter::pushVector(lua_State* state, Vec2d vector){
 		"Returns a string representation of the vector",
 		{ { } },
 		LUA_TSTRING,
-		l_vectorToString}
+		l_vectorToString},
+
+		{ "dot",
+		"Returns the dot product of itself and it's argument",
+		{ { { LUA_TVECTOR, "vector" } } },
+		LUA_TVECTOR,
+		l_vectorDot},
+
+		{ "length",
+		"Returns the length of the vector",
+		{ { } },
+		LUA_TNUMBER,
+		l_vectorLength},
+
+		{ "distance",
+		"Returns the distance between this vector and the argument",
+		{ { { LUA_TVECTOR, "vector" } } },
+		LUA_TNUMBER,
+		l_vectorDistance},
+	
+		{ "absAngle",
+		"Returns the absolute angle from the x axis of the vector",
+		{ { } },
+		LUA_TNUMBER,
+		l_vectorAbsAngle},
+
+		{ "normalized",
+		"Returns the vector normalized",
+		{ {} },
+		LUA_TNUMBER,
+		l_vectorNormalize}
 	});
 
 	lua_pushstring(state, "x");
@@ -634,19 +654,27 @@ void LuaInterpreter::pushVector(lua_State* state, Vec2d vector){
 	lua_setmetatable(state, -2);
 }
 Vec2d LuaInterpreter::toVector(lua_State* state, int index){
-	Vec2d re;
+	index = index > 0 ? index : lua_gettop(state) + index + 1;
+	lua_getmetatable(state, index);
+	lua_pushstring(state, "type");
+	lua_getmetatable(state, -2);
+	if (lua_isstring(state, -1)) {
+		lua_pop(state, 2);
+		Vec2d re;
 
-	lua_pushstring(state, "x");
-	lua_gettable(state, index > 0 ? index : index - 1);
-	re.x = lua_tonumber(state, -1);
-	lua_pop(state, 1);
+		lua_pushstring(state, "x");
+		lua_gettable(state, index);
+		re.x = lua_tonumber(state, -1);
+		lua_pop(state, 1);
 
-	lua_pushstring(state, "y");
-	lua_gettable(state, index > 0 ? index : index - 1);
-	re.y = lua_tonumber(state, -1);
-	lua_pop(state, 1);
-
-	return re;
+		lua_pushstring(state, "y");
+		lua_gettable(state, index);
+		re.y = lua_tonumber(state, -1);
+		lua_pop(state, 1);
+		return re;
+	}
+	lua_pop(state, 2);
+	return Vec2d();
 }
 int LuaInterpreter::l_addVector(lua_State* state){
 	Vec2d vec1 = toVector(state, 1);
@@ -705,6 +733,63 @@ int LuaInterpreter::l_vectorToString(lua_State* functionState) {
 	return 1;
 }
 
+int LuaInterpreter::l_vectorDot(lua_State* functionState) {
+	CHECK_ARGS;
+	pushSelf(functionState);
+	Vec2d vector = toVector(functionState, -1);
+	lua_pop(functionState, 1);
+
+	Vec2d other = toVector(functionState, 1);
+	double result = vector.dot(other);
+	lua_pushnumber(functionState, result);
+	return 1;
+}
+
+int LuaInterpreter::l_vectorAbsAngle(lua_State* functionState) {
+	CHECK_ARGS;
+	pushSelf(functionState);
+	Vec2d vector = toVector(functionState, -1);
+	lua_pop(functionState, 1);
+
+	double angle = vector.absoluteAngle();
+	lua_pushnumber(functionState, angle);
+	return 1;
+}
+
+int LuaInterpreter::l_vectorLength(lua_State* functionState) {
+	CHECK_ARGS;
+	pushSelf(functionState);
+	Vec2d vector = toVector(functionState, -1);
+	lua_pop(functionState, 1);
+
+	double length = vector.length();
+	lua_pushnumber(functionState, length);
+	return 1;
+}
+
+int LuaInterpreter::l_vectorDistance(lua_State* functionState) {
+	CHECK_ARGS;
+	pushSelf(functionState);
+	Vec2d vector = toVector(functionState, - 1);
+	lua_pop(functionState, 1);
+
+	Vec2d other = toVector(functionState, 1);
+	double distance = vector.distance(other);
+	lua_pushnumber(functionState, distance);
+	return 1;
+}
+
+int LuaInterpreter::l_vectorNormalize(lua_State* functionState) {
+	CHECK_ARGS;
+	pushSelf(functionState);
+	Vec2d vector = toVector(functionState, -1);
+	lua_pop(functionState, 1);
+
+	vector.normalize();
+	pushVector(functionState, vector);
+	return 1;
+}
+
 int LuaInterpreter::l_vecConstruct(lua_State* functionState){
 	CHECK_ARGS;
 	
@@ -757,6 +842,8 @@ int LuaInterpreter::isTile(lua_State* state, int index) {
 	return FALSE;
 }
 int LuaInterpreter::isVector(lua_State* state, int index) {
+
+	index = index < 0 ? index + lua_gettop(state) + 1 : index;
 	lua_getmetatable(state, index);
 	lua_pushstring(state, "type");
 	lua_gettable(state, -2);
@@ -792,23 +879,7 @@ void LuaInterpreter::pushHelp(lua_State* functionState) {
 	pushObject(functionState, "help", {});
 }
 
-int LuaInterpreter::l_help(lua_State* functionState) {
 
-	if (lua_isnil(functionState, 1)) {
-		if (LuaTerminal::getInstance())
-			LuaTerminal::getInstance()->print("No such function");
-		return 0;
-	}
-	CHECK_ARGS;
-
-	pushHelp(functionState);
-	int error = lua_pcall(functionState, 1, 0, 0);
-	if (error) {
-		std::string error = lua_tostring(functionState, -1);
-	}
-
-	return 0;
-}
 
 std::string LuaInterpreter::constructHelp(lua_State* functionState){
 	std::string helpMessage = lua_tostring(functionState, lua_upvalueindex(UP_DOCS));
