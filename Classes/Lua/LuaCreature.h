@@ -7,6 +7,8 @@ protected:
 	virtual void addFunctions(lua_State*);
 	virtual void start(lua_State*);
 
+	virtual std::string getScopeName() { return "Creature"; };
+
 	static int l_getCreaturePosition(lua_State*);
 	static int l_getCreatureRealPosition(lua_State*);
 	static int l_creatureMoveOn(lua_State*);

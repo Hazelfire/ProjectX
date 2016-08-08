@@ -39,7 +39,7 @@ void LuaGame::addFunctions(lua_State* mainState) {
 		0,
 		{ "print",
 		"prints a message to the console, and will print anything",
-		{ { { -1, "..." }} }, // -1 is a magic number, basically means that it takes any number of arguments
+		{ { { LUA_TEVERYTHING, "..." }} }, // -1 is a magic number, basically means that it takes any number of arguments
 		0,
 		l_print });
 	lua_setglobal(mainState, "print");
@@ -993,12 +993,6 @@ int LuaGame::l_clear(lua_State* functionState) {
 }
 
 int LuaGame::l_help(lua_State* functionState) {
-
-	if (lua_isnil(functionState, 1)) {
-		if (LuaTerminal::getInstance())
-			LuaTerminal::getInstance()->print("No such function");
-		return 0;
-	}
 	CHECK_ARGS;
 
 	pushHelp(functionState);

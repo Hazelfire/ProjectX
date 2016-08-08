@@ -4,4 +4,5 @@
 class LuaPersonal : public LuaGame {
 protected:
 	virtual void addFunctions(lua_State*);
+	virtual std::string getScopeName() { return "Personal"; };
 };

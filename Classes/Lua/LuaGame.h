@@ -48,10 +48,11 @@ protected:
 	static void pushTile(lua_State*, Vec2i tilePosition);
 	static void pushPlayer(lua_State*, int playerIndex);
 	static void pushCreature(lua_State*, int id);
+
+	virtual std::string getScopeName() { return "Game"; };
 private:
 
-	// Map Lua functions
-
+	// Map Lua function
 	static int l_tileConstruct(lua_State*);
 
 	static int l_tileToString(lua_State*);

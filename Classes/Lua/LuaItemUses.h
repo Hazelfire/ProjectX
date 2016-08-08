@@ -6,6 +6,8 @@ public:
 
 protected:
 	virtual void addFunctions(lua_State*);
+
+	virtual std::string getScopeName() { return "ItemUses"; };
 private:
 	std::string m_itemName;
 };

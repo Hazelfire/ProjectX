@@ -181,7 +181,7 @@ void LuaInterpreter::addFunctions(lua_State* mainState) {
 		0,
 		{ "type",
 		"Returns the type of the item given",
-		{ { { -1, "item" } } },
+		{ { { LUA_TANYTHING, "item" } } },
 		LUA_TSTRING,
 		l_type });
 
@@ -587,8 +587,8 @@ void LuaInterpreter::pushVector(lua_State* state, Vec2d vector){
 
 		{ "dot",
 		"Returns the dot product of itself and it's argument",
-		{ { { LUA_TVECTOR, "vector" } } },
-		LUA_TVECTOR,
+		{ { { LUA_TVECTOR, "other" } } },
+		LUA_TNUMBER,
 		l_vectorDot},
 
 		{ "length",
@@ -603,8 +603,8 @@ void LuaInterpreter::pushVector(lua_State* state, Vec2d vector){
 		LUA_TNUMBER,
 		l_vectorDistance},
 	
-		{ "absAngle",
-		"Returns the absolute angle from the x axis of the vector",
+		{ "argument",
+		"Returns the argument of the vector",
 		{ { } },
 		LUA_TNUMBER,
 		l_vectorAbsAngle},
@@ -882,6 +882,10 @@ void LuaInterpreter::pushHelp(lua_State* functionState) {
 
 
 std::string LuaInterpreter::constructHelp(lua_State* functionState){
+	std::string functionName = lua_tostring(functionState, lua_upvalueindex(UP_NAME));
+	if (lua_isnil(functionState, lua_upvalueindex(UP_SELF))) {
+		
+	}
 	std::string helpMessage = lua_tostring(functionState, lua_upvalueindex(UP_DOCS));
 	helpMessage += "\nOverloads:";
 	LuaOverloadList overloads = getOverloads(functionState);
