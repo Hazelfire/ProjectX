@@ -778,12 +778,16 @@ int LuaGame::l_creatureConstruct(lua_State* functionState) {
 	Vec2d spawnPosition = toVector(functionState, 2);
 
 	Creature* creature = Creature::spawnCreature(creatureName, spawnPosition);
-	
-	if (XClient::getInstance())
-		XClient::getInstance()->spawnCreature(creatureName, spawnPosition);
+	if (creature) {
+		if (XClient::getInstance())
+			XClient::getInstance()->spawnCreature(creatureName, spawnPosition);
 
-	pushCreature(functionState, creature->getGID());
-	return 1;
+		pushCreature(functionState, creature->getGID());
+		return 1;
+	}
+	else {
+		return 0;
+	}
 }
 
 int LuaGame::l_creatureToString(lua_State* functionState) {

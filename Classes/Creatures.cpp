@@ -6,6 +6,8 @@
 #include "Multiplayer/PuppetMaster.h"
 #include "Multiplayer/XClient.h"
 #include "ResourceMacros.h"
+#include "Debug.h"
+
 CreatureList Creature::m_creatureList;
 std::unordered_map<short int, Creature*> Creature::m_creatureReferences;
 
@@ -24,6 +26,13 @@ Creature* Creature::create(std::string creatureName) {
 }
 
 bool Creature::init(std::string creatureName) {
+
+	// Check if the creature exists
+	if (m_creatureList.creatures.find(creatureName) == m_creatureList.creatures.end()) {
+		Debugger::logError("Failed to spawn creature: " + creatureName + ". Creature does not exist", DEBUG_CREATURES);
+		return false;
+	}
+
 	// Registering creature
 	m_gid = registerCreature(this);
 
@@ -77,7 +86,8 @@ Creature* Creature::getWithId(short int ID) {
 
 Creature* Creature::spawnCreature(std::string creatureName, Vec2 location, bool isNew) {
 	Creature* creature = Creature::create(creatureName);
-	Arena::getMapInstance()->placeNode(location, creature);
+	if(creature)
+		Arena::getMapInstance()->placeNode(location, creature);
 	return creature;
 }
 
