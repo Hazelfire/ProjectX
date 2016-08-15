@@ -55,8 +55,7 @@ void LuaCreature::addFunctions(lua_State* mainState) {
 		{ "moveOn",
 		"Moves the creature onto the tile",
 		{ { { LUA_TVECTOR, "destination" } },
-		{ { LUA_TVECTOR, "destination" }, { LUA_TNUMBER, "distance" } },
-		{ { LUA_TVECTOR, "destination" }, { LUA_TNUMBER, "distance" }, { LUA_TNUMBER, "speed"} } },
+		{ { LUA_TVECTOR, "destination" }, { LUA_TNUMBER, "speed" } } },
 		LUA_TNUMBER,
 		l_creatureMoveOn});
 	lua_setglobal(mainState, "moveOn");
