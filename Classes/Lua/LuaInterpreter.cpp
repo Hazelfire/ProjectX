@@ -819,11 +819,11 @@ int LuaInterpreter::isPlayer(lua_State* state, int index) {
 		std::string type = lua_tostring(state, -1);
 		if (type == "player") {
 			lua_pop(state, 2);
-			return TRUE;
+			return 1;
 		}
 	}
 	lua_pop(state, 2);
-	return FALSE;
+	return 0;
 	
 }
 int LuaInterpreter::isTile(lua_State* state, int index) {
@@ -835,11 +835,11 @@ int LuaInterpreter::isTile(lua_State* state, int index) {
 		std::string type = lua_tostring(state, -1);
 		if (type == "tile") {
 			lua_pop(state, 2);
-			return TRUE;
+			return 1;
 		}
 	}
 	lua_pop(state, 2);
-	return FALSE;
+	return 0;
 }
 int LuaInterpreter::isVector(lua_State* state, int index) {
 
@@ -852,11 +852,11 @@ int LuaInterpreter::isVector(lua_State* state, int index) {
 		std::string type = lua_tostring(state, -1);
 		if (type == "vector") {
 			lua_pop(state, 2);
-			return TRUE;
+			return 1;
 		}
 	}
 	lua_pop(state, 2);
-	return FALSE;
+	return 0;
 }
 
 int LuaInterpreter::isCreature(lua_State* state, int index) {
@@ -868,11 +868,11 @@ int LuaInterpreter::isCreature(lua_State* state, int index) {
 		std::string type = lua_tostring(state, -1);
 		if (type == "creature") {
 			lua_pop(state, 2);
-			return TRUE;
+			return 1;
 		}
 	}
 	lua_pop(state, 2);
-	return FALSE;
+	return 0;
 }
 
 void LuaInterpreter::pushHelp(lua_State* functionState) {

@@ -672,12 +672,12 @@ int LuaGame::l_playerHasItemWithTag(lua_State* functionState) {
 				//Loop over each tag of the item
 				for (auto &tag : tags) {
 					if (tag == targetTag) {
-						lua_pushboolean(functionState, TRUE);
+						lua_pushboolean(functionState, 1);
 						return 1;
 					}
 				}
 			}
-			lua_pushboolean(functionState, FALSE);
+			lua_pushboolean(functionState, 0);
 			return 1;
 		}
 	}
@@ -915,7 +915,9 @@ int LuaGame::l_creatureHasTag(lua_State* functionState) {
 		lua_pushboolean(functionState, creature->hasTag(tag));
 		return 1;
 	}
+	return 0;
 }
+
 
 int LuaGame::l_creatureGetProperties(lua_State* functionState) {
 	CHECK_ARGS;
