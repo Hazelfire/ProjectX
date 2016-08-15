@@ -184,7 +184,6 @@ set(GAME_SRC
   Classes/Multiplayer/MultiplayerServer.cpp
   Classes/Multiplayer/Puppet.cpp
   Classes/Multiplayer/PuppetMaster.cpp
-  Classes/Multiplayer/WindowsServer.cpp
   Classes/Multiplayer/XClient.cpp
   Classes/Multiplayer/XProtocol.cpp
   Classes/Multiplayer/XServer.cpp
@@ -204,8 +203,6 @@ set(GAME_SRC
   Classes/Parser/StringOperations.cpp
   Classes/Parser/Terrain.cpp
   Classes/Parser/XMLCommon.cpp
-  
-  Classes/Sources/HashDirectory.cpp
   
   Classes/UIScenes/ErrorScreen.cpp
   Classes/UIScenes/HelloWorldScene.cpp
@@ -260,7 +257,6 @@ set(GAME_HEADERS
   Classes/Lua/LuaPersonal.h
   Classes/Lua/LuaTileActions.h
   Classes/Lua/LuaInterpreter.h
-  Classes/Lua/luawrapper.hpp
   
   Classes/MapGen/MapGenerator.h
   Classes/MapGen/PerlinNoise.h
@@ -273,7 +269,6 @@ set(GAME_HEADERS
   Classes/Multiplayer/MultiplayerServer.h
   Classes/Multiplayer/Puppet.h
   Classes/Multiplayer/PuppetMaster.h
-  Classes/Multiplayer/WindowsServer.h
   Classes/Multiplayer/XClient.h
   Classes/Multiplayer/XProtocol.hpp
   Classes/Multiplayer/XProtocolImpl.h
@@ -296,8 +291,6 @@ set(GAME_HEADERS
   Classes/Parser/StringOperations.h
   Classes/Parser/Terrain.h
   Classes/Parser/XMLCommon.h
-  
-  Classes/Sources/HashDirectory.h
   
   Classes/UIScenes/ErrorScreen.h
   Classes/UIScenes/HelloWorldScene.h
