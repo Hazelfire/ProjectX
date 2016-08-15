@@ -12,7 +12,7 @@ USING_NS_CC;
 class Interact {
 public:
 	static void InteractMap(Vec2f tileCoordinates);
-	static bool isMovable(string);
+	static bool isMovable(string tile, int layerIndex);
 
 	//List of different moves, return time needed to complete move
 	static double moveOn(Vec2f tileCoordinates);

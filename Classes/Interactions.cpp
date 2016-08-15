@@ -43,25 +43,33 @@ void Interact::InteractMap(Vec2f tileCoordinates) {
 		runCreatureInteractions(creature);
 	}
 
-	string tileName = Arena::getMapInstance()->getTileNameAt(tileCoordinates);
-	ActionList possibleActions = getPossibleActions(interactionsRepo.tiles[tileName], INTERACT_TILE);
-	if (possibleActions.isMovable) {
-		m_selectedCoordinates = Vec2i(-1, -1);
-		moveOn(tileCoordinates);
-		return;
-	}
-	if (possibleActions.options.size() == 1) {
+	string tileName = Arena::getMapInstance()->getTileNameAt(tileCoordinates, 1); // Check top layer first
+	if (tileName.empty()) {
+		tileName = Arena::getMapInstance()->getTileNameAt(tileCoordinates, 0); // Then check bottom layer
+		ActionList possibleActions = getPossibleActions(interactionsRepo.tiles[tileName], INTERACT_TILE);
 
-		runInteraction(possibleActions.options.front(), tileCoordinates);
+		if (!possibleActions.togglePassability) { // If the tile is passable
+			m_selectedCoordinates = Vec2i(-1, -1);
+			moveOn(tileCoordinates);
+			return;
+		}
 	}
-	else if (possibleActions.options.size() > 1) {
-		queryUser(possibleActions.options, tileCoordinates);
+	else {
+		ActionList possibleActions = getPossibleActions(interactionsRepo.tiles[tileName], INTERACT_TILE);
+		 // There is a tile on the top layer
+		if (possibleActions.options.size() == 1) {
+
+			runInteraction(possibleActions.options.front(), tileCoordinates);
+		}
+		else if (possibleActions.options.size() > 1) {
+			queryUser(possibleActions.options, tileCoordinates);
+		}
 	}
 }
 
 ActionList Interact::getPossibleActions(ActionList set, InteractionType type) {
 	ActionList re;
-	re.isMovable = set.isMovable;
+	re.togglePassability = set.togglePassability;
 	for (auto currentInteraction : set.options) {
 		if (type == INTERACT_TILE) {
 			LuaTileActions interpreter;
@@ -131,13 +139,16 @@ void Interact::destroyChoices() {
 	}
 }
 
-bool Interact::isMovable(string tileName){
+bool Interact::isMovable(string tileName, int layerIndex){
 	LOAD_REPO();
 	// If the tile in question is not a tile
 	if (tileName.empty()) {
 		return true;
 	}
-	return interactionsRepo.tiles[tileName].isMovable;
+	if (layerIndex == 0)
+		return !interactionsRepo.tiles[tileName].togglePassability;
+	else
+		return false; // So far, all second layer items are impassable
 }
 
 //List of interactions

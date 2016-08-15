@@ -66,7 +66,9 @@ bool XTileMap::isMovable(Vec2i tileCoordinates) {
 	if (tileCoordinates.x >= m_mapSize.x) return false;
 	if (tileCoordinates.y >= m_mapSize.y) return false;
 
-	return Interact::isMovable(getTileNameAt(tileCoordinates));
+	if (!getTileNameAt(tileCoordinates, 1).empty()) return false; // If there is an item on the top layer, return false
+
+	return Interact::isMovable(getTileNameAt(tileCoordinates), 0); // Otherwise, return if the tile is movable on the bottom layer
 }
 void XTileMap::cullChunk(Vec2i chunkCoordinates) {
 	if (!isPartOf(renderedChunks, chunkCoordinates)) {

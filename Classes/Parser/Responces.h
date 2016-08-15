@@ -9,7 +9,7 @@ struct Interaction {
 	bool instant = false;
 };
 struct ActionList{
-	bool isMovable = false;
+	bool togglePassability = false; // top layer is assumed impassable, bottom is assumed passable
 	list < Interaction > options;
 };
 

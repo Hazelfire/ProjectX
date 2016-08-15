@@ -27,19 +27,6 @@ ActionMap InteractionsParser::parse(string source) {
 	strcpy(newText, source.c_str());
 	doc.parse<0>(newText);
 
-	// Movable tags
-	xml_node<>* movableTag = doc.first_node("movable");
-	if (movableTag) {
-		std::stringstream movableTiles(std::string(movableTag->value()));
-		string line;
-		while (std::getline(movableTiles, line, ';')) {
-			line = StringOps::trim(line);
-			if (line.empty()) continue;
-			re.tiles[line].isMovable = true;
-		}
-	}
-
-
 	for (xml_node<> *interactionNode = doc.first_node();
 	interactionNode;interactionNode = interactionNode->next_sibling()) {
 		std::string interactionType = interactionNode->name();
@@ -50,6 +37,10 @@ ActionMap InteractionsParser::parse(string source) {
 		// The interaction MUST have a name, no error checking for now...
 		// TODO add error checking for this
 		std::string interactionName = interactionNode->first_attribute("name")->value();
+
+		// passability
+		if (interactionNode->first_attribute("impassable"))
+			re.tiles[interactionName].togglePassability = true;
 
 		// Look for all the actions
 		for (xml_node<> *actionNode = interactionNode->first_node("action");
