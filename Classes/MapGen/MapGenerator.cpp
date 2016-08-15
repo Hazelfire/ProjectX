@@ -108,11 +108,11 @@ MapTile MapGenerator::Impl::applyRule(int x, int y,const RuleTile& rule, int& se
 			PerlinNoise pn(seed);
 			pNoiseEngines[seed] = pn;
 
-			randomHeight = pn.noise((double)x*rule.scale / 50, (double)y*rule.scale / 50);
+			randomHeight = pn.noise((double)x*(1.0/rule.scale) / 50, (double)y*(1.0/rule.scale) / 50);
 		}
 		else {
 			PerlinNoise pn = pNoiseEngines[seed];
-			randomHeight = pn.noise((double)x*rule.scale / 50, (double)y*rule.scale / 50);
+			randomHeight = pn.noise((double)x*(1.0/rule.scale) / 50, (double)y*(1.0/rule.scale) / 50);
 		}
 	}
 
@@ -138,16 +138,16 @@ MapTile MapGenerator::Impl::applyRule(int x, int y,const RuleTile& rule, int& se
 			double heightCount = 0.0;
 			for (int i = 0; i < fractalIterations; i++) {
 				if (i % 4 == 0) {
-					heightCount += (pn.noise((double)(x)*(rule.scale * (powf(scaleBase, i))) / 50, (double)y*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+					heightCount += (pn.noise((double)(x)*((1.0/rule.scale) * (powf(scaleBase, i))) / 50, (double)y*((1.0/rule.scale) * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
 				}
 				else if (i % 4 == 1) {
-					heightCount += (pn.noise((double)(32000 - x)*(rule.scale * (powf(scaleBase, i))) / 50, (double)y*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+					heightCount += (pn.noise((double)(32000 - x)*((1.0/rule.scale) * (powf(scaleBase, i))) / 50, (double)y*((1.0/rule.scale) * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
 				}
 				else if (i % 4 == 2) {
-					heightCount += (pn.noise((double)x*(rule.scale * (powf(scaleBase, i))) / 50, (double)(32000 - y)*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+					heightCount += (pn.noise((double)x*((1.0/rule.scale) * (powf(scaleBase, i))) / 50, (double)(32000 - y)*((1.0/rule.scale) * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
 				}
 				else if (i % 4 == 3) {
-					heightCount += (pn.noise((double)(32000 - x)*(rule.scale * (powf(scaleBase, i))) / 50, (double)(32000 - y)*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+					heightCount += (pn.noise((double)(32000 - x)*((1.0/rule.scale) * (powf(scaleBase, i))) / 50, (double)(32000 - y)*((1.0/rule.scale) * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
 				}
 			}
 
@@ -162,16 +162,16 @@ MapTile MapGenerator::Impl::applyRule(int x, int y,const RuleTile& rule, int& se
 			double heightCount = 0.0;
 			for (int i = 0; i < fractalIterations; i++) {
 				if (i % 4 == 1) {
-					heightCount += (pn.noise((double)(x)*(rule.scale * (powf(scaleBase, i))) / 50, (double)y*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+					heightCount += (pn.noise((double)(x)*((1.0/rule.scale) * (powf(scaleBase, i))) / 50, (double)y*((1.0/rule.scale) * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
 				}
 				else if (i % 4 == 2) {
-					heightCount += (pn.noise((double)(32000 - x)*(rule.scale * (powf(scaleBase, i))) / 50, (double)y*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+					heightCount += (pn.noise((double)(32000 - x)*((1.0/rule.scale) * (powf(scaleBase, i))) / 50, (double)y*((1.0/rule.scale) * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
 				}
 				else if (i % 4 == 3) {
-					heightCount += (pn.noise((double)x*(rule.scale * (powf(scaleBase, i))) / 50, (double)(32000 - y)*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+					heightCount += (pn.noise((double)x*((1.0/rule.scale) * (powf(scaleBase, i))) / 50, (double)(32000 - y)*((1.0/rule.scale) * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
 				}
 				else if (i % 4 == 0) {
-					heightCount += (pn.noise((double)(32000 - x)*(rule.scale * (powf(scaleBase, i))) / 50, (double)(32000 - y)*(rule.scale * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
+					heightCount += (pn.noise((double)(32000 - x)*((1.0/rule.scale) * (powf(scaleBase, i))) / 50, (double)(32000 - y)*((1.0/rule.scale) * powf(scaleBase, i)) / 50)) / (powf(suppresionBase, i));
 				}
 			}
 			double divisor = 0.0;
