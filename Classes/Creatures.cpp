@@ -26,6 +26,10 @@ Creature* Creature::create(std::string creatureName) {
 }
 
 bool Creature::init(std::string creatureName) {
+	// If the creature list has not already been parsed
+	if (m_creatureList.creatures.size() == 0) {
+		m_creatureList = CreatureParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_CREATURE));
+	}
 
 	// Check if the creature exists
 	if (m_creatureList.creatures.find(creatureName) == m_creatureList.creatures.end()) {
@@ -37,11 +41,6 @@ bool Creature::init(std::string creatureName) {
 	m_gid = registerCreature(this);
 
 	scheduleUpdate();
-
-	// If the creature list has not already been parsed
-	if (m_creatureList.creatures.size() == 0) {
-		m_creatureList = CreatureParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_CREATURE));
-	}
 
 	m_name = creatureName;
 
