@@ -148,14 +148,28 @@ cocos2d::Node* SpriteLoader::constructSprite(ConstructSpriteInformation spriteIn
 
 	// Construct Sprite
 	cocos2d::Sprite* sprite = cocos2d::Sprite::create(spriteInformation.source,CC_RECT_PIXELS_TO_POINTS(cocos2d::Rect(spriteInformation.x * spriteInformation.spriteWidth, spriteInformation.spriteHeight * spriteInformation.y, spriteInformation.spriteWidth, spriteInformation.spriteHeight)));
-	sprite->getTexture()->setAliasTexParameters();
-	sprite->setAnchorPoint(Vec2(0, 0));
+	if (sprite) {
+		sprite->getTexture()->setAliasTexParameters();
+		sprite->setAnchorPoint(Vec2(0, 0));
 
-	// Add child
-	re->addChild(sprite);
+		// setting the content size
+		re->setContentSize(sprite->getContentSize());
 
-	// setting the content size
-	re->setContentSize(sprite->getContentSize());
+		// Add child
+		re->addChild(sprite);
+	}
+	else {
+		// Sprite is invalid, probably because there is no file with that name, let's check up
+		// With that
+
+		// If no such file
+		if (cocos2d::FileUtils::getInstance()->fullPathForFilename(spriteInformation.source).empty()) {
+			Debugger::logError("No such file " + spriteInformation.source + " in spritesheets file", DEBUG_SPRITES);
+		}
+		else {
+			Debugger::logError("Failed to load sprite with file " + spriteInformation.source, DEBUG_SPRITES);
+		}
+	}
 	return re;
 }
 
