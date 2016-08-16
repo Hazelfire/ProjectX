@@ -5,60 +5,71 @@
 #include "Debug.h"
 #include "Parser/ErrorParser.h"
 #include "Parser/StringOperations.h"
+#include "YAML/ScriptIndex.h"
 
 #define FOLDER_FROM_PATH(path) (path).substr(0,(path).find_last_of("/") +1)
 
 #define FILENAME_FROM_PATH(path) (path).substr((path).find_last_of("/") +1, (path).find_last_of(".") - (path).find_last_of("/") - 1)
 
-#define LOAD_LUA_SCRIPT_INDEX() if (m_LuaScriptIndex.interactions.empty()) { \
-m_LuaScriptIndex = ScriptParser::parseLua(LUA_INDEX_FILE); \
-	} 
-
-#define LOAD_XML_SCRIPT_INDEX() if(m_XmlScriptIndex.interactions.empty()){ \
-	m_XmlScriptIndex = ScriptParser::parseXml(XML_INDEX_FILE); \
-}
-
-ScriptParser::XmlScriptIndex ScriptLoader::m_XmlScriptIndex;
-ScriptParser::LuaScriptIndex ScriptLoader::m_LuaScriptIndex;
 std::string ScriptLoader::cachedXMLScripts[XML_SCRIPT_SIZE];
 
 std::string ScriptLoader::loadXmlScript(ScriptLoader::XmlScriptType scriptType) {
-	LOAD_XML_SCRIPT_INDEX();
+	static ScriptIndex xmlScriptIndex = ScriptIndex(XML_INDEX_FILE);
 
 	if (!cachedXMLScripts[scriptType].empty()) {
 		return cachedXMLScripts[scriptType];
 	}
 
+	SourceList scripts;
+
 	switch (scriptType){
 	case XML_CREATURE:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.creatures);
+		scripts = xmlScriptIndex.getFiles("creatures");
 		break;
 	case XML_INTERACTIONS:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.interactions);
+		scripts = xmlScriptIndex.getFiles("interactions");
 		break;
 	case XML_ITEMS:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.items);
+		scripts = xmlScriptIndex.getFiles("items");
 		break;
 	case XML_MAP:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.map);
+		scripts = xmlScriptIndex.getFiles("map");
 		break;
 	case XML_MUSIC:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.music);
+		scripts = xmlScriptIndex.getFiles("music");
 		break;
 	case XML_PLAYERS:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.players);
+		scripts = xmlScriptIndex.getFiles("players");
 		break;
-	case XML_SPRITES:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.sprites);
+	case XML_SPRITES_ITEMS:
+		scripts = xmlScriptIndex.getFiles("sprites/items");
+		break;
+	case XML_SPRITES_CREATURES:
+		scripts = xmlScriptIndex.getFiles("sprites/creatures");
+		break;
+	case XML_SPRITES_TILES:
+		scripts = xmlScriptIndex.getFiles("sprites/tiles");
+		break;
+	case XML_SPRITES_PLAYERS:
+		scripts = xmlScriptIndex.getFiles("sprites/players");
 		break;
 	case XML_SCHEMATICS:
-		cachedXMLScripts[scriptType] = compileXmlScripts(m_XmlScriptIndex.schematics);
+		scripts = xmlScriptIndex.getFiles("schematics");
 		break;
 	default:
 		// If the script is not of any of these types, the user is being an idiot, it will return empty string
 		return std::string();
 		break;
 	}
+
+	SourceList parsedScripts;
+
+	for (auto script : scripts)
+		parsedScripts.push_back(XML_FOLDER + script);
+
+	cachedXMLScripts[scriptType] = compileXmlScripts(parsedScripts);
+	
+
 	return cachedXMLScripts[scriptType];
 }
 
@@ -129,22 +140,31 @@ std::string ScriptLoader::compileLuaScripts(std::list<std::string> sources) {
 }
 
 ScriptLoader::SourceList ScriptLoader::loadLuaScripts(ScriptLoader::LuaScriptType scriptType) {
-	LOAD_LUA_SCRIPT_INDEX();
+	
+	static ScriptIndex luaScriptIndex = ScriptIndex(LUA_INDEX_FILE);
+
+	SourceList scripts;
+
 	switch (scriptType) {
 	case LUA_INTERACTIONS:
-		return m_LuaScriptIndex.interactions;
+		scripts = luaScriptIndex.getFiles("interactions");
 		break;
 	case LUA_STARTUP:
-		return m_LuaScriptIndex.startup;
+		scripts = luaScriptIndex.getFiles("startup");
 		break;
 	case LUA_CREATURES:
-		return m_LuaScriptIndex.creatures;
+		scripts = luaScriptIndex.getFiles("creatures");
 	case LUA_ITEMS:
-		return m_LuaScriptIndex.items;
-	case LUA_CREATURE_ACTIONS:
-		return m_LuaScriptIndex.creatureInteractions;
+		scripts = luaScriptIndex.getFiles("items");
 	default:
 		return SourceList();
 		break;
 	}
+	SourceList re;
+
+	// Append the lua folder onto each entry
+	for (auto script : scripts)
+		re.push_back(LUA_FOLDER + script);
+
+	return re;
 }

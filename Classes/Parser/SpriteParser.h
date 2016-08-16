@@ -31,18 +31,18 @@ public:
 	};
 
 	struct SpriteSheetSet {
-		SpriteSheet* tiles;
-		int tilesSize;
-		SpriteSheet* items;
-		int itemsSize;
-		SpriteSheet* creatures;
-		int creaturesSize;
-		SpriteSheet* players;
-		int playersSize;
+		SpriteSheet* sprites;
+		int spriteCount;
 	};
 
+	enum SpriteType {
+		SPRITE_TILES,
+		SPRITE_ITEMS,
+		SPRITE_CREATURES,
+		SPRITE_PLAYER
+	};
 
-	static SpriteSheetSet parse(std::string source);
+	static SpriteSheetSet parse(std::string source, SpriteType);
 private:
 	struct Impl;
 	static Impl impl;

@@ -22,48 +22,47 @@ cocos2d::Node* SpriteLoader::loadSprite(std::string spriteName) {
 cocos2d::Node* SpriteLoader::loadSprite(std::string spriteName, SpriteType type) {
 
 	// Statically loads information
-	static const SpriteParser::SpriteSheetSet spriteInformation = SpriteParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_SPRITES));
-
-	cocos2d::Node* re = nullptr;
+	SpriteParser::SpriteSheetSet spriteInformation;
 	switch (type) {
-	case SPRITE_ITEM:
-		re = searchSpritesFor(spriteInformation.items, spriteInformation.itemsSize, spriteName);
-		break;
 	case SPRITE_CREATURE:
-		re = searchSpritesFor(spriteInformation.creatures,spriteInformation.creaturesSize, spriteName);
+		spriteInformation = SpriteParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_SPRITES_CREATURES), SpriteParser::SPRITE_CREATURES);
 		break;
-	case SPRITE_TILE:
-		re = searchSpritesFor(spriteInformation.tiles,spriteInformation.tilesSize, spriteName);
+	case SPRITE_ITEM:
+		spriteInformation = SpriteParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_SPRITES_ITEMS), SpriteParser::SPRITE_ITEMS);
 		break;
 	case SPRITE_PLAYER:
-		re = searchSpritesFor(spriteInformation.players, spriteInformation.playersSize, spriteName);
+		spriteInformation = SpriteParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_SPRITES_PLAYERS), SpriteParser::SPRITE_PLAYER);
+		break;
+	case SPRITE_TILE:
+		spriteInformation = SpriteParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_SPRITES_TILES), SpriteParser::SPRITE_TILES);
 		break;
 	}
+
+	cocos2d::Node* re = nullptr;
+	re = searchSpritesFor(spriteInformation.sprites, spriteInformation.spriteCount, spriteName);
 
 	return re;
 }
 
 bool SpriteLoader::isAnimate(std::string spriteName, SpriteType spriteType) {
 	// Statically loads information
-	static const SpriteParser::SpriteSheetSet spriteInformation = SpriteParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_SPRITES));
-
-	bool re = false;
+	SpriteParser::SpriteSheetSet spriteInformation;
 	switch (spriteType) {
-	case SPRITE_ITEM:
-		re = searchSpritesForType(spriteInformation.items, spriteInformation.itemsSize, spriteName);
-		break;
 	case SPRITE_CREATURE:
-		re = searchSpritesForType(spriteInformation.creatures, spriteInformation.creaturesSize, spriteName);
+		spriteInformation = SpriteParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_SPRITES_CREATURES), SpriteParser::SPRITE_CREATURES);
 		break;
-	case SPRITE_TILE:
-		re = searchSpritesForType(spriteInformation.tiles, spriteInformation.tilesSize, spriteName);
+	case SPRITE_ITEM:
+		spriteInformation = SpriteParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_SPRITES_ITEMS), SpriteParser::SPRITE_ITEMS);
 		break;
 	case SPRITE_PLAYER:
-		re = searchSpritesForType(spriteInformation.players, spriteInformation.playersSize, spriteName);
+		spriteInformation = SpriteParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_SPRITES_PLAYERS), SpriteParser::SPRITE_PLAYER);
+		break;
+	case SPRITE_TILE:
+		spriteInformation = SpriteParser::parse(ScriptLoader::loadXmlScript(ScriptLoader::XML_SPRITES_TILES), SpriteParser::SPRITE_TILES);
 		break;
 	}
 
-	return re;
+	return searchSpritesForType(spriteInformation.sprites, spriteInformation.spriteCount, spriteName);
 }
 
 cocos2d::Node* SpriteLoader::searchSpritesFor(SpriteParser::SpriteSheet* spritesheets,int size, std::string spriteName) {

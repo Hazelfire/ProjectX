@@ -1,7 +1,7 @@
 #pragma once
-#include "YAML/ScriptIndex.h"
+
 #include <unordered_map>
-#define XML_SCRIPT_SIZE 8
+#define XML_SCRIPT_SIZE 10
 
 class ScriptLoader {
 public:
@@ -15,7 +15,10 @@ public:
 		XML_MAP,
 		XML_MUSIC,
 		XML_PLAYERS,
-		XML_SPRITES,
+		XML_SPRITES_TILES,
+		XML_SPRITES_CREATURES,
+		XML_SPRITES_PLAYERS,
+		XML_SPRITES_ITEMS,
 		XML_SCHEMATICS
 	};
 	static std::string loadXmlScript(XmlScriptType);
@@ -24,8 +27,7 @@ public:
 		LUA_INTERACTIONS,
 		LUA_STARTUP,
 		LUA_CREATURES,
-		LUA_ITEMS,
-		LUA_CREATURE_ACTIONS
+		LUA_ITEMS
 	};
 
 	static std::string cachedXMLScripts[XML_SCRIPT_SIZE];
@@ -35,8 +37,6 @@ public:
 
 	static SourceList loadLuaScripts(LuaScriptType);
 private:
-	static ScriptParser::XmlScriptIndex m_XmlScriptIndex;
-	static ScriptParser::LuaScriptIndex m_LuaScriptIndex;
 	static std::string compileXmlScripts(std::list<std::string> sourceFiles);
 	static std::string compileLuaScripts(SourceList sourceFiles);
 	static std::string runPreprocessor(std::string source);

@@ -11,12 +11,12 @@ using std::strcmp;
 using namespace rapidxml;
 
 struct SpriteParser::Impl {
-	static SpriteSheet parseSpritesheet(xml_node<>*);
+	static SpriteSheet parseSpritesheet(xml_node<>*, SpriteType);
 };
 
 SpriteParser::Impl SpriteParser::impl;
 
-SpriteParser::SpriteSheetSet SpriteParser::parse(std::string source) {
+SpriteParser::SpriteSheetSet SpriteParser::parse(std::string source, SpriteType type) {
 
 	// Convert it into char* (non const because xml_document does not accept const)
 	char* newText = new char[source.size() +1];
@@ -30,93 +30,66 @@ SpriteParser::SpriteSheetSet SpriteParser::parse(std::string source) {
 	// Initialize return value
 	SpriteSheetSet re;
 	
-	int tilesCount = 0;
-	int creaturesCount = 0;
-	int itemsCount = 0;
-	int playersCount = 0;
+	int spriteCount = 0;
 
 	// count nodes
-	for (xml_node<>* sectionNode = doc.first_node(); sectionNode; sectionNode = sectionNode->next_sibling()) {
-		for (xml_node<>* spriteSheetNode = sectionNode->first_node("spritesheet"); spriteSheetNode;spriteSheetNode = spriteSheetNode->next_sibling("spritesheet")) {
-			if (strcmp(sectionNode->name(), "tiles") == 0)
-				tilesCount++;
-
-			else if (strcmp(sectionNode->name(), "creatures") == 0) 
-				creaturesCount++;
-			
-
-			else if (strcmp(sectionNode->name(), "items") == 0) 
-				itemsCount++;
-			
-
-			else if (strcmp(sectionNode->name(), "players") == 0) 
-				playersCount++;
-			
-		}
+	for (xml_node<>* spriteSheetNode = doc.first_node("spritesheet"); spriteSheetNode;spriteSheetNode = spriteSheetNode->next_sibling("spritesheet")) {
+		spriteCount++;
 	}
 	
 	// setting sizes
-	re.tilesSize = tilesCount;
-	re.creaturesSize = creaturesCount;
-	re.itemsSize = itemsCount;
-	re.playersSize = playersCount;
+	re.spriteCount = spriteCount;
 
 	// initializing arrays
-	re.items = new SpriteSheet[re.itemsSize];
-	re.creatures = new SpriteSheet[re.creaturesSize];
-	re.tiles = new SpriteSheet[re.tilesSize];
-	re.players = new SpriteSheet[re.playersSize];
+	re.sprites = new SpriteSheet[re.spriteCount];
 
-	int tileIndex = 0;
-	int creatureIndex = 0;
-	int itemIndex = 0;
-	int playerIndex = 0;
+	int spriteIndex = 0;
 
 	// filling spritesheets
-	for (xml_node<>* sectionNode = doc.first_node(); sectionNode; sectionNode = sectionNode->next_sibling()) {
-		for (xml_node<>* spriteSheetNode = sectionNode->first_node("spritesheet"); spriteSheetNode;spriteSheetNode = spriteSheetNode->next_sibling("spritesheet")) {
-			if (strcmp(sectionNode->name(), "tiles") == 0) {
-				re.tiles[tileIndex] = impl.parseSpritesheet(spriteSheetNode);
-				int tileWidth = std::atoi(spriteSheetNode->first_attribute("tileWidth")->value());
-				int tileHieght = std::atoi(spriteSheetNode->first_attribute("tileHeight")->value());
+	for (xml_node<>* spriteSheetNode = doc.first_node("spritesheet"); spriteSheetNode;spriteSheetNode = spriteSheetNode->next_sibling("spritesheet")) {
+		re.sprites[spriteIndex] = impl.parseSpritesheet(spriteSheetNode, type);
+		if(type == SPRITE_TILES){
+			int tileWidth = std::atoi(spriteSheetNode->first_attribute("tileWidth")->value());
+			int tileHieght = std::atoi(spriteSheetNode->first_attribute("tileHeight")->value());
 
-				re.tiles[tileIndex].spriteWidth = MAPTILE_WIDTH * tileWidth;
-				re.tiles[tileIndex].spriteHeight = MAPTILE_HEIGHT * tileHieght;
-				tileIndex++;
-			}
-
-			else if (strcmp(sectionNode->name(), "creatures") == 0) {
-				re.creatures[creatureIndex] = impl.parseSpritesheet(spriteSheetNode);
-				creatureIndex++;
-			}
-
-			else if (strcmp(sectionNode->name(), "items") == 0) {
-				re.items[itemIndex] = impl.parseSpritesheet(spriteSheetNode);
-				re.items[itemIndex].spriteWidth = 32;
-				re.items[itemIndex].spriteHeight = 32;
-				itemIndex++;
-			}
-
-			else if (strcmp(sectionNode->name(), "players") == 0) {
-				re.players[playerIndex] = impl.parseSpritesheet(spriteSheetNode);
-				playerIndex++;
-			}
+			re.sprites[spriteIndex].spriteWidth = MAPTILE_WIDTH * tileWidth;
+			re.sprites[spriteIndex].spriteHeight = MAPTILE_HEIGHT * tileHieght;
 		}
+
+		else if (type == SPRITE_ITEMS) {
+			re.sprites[spriteIndex].spriteWidth = 32;
+			re.sprites[spriteIndex].spriteHeight = 32;
+		}
+		spriteIndex++;
 	}
 
 	delete[] newText;
 	return re;
 }
 
-SpriteParser::SpriteSheet SpriteParser::Impl::parseSpritesheet(xml_node<>* spriteSheetNode) {
+SpriteParser::SpriteSheet SpriteParser::Impl::parseSpritesheet(xml_node<>* spriteSheetNode, SpriteParser::SpriteType type) {
 	SpriteSheet re;
 
 	// For every attribute
 	for (xml_attribute<>* spriteSheetAttr = spriteSheetNode->first_attribute(); spriteSheetAttr; spriteSheetAttr = spriteSheetAttr->next_attribute()) {
 		if (strcmp(spriteSheetAttr->name(), "source") == 0) {
 			std::string path = SPRITES_FOLDER;
-			path += spriteSheetNode->parent()->name();
-			path += "/";
+
+			switch (type) {
+			case SPRITE_ITEMS:
+				path += "items/";
+				break;
+			case SPRITE_CREATURES:
+				path += "creatures/";
+				break;
+			case SPRITE_PLAYER:
+				path += "players/";
+				break;
+			case SPRITE_TILES:
+				path += "tiles/";
+				break;
+			}
+
 			re.source = path + spriteSheetAttr->value();
 		}
 		else if (strcmp(spriteSheetAttr->name(), "width") == 0) {

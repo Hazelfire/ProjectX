@@ -82,8 +82,8 @@ ActionList Interact::getPossibleActions(ActionList set, InteractionType type) {
 			if (currentInteraction.ifConditional.empty())
 				re.options.push_back(currentInteraction);
 
-			else if (interpreter.fulfills(ScriptLoader::loadLuaScripts(ScriptLoader::LUA_CREATURE_ACTIONS), currentInteraction.ifConditional))
-				re.options.push_back(currentInteraction);
+			//else if (interpreter.fulfills(ScriptLoader::loadLuaScripts(ScriptLoader::LUA_CREATURE_ACTIONS), currentInteraction.ifConditional))
+			//	re.options.push_back(currentInteraction);
 
 		}
 	}
