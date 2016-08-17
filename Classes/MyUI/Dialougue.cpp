@@ -2,6 +2,7 @@
 #include "XBMPLabel.h"
 #include "ResourceMacros.h"
 #include "ui/CocosGUI.h"
+
 using namespace cocos2d;
 
 void Dialogue::promptPlayer(std::string message, std::string placeholder, std::function<void(std::string)> callback, Node* runningScene) {
@@ -73,8 +74,7 @@ void Dialogue::promptPlayer(std::string message, std::function<void(bool)> callB
 	label->setPosition(Vec2(background->getContentSize().width / 2, (background->getContentSize().height) - (label->getContentSize().height* label->getScaleY())));
 	background->addChild(label);
 
-	XBMPLabel* yesLabel = XBMPLabel::create("Yes", "Pixelfont", 150, XBMPLabel::CENTER);
-	yesLabel->setCallback([background, callBack]() {
+	std::function<void()> yesCallback = [background, callBack]() {
 		callBack(true);
 
 		// Basically deleting it without deleting it.
@@ -82,17 +82,23 @@ void Dialogue::promptPlayer(std::string message, std::function<void(bool)> callB
 		background->setPosition(Vec2(-1000, -1000));
 		background->setVisible(false);
 		background->cleanup();
-	});
-	yesLabel->setPosition(background->getContentSize().width / 3, yesLabel->getContentSize().height);
-	background->addChild(yesLabel);
+	};
 
-	XBMPLabel* noLabel = XBMPLabel::create("No", "Pixelfont", 150, XBMPLabel::CENTER);
-	noLabel->setCallback([background, callBack]() {
+	std::function<void()> noCallback = [background, callBack]() {
 		callBack(false);
 		background->setPosition(Vec2(-1000, -1000));
 		background->setVisible(false);
 		background->cleanup();
-	});
+	};
+
+	XBMPLabel* yesLabel = XBMPLabel::create("Yes", "Pixelfont", 150, XBMPLabel::CENTER);
+	yesLabel->setCallback(yesCallback);
+	yesLabel->setPosition(background->getContentSize().width / 3, yesLabel->getContentSize().height);
+	background->addChild(yesLabel);
+
+	XBMPLabel* noLabel = XBMPLabel::create("No", "Pixelfont", 150, XBMPLabel::CENTER);
+	noLabel->setCallback(noCallback);
 	noLabel->setPosition((2*background->getContentSize().width) / 3, yesLabel->getContentSize().height);
 	background->addChild(noLabel);
+
 }
