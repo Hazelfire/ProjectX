@@ -3,7 +3,7 @@ using namespace cocos2d;
 struct Utils {
 
 	static Rect getWorldRect(Node* item) {
-		Size currentSize = item->getContentSize() * item->getScale();
+		Size currentSize = Size(item->getContentSize().width * item->getScaleX(), item->getContentSize().height * item->getScaleY());
 		Vec2 anchorPoint = item->getAnchorPoint();
 		Vec2 offset = -(Vec2(anchorPoint.x * currentSize.width, anchorPoint.y * currentSize.height));
 		Vec2 worldPosition = item->getParent()->convertToWorldSpace(item->getPosition() +offset);

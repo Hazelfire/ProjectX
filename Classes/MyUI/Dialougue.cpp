@@ -2,6 +2,7 @@
 #include "XBMPLabel.h"
 #include "ResourceMacros.h"
 #include "ui/CocosGUI.h"
+#include "Utils.h"
 
 using namespace cocos2d;
 
@@ -101,4 +102,21 @@ void Dialogue::promptPlayer(std::string message, std::function<void(bool)> callB
 	noLabel->setPosition((2*background->getContentSize().width) / 3, yesLabel->getContentSize().height);
 	background->addChild(noLabel);
 
+	EventListenerTouchOneByOne* touchListener = EventListenerTouchOneByOne::create();
+
+	touchListener->setSwallowTouches(true);
+	touchListener->onTouchBegan = [background,noCallback](Touch* touch, Event*) {
+		if (background->isVisible()) {
+			Rect worldRect = Utils::getWorldRect(background);
+			if (worldRect.containsPoint(touch->getLocation())) {
+				return true;
+			}
+			else {
+				noCallback();
+				return true;
+			}
+		}
+	};
+
+	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(touchListener, background);
 }
