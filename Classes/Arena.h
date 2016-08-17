@@ -39,12 +39,15 @@ public:
 	static void toggleTerminal();
 	static void keyPressed(EventKeyboard::KeyCode code, Event*);
 
+	static void endGame();
+
 private:
 	static XTileMap* m_arenaMap;
 	static Scene* m_arenaScene;
 	static Layer* m_UILayer;
 	static Layer* m_camera;
 	static Node* m_inventoryMenu;
+	static Node* m_exitMenu;
 	static int m_state;
 	void addUI();
 	static bool m_termOpen;

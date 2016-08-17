@@ -19,6 +19,10 @@ LuaTerminal* LuaTerminal::create() {
 	}
 }
 
+void LuaTerminal::remove() {
+	m_terminalInstance = nullptr;
+}
+
 bool LuaTerminal::init() {
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 

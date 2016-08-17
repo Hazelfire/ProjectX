@@ -7,7 +7,7 @@ public:
 	static LuaTerminal* create();
 	static LuaTerminal* getInstance();
 	void print(std::string message);
-
+	void remove();
 	void clear();
 private:
 	bool init();

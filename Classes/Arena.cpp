@@ -10,6 +10,8 @@
 #include "Save.h"
 #include "MyUI/LuaTerminal.h"
 #include "Mechs/Health.h"
+#include "UIScenes\HelloWorldScene.h"
+#include "MyUI/ExitMenu.h"
 
 int WIDTH;
 int HEIGHT;
@@ -22,6 +24,7 @@ Node* Arena::m_inventoryMenu;
 int Arena::m_state = 0;
 Layer* Arena::m_camera;
 bool Arena::m_termOpen;
+Node* Arena::m_exitMenu;
 
 void Arena::createMulti(std::string map, int seed) {
 
@@ -88,14 +91,19 @@ void Arena::keyPressed(EventKeyboard::KeyCode code, Event*) {
 	if (Save::read(&SaveInformation::devMode)) {
 		switch (code) {
 		case EventKeyboard::KeyCode::KEY_C:
-			toggleTerminal();
+			//toggleTerminal();
 			break;
 		default:
 			break;
 		}
 	}
 	if (code == EventKeyboard::KeyCode::KEY_ESCAPE) {
-		
+		Size visibleSize = Director::getInstance()->getVisibleSize();
+
+		m_exitMenu = ExitMenu::create();
+		m_exitMenu->setPosition(visibleSize / 2);
+
+		m_UILayer->addChild(m_exitMenu);
 	}
 }
 
@@ -110,6 +118,12 @@ Scene * Arena::getArenaScene()
 
 Player* Arena::getPlayerInstance() {
 	return Player::getInstance();
+}
+
+void Arena::endGame() {
+	LuaTerminal::getInstance()->remove();
+
+	Director::getInstance()->replaceScene(HelloWorld::createScene());
 }
 
 Vec2i Arena::placePlayer(Player * player) 
@@ -174,6 +188,8 @@ void Arena::addUI() {
 
 		m_UILayer->addChild(term);
 	}
+
+	addKeyControls();
 }
 
 void Arena::inventoryOpened(Ref* sender, ui::Button::TouchEventType type) {

@@ -1,5 +1,7 @@
 #include "ExitMenu.h"
 #include "ResourceMacros.h"
+#include "XBMPLabel.h"
+#include "Arena.h"
 
 using namespace cocos2d;
 
@@ -22,5 +24,13 @@ bool ExitMenu::init() {
 	Sprite* background = Sprite::create(EXIT_MENU_BACKGROUND);
 	background->setScale((visibleSize.width / 5) / background->getContentSize().width, (visibleSize.height / 2) / background->getContentSize().height);
 	addChild(background);
-	return false;
+
+	XBMPLabel* exitLabel = XBMPLabel::create("Exit Game", "Pixelfont", 100, XBMPLabel::CENTER);
+	exitLabel->setPosition(background->getContentSize().width / 2, background->getContentSize().height - exitLabel->getContentSize().height);
+	exitLabel->setCallback([]() {
+		Arena::endGame();
+	});
+
+	background->addChild(exitLabel);
+	return true;
 }
