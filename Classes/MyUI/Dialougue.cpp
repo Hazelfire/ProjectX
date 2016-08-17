@@ -4,7 +4,7 @@
 #include "ui/CocosGUI.h"
 using namespace cocos2d;
 
-void Dialogue::promtPlayer(std::string message, std::string placeholder, std::function<void(std::string)> callback, Node* runningScene) {
+void Dialogue::promptPlayer(std::string message, std::string placeholder, std::function<void(std::string)> callback, Node* runningScene) {
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
@@ -15,7 +15,7 @@ void Dialogue::promtPlayer(std::string message, std::string placeholder, std::fu
 
 	// Places in center
 	background->setPosition(origin + (visibleSize / 2));
-	runningScene->addChild(background);
+	runningScene->addChild(background, 32000);
 
 	XBMPLabel* label = XBMPLabel::create(message, "Pixelfont", 50, XBMPLabel::CENTER);
 
@@ -52,4 +52,47 @@ void Dialogue::promtPlayer(std::string message, std::string placeholder, std::fu
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(enterListener, background);
 
 
+}
+
+void Dialogue::promptPlayer(std::string message, std::function<void(bool)> callBack, cocos2d::Node* runningScene) {
+	Size visibleSize = Director::getInstance()->getVisibleSize();
+	Vec2 origin = Director::getInstance()->getVisibleOrigin();
+
+	Sprite* background = Sprite::create(DIALOGUE_BACKGROUND);
+
+	// Sets the size to be 40% of the screen's width and height
+	background->setScale((visibleSize.width*0.4) / background->getContentSize().width, (visibleSize.height * 0.4) / background->getContentSize().height);
+
+	// Places in center
+	background->setPosition(origin + (visibleSize / 2));
+	runningScene->addChild(background, 32000);
+
+	XBMPLabel* label = XBMPLabel::create(message, "Pixelfont", 150, XBMPLabel::CENTER);
+
+	// places it at the top of the background
+	label->setPosition(Vec2(background->getContentSize().width / 2, (background->getContentSize().height) - (label->getContentSize().height* label->getScaleY())));
+	background->addChild(label);
+
+	XBMPLabel* yesLabel = XBMPLabel::create("Yes", "Pixelfont", 150, XBMPLabel::CENTER);
+	yesLabel->setCallback([background, callBack]() {
+		callBack(true);
+
+		// Basically deleting it without deleting it.
+		// This is because it does not swallow touches deleted (cocos2d-x bug)
+		background->setPosition(Vec2(-1000, -1000));
+		background->setVisible(false);
+		background->cleanup();
+	});
+	yesLabel->setPosition(background->getContentSize().width / 3, yesLabel->getContentSize().height);
+	background->addChild(yesLabel);
+
+	XBMPLabel* noLabel = XBMPLabel::create("No", "Pixelfont", 150, XBMPLabel::CENTER);
+	noLabel->setCallback([background, callBack]() {
+		callBack(false);
+		background->setPosition(Vec2(-1000, -1000));
+		background->setVisible(false);
+		background->cleanup();
+	});
+	noLabel->setPosition((2*background->getContentSize().width) / 3, yesLabel->getContentSize().height);
+	background->addChild(noLabel);
 }

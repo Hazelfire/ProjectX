@@ -155,7 +155,7 @@ bool HelloWorld::init()
 
 void HelloWorld::queryPlayerName() {
 
-	Dialogue::promtPlayer("I don't know your name, what is it?", "Player Name", [](std::string playerName) {
+	Dialogue::promptPlayer("I don't know your name, what is it?", "Player Name", [](std::string playerName) {
 		Save::write(playerName, &SaveInformation::playerName);
 	}, this);
 

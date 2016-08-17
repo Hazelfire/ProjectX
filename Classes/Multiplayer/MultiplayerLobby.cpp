@@ -62,7 +62,7 @@ bool MultiplayerLobby::init(GameInformation gameInfo, bool hostMode) {
 #endif
 	}
 	else {
-		Dialogue::promtPlayer("What is the ip of the host?", "Internet Address", CC_CALLBACK_1(MultiplayerLobby::onSubmitAddress, this), this);
+		Dialogue::promptPlayer("What is the ip of the host?", "Internet Address", CC_CALLBACK_1(MultiplayerLobby::onSubmitAddress, this), this);
 	}
 	return true;
 }

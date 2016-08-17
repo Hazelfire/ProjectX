@@ -2,6 +2,7 @@
 #include "ResourceMacros.h"
 #include "XBMPLabel.h"
 #include "Arena.h"
+#include "Dialougue.h"
 
 using namespace cocos2d;
 
@@ -28,7 +29,10 @@ bool ExitMenu::init() {
 	XBMPLabel* exitLabel = XBMPLabel::create("Exit Game", "Pixelfont", 100, XBMPLabel::CENTER);
 	exitLabel->setPosition(background->getContentSize().width / 2, background->getContentSize().height - exitLabel->getContentSize().height);
 	exitLabel->setCallback([]() {
-		Arena::endGame();
+		Dialogue::promptPlayer("Are you sure?", [](bool result) {
+			if (result) Arena::endGame();
+		}
+		, Director::getInstance()->getRunningScene());
 	});
 
 	background->addChild(exitLabel);
