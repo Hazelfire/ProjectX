@@ -916,8 +916,11 @@ LuaOverloadList LuaInterpreter::getOverloads(lua_State* state) {
 	lua_pushnil(state);
 	while (lua_next(state, lua_upvalueindex(UP_OVERLOAD)) != 0) {
 		LuaOverload currentOverload;
-		lua_pushnil(state);
-		while (lua_next(state, -2) != 0) {
+
+		int arrayIndex = 1;
+		lua_pushnumber(state, arrayIndex);
+		lua_gettable(state, -2);
+		while (!lua_isnil(state, -1)) {
 
 			std::pair<int, std::string> parameter;
 
@@ -935,12 +938,16 @@ LuaOverloadList LuaInterpreter::getOverloads(lua_State* state) {
 			parameter.second = lua_tostring(state, -1);
 			lua_pop(state, 1);
 
-			currentOverload.push_front(parameter);
+			currentOverload.push_back(parameter);
 			lua_pop(state, 1);
+
+			arrayIndex++;
+			lua_pushinteger(state, arrayIndex);
+			lua_gettable(state, -2);
 		}
 
 		overloads.push_front(currentOverload);
-		lua_pop(state, 1);
+		lua_pop(state, 2);
 	}
 
 	return overloads;

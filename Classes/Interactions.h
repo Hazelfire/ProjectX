@@ -26,7 +26,17 @@ public:
 	static void update(double delta);
 
 	static void destroyChoices();
+
+	static void scheduleCollection(std::string itemName, int quantity, Vec2i tilePos, float time);
 private:
+
+	// Collecting objects
+	static std::string m_collectItemName;
+	static int m_collectItemQuantity;
+	static float m_collectItemTimeLeft;
+	static Vec2i m_collectTilePos;
+
+	static void cancelCollection();
 
 	enum InteractionType {
 		INTERACT_CREATURE,

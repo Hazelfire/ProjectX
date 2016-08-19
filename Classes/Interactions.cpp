@@ -8,6 +8,7 @@
 #include "ResourceMacros.h"
 #include "Multiplayer/XClient.h"
 #include "Multiplayer/PuppetMaster.h"
+#include "Inventory.h"
 
 
 #define LOAD_REPO() if (interactionsRepo.tiles.empty()) { \
@@ -27,6 +28,12 @@ SelectionWheel* Interact::m_choices;
 bool Interact::m_choicesNeedToBeDestroyed = false;
 bool Interact::m_choicesIsDestroyed = true;
 Vec2i Interact::m_selectedCoordinates;
+
+// Collection static variables
+std::string Interact::m_collectItemName;
+int Interact::m_collectItemQuantity;
+float Interact::m_collectItemTimeLeft;
+Vec2i Interact::m_collectTilePos;
 
 void Interact::InteractMap(Vec2f tileCoordinates) {
 	// load the Repo if not already
@@ -65,6 +72,8 @@ void Interact::InteractMap(Vec2f tileCoordinates) {
 			queryUser(possibleActions.options, tileCoordinates);
 		}
 	}
+
+	cancelCollection();
 }
 
 ActionList Interact::getPossibleActions(ActionList set, InteractionType type) {
@@ -210,6 +219,17 @@ void Interact::update(double delta) {
 			cancelCommand();
 		}
 	}
+
+	// Check if there is an item to collect
+	if (!m_collectItemName.empty()) {
+		m_collectItemTimeLeft -= delta;
+		if (m_collectItemTimeLeft <= 0) {
+			// Give them the object
+			Inventory::giveItem(m_collectItemName, m_collectItemQuantity);
+			Arena::getMapInstance()->destroyTile(m_collectTilePos);
+			cancelCollection();
+		}
+	}
 }
 
 void Interact::runCreatureInteractions(Creature* creature) {
@@ -219,4 +239,20 @@ void Interact::runCreatureInteractions(Creature* creature) {
 		cancelCommand();
 
 	}
+}
+
+
+// Functions in regard to collecting objects from tiles
+void Interact::scheduleCollection(std::string itemName, int quantity, Vec2i tilePos, float time) {
+	m_collectItemName = itemName;
+	m_collectItemQuantity = quantity;
+	m_collectItemTimeLeft = time;
+	m_collectTilePos = tilePos;
+}
+
+void Interact::cancelCollection() {
+	m_collectItemName = "";
+	m_collectItemQuantity = 0;
+	m_collectItemTimeLeft = 0.0f;
+	m_collectTilePos = Vec2i(0, 0);
 }
