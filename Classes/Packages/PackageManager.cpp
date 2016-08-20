@@ -37,7 +37,7 @@ std::list<std::string> PackageManager::getLuaScriptIndexes() {
 
 std::string PackageManager::getSprite(std::string spriteName, SpriteType spriteType) {
 	for (auto package : m_packages) {
-		std::string prospectiveSpritePath = package.getFolder() + "/res/sprites/";
+		std::string prospectiveSpritePath = package.getFolderFull() + "/res/sprites/";
 		if (spriteType == SPRITE_CREATURE) {
 			prospectiveSpritePath += "creatures";
 		}
@@ -66,7 +66,7 @@ std::string PackageManager::getSprite(std::string spriteName, SpriteType spriteT
 std::string PackageManager::getMusic(std::string songName) {
 	
 	for (auto package : m_packages) {
-		std::string prospectiveFilePath = package.getFolder() + "/res/music/" + songName;
+		std::string prospectiveFilePath = package.getFolderFull() + "/res/music/" + songName;
 
 		bool fileExists = cocos2d::FileUtils::getInstance()->isFileExist(prospectiveFilePath);
 		
@@ -83,7 +83,7 @@ std::string PackageManager::getMusic(std::string songName) {
 std::string PackageManager::getFile(std::string filePath) {
 
 	for (auto package : m_packages) {
-		std::string prospectiveFile = package.getFolder() + filePath;
+		std::string prospectiveFile = package.getFolderFull() + filePath;
 		if (cocos2d::FileUtils::getInstance()->isFileExist(prospectiveFile)) {
 			return prospectiveFile;
 		}
@@ -101,4 +101,23 @@ PackageManager* PackageManager::getInstance() {
 
 void PackageManager::deleteInstance() {
 	delete m_packageManagerInstance;
+}
+
+std::list<PackageManager::PackageInfo> PackageManager::getPackageInfo() {
+	std::list<PackageInfo> re;
+
+	for (auto package : m_packages) {
+		PackageInfo packageInfo;
+		packageInfo.author = package.getAuthor();
+		packageInfo.folder = package.getFolder();
+		packageInfo.name = package.getName();
+		packageInfo.version = package.getVersion();
+		
+		if (cocos2d::FileUtils::getInstance()->isFileExist(package.getFolderFull() + "/icon.png"))
+			packageInfo.icon = package.getFolderFull() + "/icon.png";
+
+		re.push_back(packageInfo);
+	}
+
+	return re;
 }

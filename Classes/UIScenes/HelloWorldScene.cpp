@@ -7,6 +7,7 @@
 #include "MyUI/Dialougue.h"
 #include "OptionsMenu.h"
 #include "Debug.h"
+#include "PackageManagerScene.h"
 
 USING_NS_CC;
 
@@ -130,12 +131,20 @@ bool HelloWorld::init()
 	options->setPosition(origin.x + 10, origin.y + (visibleSize.height / 2) - 2*(TEXT_SIZE + (TEXT_SIZE / 2)));
 	addChild(options);
 	
+	// Packages
+	XBMPLabel* packages = XBMPLabel::create("Packages", "Pixelfont", TEXT_SIZE, XBMPLabel::LEFT);
+	packages->setCallback([]() {
+		Director::getInstance()->pushScene(TransitionFade::create(0.5, PackageManagerScene::create()));
+	});
+	packages->setPosition(origin.x + 10, origin.y + (visibleSize.height / 2) - 3 * (TEXT_SIZE + (TEXT_SIZE / 2)));
+	addChild(packages);
+
 	// Exit
 	XBMPLabel* exit = XBMPLabel::create("Exit", "Pixelfont", TEXT_SIZE, XBMPLabel::LEFT);
 	exit->setCallback([]() {
 		Director::getInstance()->end();
 	});
-	exit->setPosition(origin.x + 10, origin.y + (visibleSize.height / 2) - 3 * (TEXT_SIZE + (TEXT_SIZE / 2)));
+	exit->setPosition(origin.x + 10, origin.y + (visibleSize.height / 2) - 4 * (TEXT_SIZE + (TEXT_SIZE / 2)));
 	addChild(exit);
 
 

@@ -9,6 +9,14 @@ public:
 	std::list<std::string> getXmlScriptIndexes();
 	std::list<std::string> getLuaScriptIndexes();
 
+	struct PackageInfo {
+		std::string name;
+		std::string folder;
+		std::string author;
+		std::string icon;
+		std::string version;
+	};
+
 	// Returns the full path of filepath relative to a package
 	std::string getFile(std::string filePath);
 
@@ -17,6 +25,9 @@ public:
 
 	// Returns the full filepath of the song
 	std::string getMusic(std::string songName);
+
+	// Returns metadata in regards to the packages
+	std::list<PackageInfo> getPackageInfo();
 
 	PackageManager();
 

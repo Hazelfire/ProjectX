@@ -67,6 +67,14 @@
 
 			#define EXIT_MENU_BACKGROUND EXIT_MENU_FOLDER "ExitMenuBackground.png"
 
+		#define PACKAGE_MANAGER_FOLDER UI_FOLDER "package_manager/"
+
+			#define PACKAGE_MANAGER_BACKGROUND PACKAGE_MANAGER_FOLDER "background.png"
+
+			#define DEFAULT_PACKAGE_ICON PACKAGE_MANAGER_FOLDER "DefaultIcon.png"
+
+			#define PACKAGE_CARD_IMAGE PACKAGE_MANAGER_FOLDER "PackageCard.png"
+
 	#define FONTS_FOLDER RESOURCE_FOLDER "fonts/"
 
 	#define MISC_FOLDER RESOURCE_FOLDER "misc/"

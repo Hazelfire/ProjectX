@@ -13,7 +13,7 @@ Package::Package(std::string folder) {
 	m_author = root["author"].as<std::string>();
 	m_folder = folder;
 
-	// TODO Version parsing
+	std::string m_version = root["version"].as<std::string>();
 }
 
 
@@ -26,5 +26,21 @@ std::string Package::getLuaScriptIndex() {
 }
 
 std::string Package::getFolder() {
+	return m_folder;
+}
+
+std::string Package::getFolderFull() {
 	return PACKAGES_FOLDER + m_folder;
+}
+
+std::string Package::getName() {
+	return m_name;
+}
+
+std::string Package::getAuthor() {
+	return m_author;
+}
+
+std::string Package::getVersion() {
+	return m_version;
 }

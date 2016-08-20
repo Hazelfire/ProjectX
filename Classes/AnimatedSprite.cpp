@@ -32,9 +32,7 @@ bool AnimatedSprite::init(ConstructAnimateInformation information) {
 void AnimatedSprite::update(float delta) {
 	if ((int)m_timeCount / m_animatedObject.speed != (int)((m_timeCount + delta) / m_animatedObject.speed)) {
 		removeAllChildren();
-
 		std::string spritePath = PackageManager::getInstance()->getSprite(m_animatedObject.source, m_animatedObject.type);
-
 		m_currentSprite = Sprite::create(spritePath,
 			CC_RECT_PIXELS_TO_POINTS(Rect(((((int)(m_timeCount / m_animatedObject.speed) / m_animatedObject.height) % m_animatedObject.width) + m_animatedObject.startx) * m_animatedObject.spriteWidth,
 				(((int)(m_timeCount / m_animatedObject.speed) % m_animatedObject.height) + m_animatedObject.starty) * m_animatedObject.spriteHeight,
