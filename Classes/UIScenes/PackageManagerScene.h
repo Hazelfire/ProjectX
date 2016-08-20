@@ -9,4 +9,6 @@ private:
 	bool init();
 
 	void createPackageSelector();
+
+	void createPackageViewer(int packageIndex);
 };

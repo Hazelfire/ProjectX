@@ -13,7 +13,7 @@ Package::Package(std::string folder) {
 	m_author = root["author"].as<std::string>();
 	m_folder = folder;
 
-	std::string m_version = root["version"].as<std::string>();
+	m_version = root["version"].as<std::string>();
 }
 
 
