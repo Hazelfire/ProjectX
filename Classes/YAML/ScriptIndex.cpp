@@ -11,9 +11,11 @@
 #include <boost/filesystem.hpp>
 #endif
 
+#define FOLDER_FROM_PATH(path) (path).substr(0,(path).find_last_of("/") +1)
+
 ScriptIndex::ScriptIndex(std::string fileName) {
 	std::string source = createScriptIndex(fileName);
-
+	m_indexPath = fileName;
 	YAML::Node root = YAML::Load(source);
 
 	for (auto currentSectionNode : root) {
@@ -38,7 +40,7 @@ std::list<std::string> ScriptIndex::getFiles(std::string directory) {
 		// If the directory is at the start of this script
 		if (scriptIndex.find(directory) == 0) {
 			
-			re.push_back(scriptIndex);
+			re.push_back(getDirectory() +  scriptIndex);
 		}
 	}
 
@@ -64,7 +66,7 @@ std::list<std::string> getAllFilesInFolder(std::string prefix,std::string folder
 }
 
 
-#define FOLDER_FROM_PATH(path) (path).substr(0,(path).find_last_of("/") +1)
+
 #define FINAL_FOLDER_FROM_PATH(path) (path).substr((path).find_last_of("/") +1,(path).size() - (path).find_last_of("/"))
 
 // Creates a script index based on what is already in the files, not done
@@ -98,4 +100,12 @@ std::string ScriptIndex::createScriptIndex(std::string fileName) {
 #else
 	return cocos2d::FileUtils::getInstance()->getStringFromFile(fileName);
 #endif
+}
+
+std::string ScriptIndex::getDirectory() {
+	return FOLDER_FROM_PATH(m_indexPath);
+}
+
+std::string ScriptIndex::getPath() {
+	return m_indexPath;
 }

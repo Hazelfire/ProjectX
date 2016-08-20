@@ -42,7 +42,7 @@ public:
 		SPRITE_PLAYER
 	};
 
-	static SpriteSheetSet parse(std::string source, SpriteType);
+	static SpriteSheetSet parse(std::string source, SpriteType type);
 private:
 	struct Impl;
 	static Impl impl;

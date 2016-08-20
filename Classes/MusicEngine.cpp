@@ -4,15 +4,15 @@
 #include "ResourceMacros.h"
 #include "ScriptLoader.h"
 #include "Arena.h"
+#include "Packages/PackageManager.h"
 
 #define MUSIC_TRANSITION_SPEED 0.01
 
 string Music::currentSong;
 void Music::play(string filename) {
 	auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
-	string prefix = MUSIC_FOLDER;
+	std::string fullPath = PackageManager::getInstance()->getMusic(filename + ".wav");
 	string suffix =".wav";
-	string fullPath = prefix + filename + suffix;
 	//CCLOG(fullPath.c_str());
 	if (fullPath.compare(currentSong) != 0) {
 		audio->stopBackgroundMusic();

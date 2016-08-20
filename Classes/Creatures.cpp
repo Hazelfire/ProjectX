@@ -7,6 +7,7 @@
 #include "Multiplayer/XClient.h"
 #include "ResourceMacros.h"
 #include "Debug.h"
+#include "Packages/PackageManager.h"
 
 CreatureList Creature::m_creatureList;
 std::unordered_map<short int, Creature*> Creature::m_creatureReferences;
@@ -49,7 +50,9 @@ bool Creature::init(std::string creatureName) {
 	Animal::init(m_creatureInfo.movements,SPRITE_CREATURE, m_creatureInfo.movementSpeed);
 
 	m_creatureAI.init(m_gid);
-	m_creatureAI.run(std::string(LUA_FOLDER "creatures/") + m_creatureInfo.ai + ".lua");
+
+	std::string scriptPath = PackageManager::getInstance()->getFile("script/lua/creatures/" + m_creatureInfo.ai + ".lua");
+	m_creatureAI.run(scriptPath);
 	return true;
 }
 

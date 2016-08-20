@@ -13,8 +13,8 @@ public:
 
 	static cocos2d::Node* loadSprite(std::string spriteName);
 private:
-	static cocos2d::Node* searchSpritesFor(SpriteParser::SpriteSheet*,int spriteSheetSize, std::string spriteName);
-	static bool searchSpritesForType(SpriteParser::SpriteSheet*, int spritesheetSize, std::string spriteName);
+	static cocos2d::Node* searchSpritesFor(SpriteParser::SpriteSheet*,int spriteSheetSize, std::string spriteName, SpriteType type);
+	static bool searchSpritesForType(SpriteParser::SpriteSheet*, int spritesheetSize, std::string spriteName, SpriteType type);
 
 	// Information required to construct a static sprite
 	struct ConstructSpriteInformation {
@@ -23,6 +23,7 @@ private:
 		int spriteHeight;
 		int x;
 		int y;
+		SpriteType type;
 	};
 
 	static cocos2d::Node* constructSprite(ConstructSpriteInformation);

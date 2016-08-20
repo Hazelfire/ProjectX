@@ -6,6 +6,7 @@
 #include "Parser/ErrorParser.h"
 #include "Parser/StringOperations.h"
 #include "YAML/ScriptIndex.h"
+#include "Packages/PackageManager.h"
 
 #define FOLDER_FROM_PATH(path) (path).substr(0,(path).find_last_of("/") +1)
 
@@ -14,60 +15,64 @@
 std::string ScriptLoader::cachedXMLScripts[XML_SCRIPT_SIZE];
 
 std::string ScriptLoader::loadXmlScript(ScriptLoader::XmlScriptType scriptType) {
-	static ScriptIndex xmlScriptIndex = ScriptIndex(XML_INDEX_FILE);
+	std::list<std::string> xmlScriptIndexPaths = PackageManager::getInstance()->getXmlScriptIndexes();
 
 	if (!cachedXMLScripts[scriptType].empty()) {
 		return cachedXMLScripts[scriptType];
 	}
 
 	SourceList scripts;
+	for (auto xmlIndexPath : xmlScriptIndexPaths) {
 
-	switch (scriptType){
-	case XML_CREATURE:
-		scripts = xmlScriptIndex.getFiles("creatures");
-		break;
-	case XML_INTERACTIONS:
-		scripts = xmlScriptIndex.getFiles("interactions");
-		break;
-	case XML_ITEMS:
-		scripts = xmlScriptIndex.getFiles("items");
-		break;
-	case XML_MAP:
-		scripts = xmlScriptIndex.getFiles("map");
-		break;
-	case XML_MUSIC:
-		scripts = xmlScriptIndex.getFiles("music");
-		break;
-	case XML_PLAYERS:
-		scripts = xmlScriptIndex.getFiles("players");
-		break;
-	case XML_SPRITES_ITEMS:
-		scripts = xmlScriptIndex.getFiles("sprites/items");
-		break;
-	case XML_SPRITES_CREATURES:
-		scripts = xmlScriptIndex.getFiles("sprites/creatures");
-		break;
-	case XML_SPRITES_TILES:
-		scripts = xmlScriptIndex.getFiles("sprites/tiles");
-		break;
-	case XML_SPRITES_PLAYERS:
-		scripts = xmlScriptIndex.getFiles("sprites/players");
-		break;
-	case XML_SCHEMATICS:
-		scripts = xmlScriptIndex.getFiles("schematics");
-		break;
-	default:
-		// If the script is not of any of these types, the user is being an idiot, it will return empty string
-		return std::string();
-		break;
+		ScriptIndex xmlScriptIndex = ScriptIndex(xmlIndexPath);
+
+		std::string scriptFolder;
+		switch (scriptType) {
+		case XML_CREATURE:
+			scriptFolder = "creatures";
+			break;
+		case XML_INTERACTIONS:
+			scriptFolder = "interactions";
+			break;
+		case XML_ITEMS:
+			scriptFolder = "items";
+			break;
+		case XML_MAP:
+			scriptFolder = "map";
+			break;
+		case XML_MUSIC:
+			scriptFolder = "music";
+			break;
+		case XML_PLAYERS:
+			scriptFolder = "players";
+			break;
+		case XML_SPRITES_ITEMS:
+			scriptFolder = "sprites/items";
+			break;
+		case XML_SPRITES_CREATURES:
+			scriptFolder = "sprites/creatures";
+			break;
+		case XML_SPRITES_TILES:
+			scriptFolder = "sprites/tiles";
+			break;
+		case XML_SPRITES_PLAYERS:
+			scriptFolder = "sprites/players";
+			break;
+		case XML_SCHEMATICS:
+			scriptFolder = "schematics";
+			break;
+		default:
+			// If the script is not of any of these types, the user is being an idiot, it will return empty string
+			return std::string();
+			break;
+		}
+
+		// Append list on list
+		scripts.splice(scripts.end(), xmlScriptIndex.getFiles(scriptFolder));
 	}
 
-	SourceList parsedScripts;
 
-	for (auto script : scripts)
-		parsedScripts.push_back(XML_FOLDER + script);
-
-	cachedXMLScripts[scriptType] = compileXmlScripts(parsedScripts);
+	cachedXMLScripts[scriptType] = compileXmlScripts(scripts);
 	
 
 	return cachedXMLScripts[scriptType];
@@ -133,7 +138,7 @@ std::string ScriptLoader::compileLuaScripts(std::list<std::string> sources) {
 
 	// Compiles all the source files into one source
 	for (std::list<std::string>::iterator currentSource = sources.begin(); currentSource != sources.end(); currentSource++) {
-		sourceStream << cocos2d::FileUtils::getInstance()->getStringFromFile(LUA_FOLDER + *currentSource);
+		sourceStream << cocos2d::FileUtils::getInstance()->getStringFromFile(*currentSource);
 	}
 
 	return runPreprocessor(sourceStream.str());
@@ -141,30 +146,33 @@ std::string ScriptLoader::compileLuaScripts(std::list<std::string> sources) {
 
 ScriptLoader::SourceList ScriptLoader::loadLuaScripts(ScriptLoader::LuaScriptType scriptType) {
 	
-	static ScriptIndex luaScriptIndex = ScriptIndex(LUA_INDEX_FILE);
+	std::list<std::string> luaIndexPaths = PackageManager::getInstance()->getLuaScriptIndexes();
 
 	SourceList scripts;
 
-	switch (scriptType) {
-	case LUA_INTERACTIONS:
-		scripts = luaScriptIndex.getFiles("interactions");
-		break;
-	case LUA_STARTUP:
-		scripts = luaScriptIndex.getFiles("startup");
-		break;
-	case LUA_CREATURES:
-		scripts = luaScriptIndex.getFiles("creatures");
-	case LUA_ITEMS:
-		scripts = luaScriptIndex.getFiles("items");
-	default:
-		return SourceList();
-		break;
+	for (auto indexPath : luaIndexPaths) {
+
+		ScriptIndex luaScriptIndex(indexPath);
+		
+		std::string scriptFolder;
+		switch (scriptType) {
+		case LUA_INTERACTIONS:
+			scriptFolder = "interactions";
+			break;
+		case LUA_STARTUP:
+			scriptFolder = "startup";
+			break;
+		case LUA_CREATURES:
+			scriptFolder = "creatures";
+		case LUA_ITEMS:
+			scriptFolder = "items";
+		default:
+			return SourceList();
+			break;
+		}
+
+		scripts.splice(scripts.end(), luaScriptIndex.getFiles(scriptFolder));
 	}
-	SourceList re;
 
-	// Append the lua folder onto each entry
-	for (auto script : scripts)
-		re.push_back(LUA_FOLDER + script);
-
-	return re;
+	return scripts;
 }

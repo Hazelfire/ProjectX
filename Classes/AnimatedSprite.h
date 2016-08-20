@@ -1,4 +1,5 @@
 #include "cocos2d.h"
+#include "SpriteTypes.h"
 USING_NS_CC;
 
 
@@ -16,6 +17,7 @@ public:
 		int width;
 		int height;
 		double speed;
+		SpriteType type;
 	};
 
 	static AnimatedSprite* create(ConstructAnimateInformation information);

@@ -1,6 +1,7 @@
 #include "SpriteLoader.h"
 #include "ScriptLoader.h"
 #include "Debug.h"
+#include "Packages/PackageManager.h"
 
 cocos2d::Node* SpriteLoader::loadSprite(std::string spriteName) {
 	cocos2d::Node* re = nullptr;
@@ -39,7 +40,7 @@ cocos2d::Node* SpriteLoader::loadSprite(std::string spriteName, SpriteType type)
 	}
 
 	cocos2d::Node* re = nullptr;
-	re = searchSpritesFor(spriteInformation.sprites, spriteInformation.spriteCount, spriteName);
+	re = searchSpritesFor(spriteInformation.sprites, spriteInformation.spriteCount, spriteName, type);
 
 	return re;
 }
@@ -62,10 +63,10 @@ bool SpriteLoader::isAnimate(std::string spriteName, SpriteType spriteType) {
 		break;
 	}
 
-	return searchSpritesForType(spriteInformation.sprites, spriteInformation.spriteCount, spriteName);
+	return searchSpritesForType(spriteInformation.sprites, spriteInformation.spriteCount, spriteName, spriteType);
 }
 
-cocos2d::Node* SpriteLoader::searchSpritesFor(SpriteParser::SpriteSheet* spritesheets,int size, std::string spriteName) {
+cocos2d::Node* SpriteLoader::searchSpritesFor(SpriteParser::SpriteSheet* spritesheets,int size, std::string spriteName, SpriteType type) {
 
 	// For every spritesheet
 	for (int spritesheetIndex = 0; spritesheetIndex < size; spritesheetIndex++) {
@@ -82,6 +83,7 @@ cocos2d::Node* SpriteLoader::searchSpritesFor(SpriteParser::SpriteSheet* sprites
 				constructInfo.spriteHeight = spritesheets[spritesheetIndex].spriteHeight;
 				constructInfo.x = spritesheets[spritesheetIndex].sprites[spriteIndex].x;
 				constructInfo.y = spritesheets[spritesheetIndex].sprites[spriteIndex].y;
+				constructInfo.type = type;
 
 				return constructSprite(constructInfo);
 			}
@@ -105,6 +107,7 @@ cocos2d::Node* SpriteLoader::searchSpritesFor(SpriteParser::SpriteSheet* sprites
 				constructInfo.width = currentAnimate.animateWidth;
 				constructInfo.height = currentAnimate.animateHeight;
 				constructInfo.speed = currentAnimate.speed;
+				constructInfo.type = type;
 
 				return constructAnimate(constructInfo);
 			}
@@ -114,7 +117,7 @@ cocos2d::Node* SpriteLoader::searchSpritesFor(SpriteParser::SpriteSheet* sprites
 	return nullptr;
 }
 
-bool SpriteLoader::searchSpritesForType(SpriteParser::SpriteSheet* spritesheets, int size, std::string spriteName) {
+bool SpriteLoader::searchSpritesForType(SpriteParser::SpriteSheet* spritesheets, int size, std::string spriteName, SpriteType spriteType) {
 	// For every spritesheet
 	for (int spritesheetIndex = 0; spritesheetIndex < size; spritesheetIndex++) {
 
@@ -145,9 +148,11 @@ bool SpriteLoader::searchSpritesForType(SpriteParser::SpriteSheet* spritesheets,
 cocos2d::Node* SpriteLoader::constructSprite(ConstructSpriteInformation spriteInformation) {
 	cocos2d::Node* re = Node::create();
 
-	// Construct Sprite
-	cocos2d::Sprite* sprite = cocos2d::Sprite::create(spriteInformation.source,CC_RECT_PIXELS_TO_POINTS(cocos2d::Rect(spriteInformation.x * spriteInformation.spriteWidth, spriteInformation.spriteHeight * spriteInformation.y, spriteInformation.spriteWidth, spriteInformation.spriteHeight)));
-	if (sprite) {
+	std::string spritePath = PackageManager::getInstance()->getSprite(spriteInformation.source, spriteInformation.type);
+
+	if (!spritePath.empty()) {
+		// Construct Sprite
+		cocos2d::Sprite* sprite = cocos2d::Sprite::create(spritePath, CC_RECT_PIXELS_TO_POINTS(cocos2d::Rect(spriteInformation.x * spriteInformation.spriteWidth, spriteInformation.spriteHeight * spriteInformation.y, spriteInformation.spriteWidth, spriteInformation.spriteHeight)));
 		sprite->getTexture()->setAliasTexParameters();
 		sprite->setAnchorPoint(Vec2(0, 0));
 
@@ -162,12 +167,7 @@ cocos2d::Node* SpriteLoader::constructSprite(ConstructSpriteInformation spriteIn
 		// With that
 
 		// If no such file
-		if (cocos2d::FileUtils::getInstance()->fullPathForFilename(spriteInformation.source).empty()) {
-			Debugger::logError("No such file " + spriteInformation.source + " in spritesheets file", DEBUG_SPRITES);
-		}
-		else {
-			Debugger::logError("Failed to load sprite with file " + spriteInformation.source, DEBUG_SPRITES);
-		}
+		Debugger::logError("No such file " + spriteInformation.source + " in spritesheets file", DEBUG_SPRITES);
 	}
 	return re;
 }

@@ -1,5 +1,5 @@
 #include "AnimatedSprite.h"
-
+#include "Packages/PackageManager.h"
 
 AnimatedSprite* AnimatedSprite::create(ConstructAnimateInformation information) {
 	AnimatedSprite* sprite = new(std::nothrow) AnimatedSprite();
@@ -18,7 +18,9 @@ AnimatedSprite* AnimatedSprite::create(ConstructAnimateInformation information) 
 bool AnimatedSprite::init(ConstructAnimateInformation information) {
 	m_animatedObject = information;
 
-	m_currentSprite = Sprite::create(information.source, CC_RECT_PIXELS_TO_POINTS(Rect(((float)information.spriteWidth*information.startx), ((float)information.spriteHeight* information.starty), (double)information.spriteWidth, (double)information.spriteHeight)));
+	std::string spritePath = PackageManager::getInstance()->getSprite(information.source, information.type);
+
+	m_currentSprite = Sprite::create(spritePath, CC_RECT_PIXELS_TO_POINTS(Rect(((float)information.spriteWidth*information.startx), ((float)information.spriteHeight* information.starty), (double)information.spriteWidth, (double)information.spriteHeight)));
 
 	m_currentSprite->setAnchorPoint(Vec2(0, 0));
 	addChild(m_currentSprite);
@@ -30,7 +32,10 @@ bool AnimatedSprite::init(ConstructAnimateInformation information) {
 void AnimatedSprite::update(float delta) {
 	if ((int)m_timeCount / m_animatedObject.speed != (int)((m_timeCount + delta) / m_animatedObject.speed)) {
 		removeAllChildren();
-		m_currentSprite = Sprite::create(m_animatedObject.source,
+
+		std::string spritePath = PackageManager::getInstance()->getSprite(m_animatedObject.source, m_animatedObject.type);
+
+		m_currentSprite = Sprite::create(spritePath,
 			CC_RECT_PIXELS_TO_POINTS(Rect(((((int)(m_timeCount / m_animatedObject.speed) / m_animatedObject.height) % m_animatedObject.width) + m_animatedObject.startx) * m_animatedObject.spriteWidth,
 				(((int)(m_timeCount / m_animatedObject.speed) % m_animatedObject.height) + m_animatedObject.starty) * m_animatedObject.spriteHeight,
 				m_animatedObject.spriteWidth,

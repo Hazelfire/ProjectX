@@ -1,5 +1,4 @@
 #include "SpriteParser.h"
-#include "../ResourceMacros.h"
 #include "XMLCommon.h"
 #include "SizeMacros.h"
 #include "rapidxml.hpp"
@@ -11,7 +10,7 @@ using std::strcmp;
 using namespace rapidxml;
 
 struct SpriteParser::Impl {
-	static SpriteSheet parseSpritesheet(xml_node<>*, SpriteType);
+	static SpriteSheet parseSpritesheet(xml_node<>*);
 };
 
 SpriteParser::Impl SpriteParser::impl;
@@ -47,7 +46,7 @@ SpriteParser::SpriteSheetSet SpriteParser::parse(std::string source, SpriteType 
 
 	// filling spritesheets
 	for (xml_node<>* spriteSheetNode = doc.first_node("spritesheet"); spriteSheetNode;spriteSheetNode = spriteSheetNode->next_sibling("spritesheet")) {
-		re.sprites[spriteIndex] = impl.parseSpritesheet(spriteSheetNode, type);
+		re.sprites[spriteIndex] = impl.parseSpritesheet(spriteSheetNode);
 		if(type == SPRITE_TILES){
 			int tileWidth = std::atoi(spriteSheetNode->first_attribute("tileWidth")->value());
 			int tileHieght = std::atoi(spriteSheetNode->first_attribute("tileHeight")->value());
@@ -67,30 +66,13 @@ SpriteParser::SpriteSheetSet SpriteParser::parse(std::string source, SpriteType 
 	return re;
 }
 
-SpriteParser::SpriteSheet SpriteParser::Impl::parseSpritesheet(xml_node<>* spriteSheetNode, SpriteParser::SpriteType type) {
+SpriteParser::SpriteSheet SpriteParser::Impl::parseSpritesheet(xml_node<>* spriteSheetNode) {
 	SpriteSheet re;
 
 	// For every attribute
 	for (xml_attribute<>* spriteSheetAttr = spriteSheetNode->first_attribute(); spriteSheetAttr; spriteSheetAttr = spriteSheetAttr->next_attribute()) {
 		if (strcmp(spriteSheetAttr->name(), "source") == 0) {
-			std::string path = SPRITES_FOLDER;
-
-			switch (type) {
-			case SPRITE_ITEMS:
-				path += "items/";
-				break;
-			case SPRITE_CREATURES:
-				path += "creatures/";
-				break;
-			case SPRITE_PLAYER:
-				path += "players/";
-				break;
-			case SPRITE_TILES:
-				path += "tiles/";
-				break;
-			}
-
-			re.source = path + spriteSheetAttr->value();
+			re.source = spriteSheetAttr->value();
 		}
 		else if (strcmp(spriteSheetAttr->name(), "width") == 0) {
 			re.spriteWidth = std::atoi(spriteSheetAttr->value());
