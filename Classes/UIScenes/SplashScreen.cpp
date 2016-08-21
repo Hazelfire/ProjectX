@@ -3,6 +3,7 @@
 #include "HelloWorldScene.h"
 #include "Save.h"
 #include "Debug.h"
+#include "DownloadBasePackageScene.h"
 
 static const std::string splashes[] = {
 	{PROJECTX_SPLASH},
@@ -73,13 +74,20 @@ bool SplashScreen::init() {
 	else {
 		Debugger::log("Skipped Splashes", DEBUG_GENERIC);
 	}
-
-	actionsVector.pushBack(CallFunc::create([this]() {
-		Director::getInstance()->replaceScene(TransitionFade::create(1, HelloWorld::createScene()));
-	}));
-
-	Sequence* splashSequence = Sequence::create(actionsVector);
-	runAction(splashSequence);
-
+	// Check if we have the base package
+	if (!cocos2d::FileUtils::getInstance()->isDirectoryExist("pack/Base")) {
+		actionsVector.pushBack(CallFunc::create([this]() {
+			Director::getInstance()->replaceScene(DownloadBasePackageScene::create());
+		}));
+	}
+	else {
+		actionsVector.pushBack(CallFunc::create([this]() {
+			Director::getInstance()->replaceScene(TransitionFade::create(1, HelloWorld::createScene()));
+		}));
+	}
+	
+		Sequence* splashSequence = Sequence::create(actionsVector);
+		runAction(splashSequence);
+	
 	return true;
 }

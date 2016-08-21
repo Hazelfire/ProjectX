@@ -31,6 +31,7 @@ Scene* HelloWorld::createScene()
 // on "init" you need to initialize your instance
 bool HelloWorld::init()
 {
+
 	Debugger::log("Starting menu screen", DEBUG_GENERIC);
 
 	Size visibleSize = Director::getInstance()->getVisibleSize();

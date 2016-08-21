@@ -29,7 +29,20 @@ public:
 	// Returns metadata in regards to the packages
 	std::list<PackageInfo> getPackageInfo();
 
+	// locks the download to base, isDownloadingBase will only return false after
+	// successful download base package
+	void lockDownloadBase();
+
+	// Downloading packages
+	void downloadPackageBase();
+
+	//bool needsUpdate();
+
+	bool isInstallingBase();
+
 	PackageManager();
+
+	std::pair<GitRepository::DownloadProgress, GitRepository::CheckoutProgress> getBasePackageProgress();
 
 	// Instance management
 	static PackageManager* getInstance();
@@ -38,5 +51,7 @@ private:
 
 	static PackageManager* m_packageManagerInstance;
 	
-	std::list<Package> m_packages;
+	std::list<Package*> m_packages;
+
+	bool m_downloading = false;
 };

@@ -2,6 +2,7 @@
 #include <yaml-cpp\yaml.h>
 #include "ResourceMacros.h"
 #include <cocos2d.h>
+#include <sstream>
 
 PackageManager* PackageManager::m_packageManagerInstance = nullptr;
 
@@ -11,7 +12,7 @@ PackageManager::PackageManager(){
 
 	for (auto child : root) {
 		std::string packageFolder = child.as<std::string>();
-		m_packages.push_back(Package(packageFolder));
+		m_packages.push_back(new Package(packageFolder));
 	}
 }
 
@@ -19,7 +20,7 @@ std::list<std::string> PackageManager::getXmlScriptIndexes() {
 	std::list<std::string> re;
 
 	for (auto package : m_packages) {
-		re.push_back(package.getXmlScriptIndex());
+		re.push_back(package->getXmlScriptIndex());
 	}
 
 	return re;
@@ -29,7 +30,7 @@ std::list<std::string> PackageManager::getLuaScriptIndexes() {
 	std::list<std::string> re;
 
 	for (auto package : m_packages) {
-		re.push_back(package.getLuaScriptIndex());
+		re.push_back(package->getLuaScriptIndex());
 	}
 
 	return re;
@@ -37,7 +38,7 @@ std::list<std::string> PackageManager::getLuaScriptIndexes() {
 
 std::string PackageManager::getSprite(std::string spriteName, SpriteType spriteType) {
 	for (auto package : m_packages) {
-		std::string prospectiveSpritePath = package.getFolderFull() + "/res/sprites/";
+		std::string prospectiveSpritePath = package->getFolderFull() + "/res/sprites/";
 		if (spriteType == SPRITE_CREATURE) {
 			prospectiveSpritePath += "creatures";
 		}
@@ -66,7 +67,7 @@ std::string PackageManager::getSprite(std::string spriteName, SpriteType spriteT
 std::string PackageManager::getMusic(std::string songName) {
 	
 	for (auto package : m_packages) {
-		std::string prospectiveFilePath = package.getFolderFull() + "/res/music/" + songName;
+		std::string prospectiveFilePath = package->getFolderFull() + "/res/music/" + songName;
 
 		bool fileExists = cocos2d::FileUtils::getInstance()->isFileExist(prospectiveFilePath);
 		
@@ -83,7 +84,7 @@ std::string PackageManager::getMusic(std::string songName) {
 std::string PackageManager::getFile(std::string filePath) {
 
 	for (auto package : m_packages) {
-		std::string prospectiveFile = package.getFolderFull() + filePath;
+		std::string prospectiveFile = package->getFolderFull() + filePath;
 		if (cocos2d::FileUtils::getInstance()->isFileExist(prospectiveFile)) {
 			return prospectiveFile;
 		}
@@ -108,16 +109,63 @@ std::list<PackageManager::PackageInfo> PackageManager::getPackageInfo() {
 
 	for (auto package : m_packages) {
 		PackageInfo packageInfo;
-		packageInfo.author = package.getAuthor();
-		packageInfo.folder = package.getFolder();
-		packageInfo.name = package.getName();
-		packageInfo.version = package.getVersion();
+		packageInfo.author = package->getAuthor();
+		packageInfo.folder = package->getFolder();
+		packageInfo.name = package->getName();
+		packageInfo.version = package->getVersion();
 		
-		if (cocos2d::FileUtils::getInstance()->isFileExist(package.getFolderFull() + "/icon.png"))
-			packageInfo.icon = package.getFolderFull() + "/icon.png";
+		if (cocos2d::FileUtils::getInstance()->isFileExist(package->getFolderFull() + "/icon.png"))
+			packageInfo.icon = package->getFolderFull() + "/icon.png";
 
 		re.push_back(packageInfo);
 	}
 
 	return re;
+}
+
+void PackageManager::downloadPackageBase() {
+	m_downloading = true;
+
+	Package* basePackage = new Package("Base");
+	basePackage->setUrl("https://github.com/Hazelfire/ProjectXBase.git");
+	m_packages.push_back(basePackage);
+
+	basePackage->sync();
+
+	std::string source = cocos2d::FileUtils::getInstance()->getStringFromFile(PACKAGE_INDEX);
+	YAML::Node root = YAML::Load(source);
+	root.push_back("Base");
+
+	std::stringstream ss;
+	ss << root;
+
+	cocos2d::FileUtils::getInstance()->writeStringToFile(ss.str(), PACKAGE_INDEX);
+}
+
+std::pair<GitRepository::DownloadProgress, GitRepository::CheckoutProgress> PackageManager::getBasePackageProgress() {
+	for (auto package : m_packages) {
+		if (package->getFolder() == "Base") {
+			return package->getSyncProgress();
+		}
+	}
+	return std::pair<GitRepository::DownloadProgress, GitRepository::CheckoutProgress>();
+}
+
+/*bool PackageManager::needsUpdate() {
+	for (auto package : m_packages) {
+		
+	}
+}*/
+
+bool PackageManager::isInstallingBase() {
+	auto progress = getBasePackageProgress();
+	if (progress.first.totalObjects == 0) return true;
+	if (progress.first.receivedObjects != progress.first.totalObjects) return true;
+	if (progress.second.totalSteps != progress.second.completedSteps) return true;
+
+	return false;
+}
+
+void PackageManager::lockDownloadBase() {
+	m_downloading = true;
 }
