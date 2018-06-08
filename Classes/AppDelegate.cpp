@@ -1,4 +1,5 @@
 #include "AppDelegate.h"
+#include <iostream>
 #include "UIScenes/SplashScreen.h"
 #include "Save.h"
 #include "Debug.h"
@@ -26,6 +27,7 @@ void AppDelegate::initGLContextAttrs()
     //red,green,blue,alpha,depth,stencil
     GLContextAttrs glContextAttrs = {8, 8, 8, 8, 24, 8};
 
+
     GLView::setGLContextAttrs(glContextAttrs);
 }
 
@@ -37,6 +39,7 @@ static int register_all_packages()
 }
 
 bool AppDelegate::applicationDidFinishLaunching() {
+    std::cout << "Starting application" << std::endl;
     // initialize director
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();

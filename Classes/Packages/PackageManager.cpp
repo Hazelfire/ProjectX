@@ -1,5 +1,5 @@
 #include "PackageManager.h"
-#include <yaml-cpp\yaml.h>
+#include <yaml-cpp/yaml.h>
 #include "ResourceMacros.h"
 #include <cocos2d.h>
 #include <sstream>
@@ -19,9 +19,7 @@ PackageManager::PackageManager(){
 std::list<std::string> PackageManager::getXmlScriptIndexes() {
 	std::list<std::string> re;
 
-	for (auto package : m_packages) {
-		re.push_back(package->getXmlScriptIndex());
-	}
+  re.push_back("script/xml/xml_index.yml");
 
 	return re;
 }
@@ -29,36 +27,32 @@ std::list<std::string> PackageManager::getXmlScriptIndexes() {
 std::list<std::string> PackageManager::getLuaScriptIndexes() {
 	std::list<std::string> re;
 
-	for (auto package : m_packages) {
-		re.push_back(package->getLuaScriptIndex());
-	}
+  re.push_back("script/lua/lua_index.yml");
 
 	return re;
 }
 
 std::string PackageManager::getSprite(std::string spriteName, SpriteType spriteType) {
-	for (auto package : m_packages) {
-		std::string prospectiveSpritePath = package->getFolderFull() + "/res/sprites/";
-		if (spriteType == SPRITE_CREATURE) {
-			prospectiveSpritePath += "creatures";
-		}
-		else if (spriteType == SPRITE_TILE) {
-			prospectiveSpritePath += "tiles";
-		}
-		else if (spriteType == SPRITE_PLAYER) {
-			prospectiveSpritePath += "players";
-		}
-		else if (spriteType == SPRITE_ITEM) {
-			prospectiveSpritePath += "items";
-		}
-		prospectiveSpritePath += "/" + spriteName;
+  std::string prospectiveSpritePath = "res/sprites/";
+  if (spriteType == SPRITE_CREATURE) {
+    prospectiveSpritePath += "creatures";
+  }
+  else if (spriteType == SPRITE_TILE) {
+    prospectiveSpritePath += "tiles";
+  }
+  else if (spriteType == SPRITE_PLAYER) {
+    prospectiveSpritePath += "players";
+  }
+  else if (spriteType == SPRITE_ITEM) {
+    prospectiveSpritePath += "items";
+  }
+  prospectiveSpritePath += "/" + spriteName;
 
-		bool fileExists = cocos2d::FileUtils::getInstance()->isFileExist(prospectiveSpritePath);
+  bool fileExists = cocos2d::FileUtils::getInstance()->isFileExist(prospectiveSpritePath);
 
-		// YAY! This IS the image we were looking for
-		if (fileExists)
-			return prospectiveSpritePath;
-	}
+  // YAY! This IS the image we were looking for
+  if (fileExists)
+    return prospectiveSpritePath;
 
 	// We got here... OH NO!!! NO SPRITE!
 	return "";
@@ -66,15 +60,13 @@ std::string PackageManager::getSprite(std::string spriteName, SpriteType spriteT
 
 std::string PackageManager::getMusic(std::string songName) {
 	
-	for (auto package : m_packages) {
-		std::string prospectiveFilePath = package->getFolderFull() + "/res/music/" + songName;
+  std::string prospectiveFilePath = "res/music/" + songName;
 
-		bool fileExists = cocos2d::FileUtils::getInstance()->isFileExist(prospectiveFilePath);
-		
-		if (fileExists) {
-			return prospectiveFilePath;
-		}
-	}
+  bool fileExists = cocos2d::FileUtils::getInstance()->isFileExist(prospectiveFilePath);
+  
+  if (fileExists) {
+    return prospectiveFilePath;
+  }
 
 
 	// Oh no's
@@ -83,12 +75,10 @@ std::string PackageManager::getMusic(std::string songName) {
 
 std::string PackageManager::getFile(std::string filePath) {
 
-	for (auto package : m_packages) {
-		std::string prospectiveFile = package->getFolderFull() + filePath;
-		if (cocos2d::FileUtils::getInstance()->isFileExist(prospectiveFile)) {
-			return prospectiveFile;
-		}
-	}
+  std::string prospectiveFile = filePath;
+  if (cocos2d::FileUtils::getInstance()->isFileExist(prospectiveFile)) {
+    return prospectiveFile;
+  }
 	return "";
 }
 

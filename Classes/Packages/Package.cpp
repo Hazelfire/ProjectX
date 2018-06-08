@@ -1,5 +1,5 @@
 #include "Package.h"
-#include <yaml-cpp\yaml.h>
+#include <yaml-cpp/yaml.h>
 #include "ResourceMacros.h"
 #include <cocos2d.h>
 #include <boost/thread.hpp>

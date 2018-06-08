@@ -32,6 +32,8 @@ bool SplashScreen::init() {
 
 	Vector<FiniteTimeAction*> actionsVector;
 
+  Debugger::log("Starting application", DEBUG_GENERIC);
+
 	if (!Save::read(&SaveInformation::skipSplashes)) {
 
 		Debugger::log("Displaying splashes", DEBUG_GENERIC);
@@ -74,20 +76,13 @@ bool SplashScreen::init() {
 	else {
 		Debugger::log("Skipped Splashes", DEBUG_GENERIC);
 	}
-	// Check if we have the base package
-	if (!cocos2d::FileUtils::getInstance()->isDirectoryExist("pack/Base")) {
-		actionsVector.pushBack(CallFunc::create([this]() {
-			Director::getInstance()->replaceScene(DownloadBasePackageScene::create());
-		}));
-	}
-	else {
-		actionsVector.pushBack(CallFunc::create([this]() {
-			Director::getInstance()->replaceScene(TransitionFade::create(1, HelloWorld::createScene()));
-		}));
-	}
+
+  actionsVector.pushBack(CallFunc::create([this]() {
+    Director::getInstance()->replaceScene(TransitionFade::create(1, HelloWorld::createScene()));
+  }));
 	
-		Sequence* splashSequence = Sequence::create(actionsVector);
-		runAction(splashSequence);
+  Sequence* splashSequence = Sequence::create(actionsVector);
+  runAction(splashSequence);
 	
 	return true;
 }

@@ -67,6 +67,9 @@ bool SpriteLoader::isAnimate(std::string spriteName, SpriteType spriteType) {
 }
 
 cocos2d::Node* SpriteLoader::searchSpritesFor(SpriteParser::SpriteSheet* spritesheets,int size, std::string spriteName, SpriteType type) {
+  if(size == 0){
+    Debugger::logWarning("Could not load any sprites", DEBUG_SPRITES);
+  }
 
 	// For every spritesheet
 	for (int spritesheetIndex = 0; spritesheetIndex < size; spritesheetIndex++) {

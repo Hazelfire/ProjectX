@@ -10,7 +10,7 @@
 #include "Save.h"
 #include "MyUI/LuaTerminal.h"
 #include "Mechs/Health.h"
-#include "UIScenes\HelloWorldScene.h"
+#include "UIScenes/HelloWorldScene.h"
 #include "MyUI/ExitMenu.h"
 
 int WIDTH;
@@ -91,7 +91,7 @@ void Arena::keyPressed(EventKeyboard::KeyCode code, Event*) {
 	if (Save::read(&SaveInformation::devMode)) {
 		switch (code) {
 		case EventKeyboard::KeyCode::KEY_C:
-			//toggleTerminal();
+			toggleTerminal();
 			break;
 		default:
 			break;
@@ -108,7 +108,6 @@ void Arena::keyPressed(EventKeyboard::KeyCode code, Event*) {
 }
 
 void Arena::toggleTerminal(){
-	
 }
 
 Scene * Arena::getArenaScene()
@@ -184,6 +183,7 @@ void Arena::addUI() {
 
 
 	if (Save::read(&SaveInformation::devMode)) {
+    Debugger::log("Dev mode activated", DEBUG_GENERIC);
 		LuaTerminal* term = LuaTerminal::create();
 
 		m_UILayer->addChild(term);

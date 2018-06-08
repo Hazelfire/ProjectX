@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <list>
 #define XML_SCRIPT_SIZE 10
 
 class ScriptLoader {

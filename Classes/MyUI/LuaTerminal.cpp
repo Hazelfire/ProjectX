@@ -1,4 +1,5 @@
 #include "LuaTerminal.h"
+#include "../Debug.h"
 
 LuaTerminal* LuaTerminal::m_terminalInstance = nullptr;
 using namespace cocos2d;

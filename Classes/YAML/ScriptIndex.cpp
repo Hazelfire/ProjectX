@@ -25,15 +25,23 @@ ScriptIndex::ScriptIndex(std::string fileName) {
 		if (sectionNode.IsSequence()) {
 
 			for (auto currentScriptNode : sectionNode) {
-				m_files.push_back(sectionName + "/" + currentScriptNode.as<std::string>());
+        std::string scriptFileName = sectionName + "/" + currentScriptNode.as<std::string>();
+				m_files.push_back(scriptFileName);
+        Debugger::log("Found script " + scriptFileName, DEBUG_IO);
 			}
 
 		}
 	}
+
+
 }
 
 std::list<std::string> ScriptIndex::getFiles(std::string directory) {
 	std::list<std::string> re;
+
+  if(m_files.size() == 0){
+    Debugger::logError("No files for index " + m_indexPath + " found", DEBUG_IO);
+  }
 
 	for (auto scriptIndex : m_files) {
 
@@ -72,6 +80,7 @@ std::list<std::string> getAllFilesInFolder(std::string prefix,std::string folder
 // Creates a script index based on what is already in the files, not done
 std::string ScriptIndex::createScriptIndex(std::string fileName) {
 #if !IS_MOBILE
+  Debugger::log("Creating script index", DEBUG_GENERIC);
 
 	YAML::Node document;
 	
@@ -79,7 +88,9 @@ std::string ScriptIndex::createScriptIndex(std::string fileName) {
 	using namespace boost::filesystem;
 	// Linux does not empty the resources folder into the excecutable's directory
 	// but instead inside a Resources folder
-	std::string directory = FOLDER_FROM_PATH(cocos2d::FileUtils::getInstance()->fullPathForFilename(fileName));
+  std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(fileName);
+	std::string directory = FOLDER_FROM_PATH(fullPath);
+
 	if (exists(directory) && is_directory(directory)) {
 		for (directory_iterator currentChild(directory); currentChild != directory_iterator(); currentChild++) {
 			if (is_directory(currentChild->path())) {
@@ -89,7 +100,7 @@ std::string ScriptIndex::createScriptIndex(std::string fileName) {
 			}
 		}
 	}else{
-		Debugger::logError("Failed to traverse script directories", DEBUG_IO);
+		Debugger::logError("Failed to traverse script directories (" + fullPath + ")", DEBUG_IO);
 	}
 	std::stringstream ss;
 	ss << document;
