@@ -34,6 +34,7 @@ set(EXTERNAL_PATH ${CMAKE_SOURCE_DIR}/external)
 set( CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${COCOS2D_ROOT}/cmake/Modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 include(CocosBuildHelpers)
 
 # libcocos2d
@@ -46,6 +47,10 @@ add_subdirectory(${COCOS2D_ROOT})
 add_subdirectory(${EXTERNAL_PATH}/lua)
 add_subdirectory(${EXTERNAL_PATH}/yaml-cpp)
 add_subdirectory(${EXTERNAL_PATH}/websocketpp)
+
+if(UNIX AND NOT APPLE)
+    set(LINUX TRUE)
+endif()
 
 # Some macro definitions
 if(WINDOWS)
@@ -61,6 +66,7 @@ if(WINDOWS)
 elseif(MACOSX OR APPLE)
   ADD_DEFINITIONS (-DCC_TARGET_OS_MAC)
   ADD_DEFINITIONS (-DUSE_FILE32API)
+
   set(PLATFORM_FOLDER mac)
 elseif(LINUX)
   ADD_DEFINITIONS(-DLINUX)
@@ -138,8 +144,10 @@ if ( WIN32 )
 endif( WIN32 )
 
 find_package(Boost 1.60 REQUIRED COMPONENTS filesystem thread)
+find_package(git2 REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${LIBGIT2_INCLUDE_DIR})
 set(GAME_SRC
   Classes/Animal.cpp
   Classes/AnimatedSprite.cpp
@@ -190,6 +198,7 @@ set(GAME_SRC
   
   Classes/MyUI/Dialougue.cpp
   Classes/MyUI/LuaTerminal.cpp
+  Classes/MyUI/ExitMenu.cpp
   
   Classes/Parser/Characters.cpp
   Classes/Parser/CreaturesParser.cpp
@@ -211,10 +220,17 @@ set(GAME_SRC
   Classes/UIScenes/OptionsMenu.cpp
   Classes/UIScenes/PlayerSelector.cpp
   Classes/UIScenes/SplashScreen.cpp
+  Classes/UIScenes/DownloadBasePackageScene.cpp
+  Classes/UIScenes/PackageManagerScene.cpp
   
   Classes/YAML/ConfigParser.cpp
   Classes/YAML/SaveParser.cpp
   Classes/YAML/ScriptIndex.cpp
+
+  Classes/Packages/PackageManager.cpp
+  Classes/Packages/Package.cpp
+  Classes/Packages/GitRepository.cpp
+
   ${PLATFORM_SPECIFIC_SRC}
 )
 
@@ -276,6 +292,7 @@ set(GAME_HEADERS
   
   Classes/MyUI/Dialougue.h
   Classes/MyUI/LuaTerminal.h
+  Classes/MyUI/ExitMenu.h
   
   Classes/Parser/Characters.h
   Classes/Parser/CreaturesParser.h
@@ -299,10 +316,17 @@ set(GAME_HEADERS
   Classes/UIScenes/OptionsMenu.h
   Classes/UIScenes/PlayerSelector.h
   Classes/UIScenes/SplashScreen.h
+  Classes/UIScenes/DownloadBasePackageScene.h
+  Classes/UIScenes/PackageManagerScene.h
   
   Classes/YAML/ConfigParser.h
   Classes/YAML/SaveParser.h
   Classes/YAML/ScriptIndex.h
+
+  Classes/Packages/PackageManager.h
+  Classes/Packages/Package.h
+  Classes/Packages/GitRepository.h
+
   ${PLATFORM_SPECIFIC_HEADERS}
 )
 
@@ -323,6 +347,7 @@ endif()
 target_link_libraries(${APP_NAME} ${Boost_LIBRARIES})
 
 
+target_link_libraries(${APP_NAME} ${LIBGIT2_LIBRARIES})
 
 target_link_libraries(${APP_NAME} cocos2d)
 
